@@ -18,7 +18,9 @@
     "target": "es2022",
     "customConditions": ["development"],
     "paths": {
-      "@shared/*": ["apps/shared/src/*"]
+      "@shared/*": ["apps/shared/src/*"],
+      "@backend/*": ["apps/backend/src/*"],
+      "@frontend/*": ["apps/frontend/src/*"]
     },
     "rootDir": ".",
     "baseUrl": "."

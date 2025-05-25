@@ -18,7 +18,7 @@ db.run(`PRAGMA foreign_keys = ON;`);
 // Create tables
 db.serialize(() => {
   db.run(`
-    CREATE TABLE IF NOT EXISTS resources (
+    CREATE TABLE IF NOT EXISTS schemas (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
       schema_definition TEXT NOT NULL,
@@ -27,13 +27,13 @@ db.serialize(() => {
   `);
 
   db.run(`
-    CREATE TABLE IF NOT EXISTS records (
+    CREATE TABLE IF NOT EXISTS mock_data (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      resource_id INTEGER NOT NULL,
+      schema_id INTEGER NOT NULL,
       data TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE
+      FOREIGN KEY (schema_id) REFERENCES schema(id) ON DELETE CASCADE
     );
   `);
 });
