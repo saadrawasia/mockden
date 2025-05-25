@@ -18,6 +18,7 @@
     "name": "shared"
   },
   "dependencies": {
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zod": "^3.25.28"
   }
 }

@@ -1,4 +1,4 @@
-import db from '@backend/db/db';
+import db from '../db/db';
 import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
 import { Response } from 'express';
 
