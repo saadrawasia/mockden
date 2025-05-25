@@ -29,7 +29,6 @@ export default function ResourceForm() {
     onSubmit: async ({ value }) => {
       // Do something with form data
       setErrorMessage('');
-      console.log(value);
       const schema = JSON.stringify(JSON.parse(value.schema), null, 4); //prettify json
       const res = await fetch('http://localhost:4000/resource', {
         method: 'POST',

@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import db from './db/db';
+import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
 
 const app = express();
 const port = 4000;
@@ -28,12 +29,11 @@ type Record = {
 };
 
 app.post('/resource', async (req: Request, res: Response) => {
-  const { resource } = req.body;
-  if (!resource)
-    return res.status(400).json({ message: 'Missing resource name' });
+  const { name, schema } = req.body;
+  if (!name) return res.status(400).json({ message: 'Missing resource name' });
   const existingResource = await db.get(
     'Select * from resources where name = ?',
-    [resource]
+    [name]
   );
   if (existingResource) {
     return res
@@ -41,14 +41,19 @@ app.post('/resource', async (req: Request, res: Response) => {
       .json({ message: 'Resource with this name already exist' });
   }
 
+  const validate = validateSchemaDefinition(JSON.parse(schema));
+  if ('error' in validate) {
+    return res.status(400).json({ message: validate.error });
+  }
+
   const { lastID } = await db.run(
     'INSERT INTO resources(name, schema_definition) VALUES(?, ?)',
-    [resource, '']
+    [name, schema]
   );
 
   return res
     .status(201)
-    .json({ id: lastID, name: resource, schema_definition: '' });
+    .json({ id: lastID, name: name, schema_definition: schema });
 });
 
 app.get('/resources', async (req: Request, res: Response) => {

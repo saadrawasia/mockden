@@ -11,14 +11,9 @@ type Resource = {
   schema_definition: string;
 };
 
-type Message = {
-  message: string;
-};
-
 export default function App() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [data, setData] = useState<DataItem[]>([]);
-  const [resourceName, setResourceName] = useState('');
 
   const fetchAllResources = async () => {
     const res = await fetch(`http://localhost:4000/resources`);
@@ -36,20 +31,6 @@ export default function App() {
   useEffect(() => {
     fetchAllResources();
   }, []);
-
-  const createSchema = async (name: string, schema: string) => {
-    const res = await fetch('http://localhost:4000/resource', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, schema }),
-    });
-    const json: Resource | Message = await res.json();
-    if ('id' in json) {
-      setResources([...resources, json]);
-    }
-
-    setResourceName('');
-  };
 
   return (
     <div style={{ padding: 20 }} className="flex gap-2 flex-col">
