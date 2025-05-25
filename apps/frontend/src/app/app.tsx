@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ResourceForm from '../components/resourceForm/resourceForm';
 
 interface DataItem extends Record<string, unknown> {
   id: number;
@@ -36,11 +37,11 @@ export default function App() {
     fetchAllResources();
   }, []);
 
-  const createSchema = async () => {
+  const createSchema = async (name: string, schema: string) => {
     const res = await fetch('http://localhost:4000/resource', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resource: resourceName }),
+      body: JSON.stringify({ name, schema }),
     });
     const json: Resource | Message = await res.json();
     if ('id' in json) {
@@ -51,14 +52,9 @@ export default function App() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: 20 }} className="flex gap-2 flex-col">
       <h1>Mock API Frontend</h1>
-      <input
-        value={resourceName}
-        onChange={(e) => setResourceName(e.target.value)}
-        placeholder="New Resource Name"
-      />
-      <button onClick={createSchema}>Add Resource</button>
+      <ResourceForm />
       <div>
         <h2>Available Resources:</h2>
         {resources.map((r) => (

@@ -45,6 +45,10 @@ type ValidationResult<T = unknown> = {
   errors: ValidationError[];
 };
 
+type SchemaError = {
+  error: string;
+};
+
 // Zod Schema for Field Definition
 const FieldSchema = z.object({
   name: z
@@ -114,7 +118,9 @@ const SchemaDefinitionSchema = z
   }, 'min must be less than or equal to max') satisfies z.ZodType<SchemaDefinition>;
 
 // Validate schema definition using Zod
-export function validateSchemaDefinition(fields: unknown): SchemaDefinition {
+export function validateSchemaDefinition(
+  fields: unknown
+): SchemaDefinition | SchemaError {
   try {
     return SchemaDefinitionSchema.parse(fields);
   } catch (error) {
@@ -122,9 +128,10 @@ export function validateSchemaDefinition(fields: unknown): SchemaDefinition {
       const errorMessages = error.errors.map(
         (err) => `${err.path.join('.')}: ${err.message}`
       );
-      throw new Error(`Schema validation failed: ${errorMessages.join(', ')}`);
+
+      return { error: `Invalid: ${errorMessages.join(', ')}` };
     }
-    throw error;
+    return { error: (error as Error).message };
   }
 }
 

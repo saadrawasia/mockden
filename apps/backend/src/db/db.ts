@@ -2,7 +2,7 @@ import sqlite3 from 'sqlite3';
 
 sqlite3.verbose();
 
-const DB_PATH = './mockden.db';
+const DB_PATH = './apps/backend/src/db/mockden.db';
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) {
