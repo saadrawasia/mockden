@@ -34,7 +34,7 @@ db.serialize(() => {
       data TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (schema_id) REFERENCES schema(id) ON DELETE CASCADE
+      FOREIGN KEY (schema_id) REFERENCES schemas(id) ON DELETE CASCADE
     );
   `);
 });

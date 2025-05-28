@@ -1,6 +1,5 @@
+import SchemaForm from '@frontend/components/schemaForm/schemaForm';
 import { useEffect, useState } from 'react';
-
-import ResourceForm from '../components/resourceForm/resourceForm';
 
 type DataItem = {
   id: number;
@@ -13,33 +12,33 @@ type Resource = {
 };
 
 export default function App() {
-  const [resources, setResources] = useState<Resource[]>([]);
+  const [schemas, setSchemas] = useState<Resource[]>([]);
   const [data, setData] = useState<DataItem[]>([]);
 
-  const fetchAllResources = async () => {
-    const res = await fetch(`http://localhost:4000/resources`);
+  const fetchAllSchemas = async () => {
+    const res = await fetch(`http://localhost:4000/schemas`);
     const json: Resource[] = await res.json();
-    setResources(json);
+    setSchemas(json);
   };
 
-  const fetchData = async (resourceId: string) => {
-    const res = await fetch(`http://localhost:4000/${resourceId}`);
+  const fetchData = async (schemaId: string) => {
+    const res = await fetch(`http://localhost:4000/${schemaId}`);
     const json = await res.json();
-    console.log({ resourceId, json });
+    console.log({ schemaId, json });
     setData(json);
   };
 
   useEffect(() => {
-    fetchAllResources();
+    fetchAllSchemas();
   }, []);
 
   return (
     <div style={{ padding: 20 }} className="flex gap-2 flex-col">
       <h1>Mock API Frontend</h1>
-      <ResourceForm />
+      <SchemaForm />
       <div>
-        <h2>Available Resources:</h2>
-        {resources.map(r => (
+        <h2>Available Schemas:</h2>
+        {schemas.map(r => (
           <button key={r.id} onClick={() => fetchData(r.id)}>
             {r.name}
           </button>
