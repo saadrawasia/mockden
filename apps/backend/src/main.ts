@@ -2,7 +2,11 @@ import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import db from './db/db';
-import { createSchema, getAllSchemas, getSchema } from './services/mockData';
+import {
+  createSchema,
+  getAllSchemas,
+  getSchema,
+} from './services/schemaService';
 
 const app = express();
 const port = 4000;
