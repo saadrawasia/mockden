@@ -7,7 +7,8 @@ const DB_PATH = './apps/backend/src/db/mockden.db';
 const db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) {
     console.error('❌ Failed to connect to the database:', err.message);
-  } else {
+  }
+  else {
     console.log(`✅ Connected to SQLite database at ${DB_PATH}`);
   }
 });
@@ -43,7 +44,8 @@ const dbAsync = {
   get: (sql: string, params: unknown[] = []) =>
     new Promise<unknown>((resolve, reject) => {
       db.get(sql, params, (err, row) => {
-        if (err) reject(err);
+        if (err)
+          reject(err);
         else resolve(row);
       });
     }),
@@ -51,7 +53,8 @@ const dbAsync = {
   all: (sql: string, params: unknown[] = []) =>
     new Promise<unknown[]>((resolve, reject) => {
       db.all(sql, params, (err, rows) => {
-        if (err) reject(err);
+        if (err)
+          reject(err);
         else resolve(rows);
       });
     }),
@@ -59,14 +62,16 @@ const dbAsync = {
   run: (sql: string, params: unknown[] = []) =>
     new Promise<{ lastID: number; changes: number }>((resolve, reject) => {
       db.run(sql, params, function (err) {
-        if (err) reject(err);
+        if (err)
+          reject(err);
         else resolve({ lastID: this.lastID, changes: this.changes });
       });
     }),
   exec: (sql: string) =>
     new Promise<void>((resolve, reject) => {
       db.exec(sql, (err) => {
-        if (err) reject(err);
+        if (err)
+          reject(err);
         else resolve();
       });
     }),

@@ -1,29 +1,29 @@
 {
   "compilerOptions": {
     "composite": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "importHelpers": true,
-    "isolatedModules": true,
+    "target": "es2022",
     "lib": ["es2022"],
+    "baseUrl": ".",
+    "rootDir": ".",
+    "customConditions": ["development"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "noEmitOnError": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "es2022",
-    "customConditions": ["development"],
     "paths": {
       "@shared/*": ["apps/shared/src/*"],
       "@backend/*": ["apps/backend/src/*"],
       "@frontend/*": ["apps/frontend/src/*"]
     },
-    "rootDir": ".",
-    "baseUrl": "."
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "importHelpers": true,
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]

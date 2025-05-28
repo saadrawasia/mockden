@@ -3,12 +3,12 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './app';
 
-describe('App', () => {
+describe('app', () => {
   it('should render successfully', () => {
     const { baseElement } = render(
       <BrowserRouter>
         <App />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
     expect(baseElement).toBeTruthy();
   });
@@ -17,10 +17,10 @@ describe('App', () => {
     const { getAllByText } = render(
       <BrowserRouter>
         <App />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
     expect(
-      getAllByText(new RegExp('Welcome @mockden/frontend', 'gi')).length > 0
+      getAllByText(/Welcome @mockden\/frontend/gi).length > 0,
     ).toBeTruthy();
   });
 });

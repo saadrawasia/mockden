@@ -1,11 +1,15 @@
-import { AnyFieldApi, useForm } from '@tanstack/react-form';
+import type { AnyFieldApi } from '@tanstack/react-form';
+
 import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
+import { useForm } from '@tanstack/react-form';
 import { useState } from 'react';
 
 function ErrorInfo({ field }: { field: AnyFieldApi }) {
-  return field.state.meta.isTouched && !field.state.meta.isValid ? (
-    <em>{field.state.meta.errors.join(', ')}</em>
-  ) : null;
+  return field.state.meta.isTouched && !field.state.meta.isValid
+    ? (
+        <em>{field.state.meta.errors.join(', ')}</em>
+      )
+    : null;
 }
 
 type Resource = {
@@ -29,7 +33,7 @@ export default function ResourceForm() {
     onSubmit: async ({ value }) => {
       // Do something with form data
       setErrorMessage('');
-      const schema = JSON.stringify(JSON.parse(value.schema), null, 4); //prettify json
+      const schema = JSON.stringify(JSON.parse(value.schema), null, 4); // prettify json
       const res = await fetch('http://localhost:4000/resource', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,15 +53,14 @@ export default function ResourceForm() {
     if (value.length < 2) {
       return 'Name must be at least 2 characters';
     }
-
-    return;
   };
 
   const validateSchema = (value: string) => {
     let schema = {};
     try {
       schema = JSON.parse(value);
-    } catch {
+    }
+    catch {
       return 'Invalid Scheme JSON';
     }
 
@@ -65,8 +68,6 @@ export default function ResourceForm() {
     if ('error' in validate) {
       return validate.error;
     }
-
-    return;
   };
 
   return (
@@ -80,7 +81,7 @@ export default function ResourceForm() {
         }}
       >
         <div>
-          {/* A type-safe field component*/}
+          {/* A type-safe field component */}
           <form.Field
             name="name"
             validators={{
@@ -97,7 +98,7 @@ export default function ResourceForm() {
                     name={field.name}
                     value={field.state.value}
                     onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
+                    onChange={e => field.handleChange(e.target.value)}
                   />
                   <ErrorInfo field={field} />
                 </>
@@ -111,7 +112,7 @@ export default function ResourceForm() {
             validators={{
               onBlur: ({ value }) => validateSchema(value),
             }}
-            children={(field) => (
+            children={field => (
               <>
                 <label htmlFor={field.name}>Schema:</label>
                 <textarea
@@ -120,7 +121,7 @@ export default function ResourceForm() {
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                  onChange={e => field.handleChange(e.target.value)}
                 />
                 <ErrorInfo field={field} />
               </>
@@ -129,7 +130,7 @@ export default function ResourceForm() {
         </div>
         {errorMessage && <p>{errorMessage}</p>}
         <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          selector={state => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]) => (
             <button type="submit" disabled={!canSubmit}>
               {isSubmitting ? '...' : 'Submit'}
