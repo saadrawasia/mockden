@@ -1,7 +1,6 @@
 {
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
-  "files": [],
   "references": [
     {
       "path": "./apps/frontend"
@@ -12,5 +11,6 @@
     {
       "path": "./apps/shared"
     }
-  ]
+  ],
+  "files": []
 }

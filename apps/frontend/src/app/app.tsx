@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
+
 import ResourceForm from '../components/resourceForm/resourceForm';
 
-interface DataItem extends Record<string, unknown> {
+type DataItem = {
   id: number;
-}
+} & Record<string, unknown>;
 
 type Resource = {
   id: string;
@@ -38,7 +39,7 @@ export default function App() {
       <ResourceForm />
       <div>
         <h2>Available Resources:</h2>
-        {resources.map((r) => (
+        {resources.map(r => (
           <button key={r.id} onClick={() => fetchData(r.id)}>
             {r.name}
           </button>

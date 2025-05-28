@@ -1,12 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "module": "nodenext",
-    "types": ["node"],
     "moduleResolution": "nodenext",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
+    "types": ["node"],
+    "outDir": "dist"
   },
+  "references": [
+    {
+      "path": "../shared/tsconfig.lib.json"
+    }
+  ],
   "include": ["src/**/*.ts", "../../apps/shared/src/**/*"],
   "exclude": [
     "out-tsc",
@@ -17,10 +22,5 @@
     "eslint.config.js",
     "eslint.config.cjs",
     "eslint.config.mjs"
-  ],
-  "references": [
-    {
-      "path": "../shared/tsconfig.lib.json"
-    }
   ]
 }
