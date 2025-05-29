@@ -16,8 +16,9 @@ export async function createSchema({
   if (!name)
     return { status: 400, json: { message: 'Missing schema name.' } };
 
-  const existingSchema = (await db.selectDistinct().from(schemas).where(eq(schemas.name, name)))[0];
-
+  const existingSchema = await db.query.schemas.findFirst({
+    where: fields => eq(fields.name, name),
+  });
   if (existingSchema) {
     return { status: 400, json: { message: 'Schema with this name already exist.' } };
   }
@@ -37,7 +38,12 @@ type GetSchemaProps = {
 
 export async function getSchemaById({ id }: GetSchemaProps) {
   try {
-    const getSchema = (await db.selectDistinct().from(schemas).where(eq(schemas.id, id)))[0];
+    const getSchema = await db.query.schemas.findFirst({
+      where: fields => eq(fields.id, id),
+    });
+    if (!getSchema) {
+      return { status: 400, json: { message: 'Schema not found.' } };
+    }
     return { status: 200, json: getSchema };
   }
   catch (err) {
