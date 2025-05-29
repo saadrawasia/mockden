@@ -1,52 +1,6 @@
 import { z } from 'zod';
 
-// Type definitions
-type FieldType = 'string' | 'number' | 'boolean' | 'array' | 'object';
-
-type ValidationFormat = 'email' | 'url' | 'uuid';
-
-type ValidationRules = {
-  // String validations
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string; // regex pattern
-  format?: ValidationFormat;
-
-  // Number validations
-  min?: number;
-  max?: number;
-
-  // Array validations
-  minItems?: number;
-  maxItems?: number;
-};
-
-type FieldDefinition = {
-  name: string;
-  type: FieldType;
-  primary?: boolean;
-  nullable?: boolean;
-  validation?: ValidationRules;
-  default?: unknown;
-};
-
-type SchemaDefinition = FieldDefinition[];
-
-type ValidationError = {
-  field: string;
-  message: string;
-  code: string;
-};
-
-type ValidationResult<T = unknown> = {
-  isValid: boolean;
-  data: T | null;
-  errors: ValidationError[];
-};
-
-type SchemaError = {
-  error: string;
-};
+import type { FieldDefinition, SchemaDefinition, SchemaError, ValidationError, ValidationResult } from '../lib/types';
 
 // Zod Schema for Field Definition
 const FieldSchema = z.object({
@@ -95,6 +49,11 @@ const SchemaDefinitionSchema = z
     const primaryFields = fields.filter(f => f.primary);
     return primaryFields.length === 1;
   }, 'Schema must have exactly one primary key field')
+  .refine((fields): fields is FieldDefinition[] => {
+    // Ensure exactly one primary key
+    const primaryField = fields.filter(f => f.primary)[0];
+    return ['string', 'number'].includes(primaryField.type);
+  }, 'Primary key field must be type of string or number')
   .refine((fields): fields is FieldDefinition[] => {
     // Validate that minLength <= maxLength
     return fields.every((field) => {

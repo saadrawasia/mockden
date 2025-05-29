@@ -1,46 +1,40 @@
-import { useEffect, useState } from 'react';
+import type { Schema } from '@shared/lib/types';
 
-import ResourceForm from '../components/resourceForm/resourceForm';
+import SchemaForm from '@frontend/components/schemaForm/schemaForm';
+import { useEffect, useState } from 'react';
 
 type DataItem = {
   id: number;
 } & Record<string, unknown>;
 
-type Resource = {
-  id: string;
-  name: string;
-  schema_definition: string;
-};
-
 export default function App() {
-  const [resources, setResources] = useState<Resource[]>([]);
+  const [schemas, setSchemas] = useState<Schema[]>([]);
   const [data, setData] = useState<DataItem[]>([]);
 
-  const fetchAllResources = async () => {
-    const res = await fetch(`http://localhost:4000/resources`);
-    const json: Resource[] = await res.json();
-    setResources(json);
+  const fetchAllSchemas = async () => {
+    const res = await fetch(`http://localhost:4000/schemas`);
+    const json: Schema[] = await res.json();
+    setSchemas(json);
   };
 
-  const fetchData = async (resourceId: string) => {
-    const res = await fetch(`http://localhost:4000/${resourceId}`);
+  const fetchData = async (schemaId: number) => {
+    const res = await fetch(`http://localhost:4000/${schemaId}`);
     const json = await res.json();
-    console.log({ resourceId, json });
     setData(json);
   };
 
   useEffect(() => {
-    fetchAllResources();
+    fetchAllSchemas();
   }, []);
 
   return (
     <div style={{ padding: 20 }} className="flex gap-2 flex-col">
       <h1>Mock API Frontend</h1>
-      <ResourceForm />
+      <SchemaForm />
       <div>
-        <h2>Available Resources:</h2>
-        {resources.map(r => (
-          <button key={r.id} onClick={() => fetchData(r.id)}>
+        <h2>Available Schemas:</h2>
+        {schemas.map(r => (
+          <button type="button" key={r.id} onClick={() => fetchData(r.id)}>
             {r.name}
           </button>
         ))}

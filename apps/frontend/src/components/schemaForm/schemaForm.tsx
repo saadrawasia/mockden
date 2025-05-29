@@ -12,7 +12,7 @@ function ErrorInfo({ field }: { field: AnyFieldApi }) {
     : null;
 }
 
-type Resource = {
+type Schema = {
   id: string;
   name: string;
   schema_definition: string;
@@ -22,7 +22,7 @@ type Message = {
   message: string;
 };
 
-export default function ResourceForm() {
+export default function SchemaForm() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const form = useForm({
@@ -34,19 +34,19 @@ export default function ResourceForm() {
       // Do something with form data
       setErrorMessage('');
       const schema = JSON.stringify(JSON.parse(value.schema), null, 4); // prettify json
-      const res = await fetch('http://localhost:4000/resource', {
+      const res = await fetch('http://localhost:4000/schema', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: value.name, schema }),
       });
-      const json: Resource | Message = await res.json();
+      const json: Schema | Message = await res.json();
       if ('message' in json) {
         setErrorMessage(json.message);
       }
     },
   });
 
-  const validateName = (value: string) => {
+  const validateName = (value: string): string | void => {
     if (!value) {
       return 'A name is required';
     }
@@ -55,7 +55,7 @@ export default function ResourceForm() {
     }
   };
 
-  const validateSchema = (value: string) => {
+  const validateSchema = (value: string): string | void => {
     let schema = {};
     try {
       schema = JSON.parse(value);
@@ -72,7 +72,7 @@ export default function ResourceForm() {
 
   return (
     <div className="flex gap-2 flex-col">
-      <h2>Create Resource</h2>
+      <h2>Create Schema</h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();

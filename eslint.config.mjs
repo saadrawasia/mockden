@@ -4,12 +4,15 @@ export default antfu({
   type: 'app',
   typescript: true,
   formatters: true,
+  react: true,
   stylistic: {
     indent: 2,
     semi: true,
     quotes: 'single',
   },
 }, {
+
+  files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.json', '**/*.mjs'],
   rules: {
     'ts/no-redeclare': 'off',
     'ts/consistent-type-definitions': ['error', 'type'],

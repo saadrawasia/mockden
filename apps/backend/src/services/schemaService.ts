@@ -1,4 +1,4 @@
-import type { Response } from 'express';
+import type { Schema } from '@shared/lib/types';
 
 import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
 
@@ -7,65 +7,65 @@ import db from '../db/db';
 type CreateSchemaProps = {
   name: string;
   schema: string;
-  res: Response;
 };
 
 export async function createSchema({
   name,
   schema,
-  res,
 }: CreateSchemaProps) {
   if (!name)
-    return res.status(400).json({ message: 'Missing schema name' });
+    return { status: 400, json: { message: 'Missing schema name.' } };
   const existingSchema = await db.get('Select * from schemas where name = ?', [
     name,
   ]);
   if (existingSchema) {
-    return res
-      .status(400)
-      .json({ message: 'schema with this name already exist' });
+    return { status: 400, json: { message: 'Schema with this name already exist.' } };
   }
 
   const validate = validateSchemaDefinition(JSON.parse(schema));
   if ('error' in validate) {
-    return res.status(400).json({ message: validate.error });
+    return { status: 400, json: { message: validate.error } };
   }
 
   const { lastID } = await db.run(
     'INSERT INTO schemas(name, schema_definition) VALUES(?, ?)',
     [name, schema],
   );
-
-  return res
-    .status(201)
-    .json({ id: lastID, name, schema_definition: schema });
+  return { status: 201, json: { id: lastID, name, schema_definition: schema } };
 }
 
 type GetSchemaProps = {
   id: string;
-  res: Response;
 };
 
-export async function getSchema({ id, res }: GetSchemaProps) {
+export async function getSchemaById({ id }: GetSchemaProps) {
   try {
-    const query = 'SELECT * from schema where id = ?';
-    const schema = await db.get(query, [id]);
-    return res.json(schema);
+    const query = 'SELECT * from schemas where id = ?';
+    const schema = await db.get(query, [id]) as Schema;
+    return { status: 200, json: mapSchema(schema) };
   }
   catch (err) {
     console.error('DB error:', err);
-    return res.json({ message: 'schema not found' });
+    return { status: 400, json: { message: 'Schema not found.' } };
   }
 }
 
-export async function getAllSchemas(res: Response) {
+export async function getAllSchemas() {
   try {
     const query = 'Select * from schemas';
-    const schemas = await db.all(query);
-    return res.json(schemas);
+    const schemas = await db.all(query) as Schema[];
+    return { status: 200, json: mapSchemas(schemas) };
   }
   catch (err) {
     console.error('DB error:', err);
-    return res.json({ message: 'schemas not found' });
+    return { status: 400, json: { message: 'Schemas not found.' } };
   }
+}
+
+function mapSchemas(schemas: Schema[]) {
+  return schemas.map(schema => mapSchema(schema));
+}
+
+function mapSchema(schema: Schema) {
+  return { ...schema, schema_definition: JSON.parse(schema.schema_definition) };
 }
