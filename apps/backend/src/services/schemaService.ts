@@ -31,7 +31,7 @@ export async function createSchema({
     'INSERT INTO schemas(name, schema_definition) VALUES(?, ?)',
     [name, schema],
   );
-  return { status: 201, json: { id: lastID, name, schema_definition: schema } };
+  return { status: 201, json: { id: lastID, name, schema_definition: JSON.parse(schema) } };
 }
 
 type GetSchemaProps = {
