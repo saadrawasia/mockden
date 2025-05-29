@@ -46,7 +46,7 @@ export default function SchemaForm() {
     },
   });
 
-  const validateName = (value: string) => {
+  const validateName = (value: string): string | void => {
     if (!value) {
       return 'A name is required';
     }
@@ -55,7 +55,7 @@ export default function SchemaForm() {
     }
   };
 
-  const validateSchema = (value: string) => {
+  const validateSchema = (value: string): string | void => {
     let schema = {};
     try {
       schema = JSON.parse(value);

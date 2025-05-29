@@ -110,3 +110,38 @@ export async function deleteMockData(schemaId: string, primaryKeyValue: string) 
 
   return { status: 200, json: { message: 'Data deleted' } };
 }
+
+export async function updateMockData(schemaId: string, primaryKeyValue: string, data: Record<string, unknown>) {
+  // Fetch schema
+  const schemaObj = await getSchemaById({ id: schemaId });
+  if (schemaObj.status > 200 || ('message' in schemaObj.json)) {
+    return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
+  }
+
+  const schema = schemaObj.json;
+  const schemaDefinition = schema.schema_definition as SchemaDefinition;
+
+  const primaryField = schemaDefinition.find(field => field.primary)!.name;
+  const mockData = (await getMockData(schema.id)).json || [];
+
+  const dataIndex = mockData.findIndex((data: Record<string, unknown>) => data[primaryField] === primaryKeyValue);
+  if (dataIndex < 0) {
+    return { status: 400, json: { message: `No data found for ${primaryField} with value of ${primaryKeyValue}` } };
+  }
+
+  const updatedData = { ...mockData[dataIndex], ...data };
+
+  // Validate data against schema
+  const validation = validateData(updatedData, schemaDefinition);
+  if (!validation.isValid) {
+    const errorMessages = validation.errors.map(err => `${err.field}: ${err.message}`);
+    return { status: 400, json: { message: `Validation failed: ${errorMessages.join(', ')}` } };
+  }
+
+  mockData[dataIndex] = validation.data!;
+  const query = 'UPDATE mock_data SET data = ? WHERE schema_id = ?';
+  const params = [JSON.stringify(mockData), schema.id];
+  await db.run(query, params);
+
+  return { status: 200, json: validation.data };
+}
