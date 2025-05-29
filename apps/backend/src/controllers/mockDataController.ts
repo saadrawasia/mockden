@@ -4,7 +4,7 @@ import { createMockData, deleteMockData, getMockData, updateMockData } from '@ba
 
 export async function getMockDataRequest(req: Request, res: Response) {
   const { schemaId } = req.params;
-  const mockData = await getMockData(Number.parseInt(schemaId));
+  const mockData = await getMockData(schemaId);
   return res.status(mockData.status).json(mockData.json);
 }
 

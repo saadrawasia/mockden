@@ -1,7 +1,9 @@
-import type { MockData, SchemaDefinition } from '@shared/lib/types';
+import type { SchemaDefinition } from '@shared/lib/types';
 
-import db from '@backend/db/db';
+import db from '@backend/db/client';
+import { mockData as mockDataSchema } from '@backend/db/schema';
 import { validateData } from '@shared/validators/schemaValidator';
+import { eq } from 'drizzle-orm';
 
 import { getSchemaById } from './schemaService';
 
@@ -41,17 +43,18 @@ function generatePrimaryKeyValue(
  * Gets mock data for a schema.
  */
 export async function getMockData<T = Record<string, unknown>[]>(
-  schemaId: number,
+  schemaId: string,
 ): Promise<{ status: number; json: T }> {
   try {
-    const query = 'Select * from mock_data where schema_id = ?';
-    const mockData = (await db.get(query, [schemaId])) as MockData | undefined;
-    const data = mockData ? (JSON.parse(mockData.data) as T) : ([] as unknown as T);
+    const mockData = await db.query.mockData.findFirst({
+      where: fields => eq(fields.schemaId, schemaId),
+    });
+    const data = mockData ? mockData.data as T : [] as T;
     return { status: 200, json: data };
   }
   catch (err) {
     console.error('DB error:', err);
-    return { status: 400, json: [] as unknown as T };
+    return { status: 400, json: [] as T };
   }
 }
 
@@ -65,7 +68,7 @@ export async function createMockData(schemaId: string, data: Record<string, unkn
     return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
   }
   const schema = schemaObj.json;
-  const schemaDefinition = schema.schema_definition as SchemaDefinition;
+  const schemaDefinition = schema.fields as SchemaDefinition;
 
   // Get existing data for auto-increment and sorting
   const existingData = (await getMockData<Record<string, unknown>[]>(schema.id)).json;
@@ -94,16 +97,14 @@ export async function createMockData(schemaId: string, data: Record<string, unkn
   // Prepare new data array (keep max 10)
   const newData = [...existingData, validation.data].slice(-10);
 
-  // Upsert data
-  const query
-    = existingData.length > 0
-      ? 'UPDATE mock_data SET data = ? WHERE schema_id = ?'
-      : 'INSERT INTO mock_data(schema_id, data) VALUES(?, ?)';
-  const params
-    = existingData.length > 0
-      ? [JSON.stringify(newData), schema.id]
-      : [schema.id, JSON.stringify(newData)];
-  await db.run(query, params);
+  if (existingData.length > 0) {
+    await db.update(mockDataSchema)
+      .set({ data: newData })
+      .where(eq(mockDataSchema.schemaId, schema.id));
+  }
+  else {
+    await db.insert(mockDataSchema).values({ schemaId: schema.id, data: newData });
+  }
 
   return { status: 200, json: validation.data };
 }
@@ -119,7 +120,7 @@ export async function deleteMockData(schemaId: string, primaryKeyValue: string) 
   }
 
   const schema = schemaObj.json;
-  const schemaDefinition = schema.schema_definition as SchemaDefinition;
+  const schemaDefinition = schema.fields as SchemaDefinition;
   const primaryField = schemaDefinition.find(field => field.primary)!.name;
   const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
 
@@ -134,9 +135,10 @@ export async function deleteMockData(schemaId: string, primaryKeyValue: string) 
   }
 
   mockData.splice(dataIndex, 1);
-  const query = 'UPDATE mock_data SET data = ? WHERE schema_id = ?';
-  const params = [JSON.stringify(mockData), schema.id];
-  await db.run(query, params);
+
+  await db.update(mockDataSchema)
+    .set({ data: mockData })
+    .where(eq(mockDataSchema.schemaId, schema.id));
 
   return { status: 200, json: { message: 'Data deleted' } };
 }
@@ -156,7 +158,7 @@ export async function updateMockData(
   }
 
   const schema = schemaObj.json;
-  const schemaDefinition = schema.schema_definition as SchemaDefinition;
+  const schemaDefinition = schema.fields as SchemaDefinition;
   const primaryField = schemaDefinition.find(field => field.primary)!.name;
   const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
 
@@ -180,9 +182,10 @@ export async function updateMockData(
   }
 
   mockData[dataIndex] = validation.data!;
-  const query = 'UPDATE mock_data SET data = ? WHERE schema_id = ?';
-  const params = [JSON.stringify(mockData), schema.id];
-  await db.run(query, params);
+
+  await db.update(mockDataSchema)
+    .set({ data: mockData })
+    .where(eq(mockDataSchema.schemaId, schema.id));
 
   return { status: 200, json: validation.data };
 }

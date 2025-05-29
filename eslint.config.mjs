@@ -10,6 +10,9 @@ export default antfu({
     semi: true,
     quotes: 'single',
   },
+  ignores: [
+    '**/migrations/*',
+  ],
 }, {
 
   files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.json', '**/*.mjs'],
@@ -20,7 +23,6 @@ export default antfu({
     'no-console': 'off',
     'antfu/no-top-level-await': ['off'],
     'node/prefer-global/process': ['off'],
-    'node/no-process-env': ['error'],
     'perfectionist/sort-imports': ['error', {
       tsconfigRootDir: '.',
     }],
@@ -29,4 +31,5 @@ export default antfu({
       ignore: ['README.md'],
     }],
   },
+
 });

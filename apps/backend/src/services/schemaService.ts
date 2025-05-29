@@ -1,8 +1,8 @@
-import type { Schema } from '@shared/lib/types';
-
+import db from '@backend/db/client';
+import { schemas } from '@backend/db/schema';
+import { PROJECT_ID } from '@backend/utils/constants';
 import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
-
-import db from '../db/db';
+import { eq } from 'drizzle-orm';
 
 type CreateSchemaProps = {
   name: string;
@@ -15,9 +15,10 @@ export async function createSchema({
 }: CreateSchemaProps) {
   if (!name)
     return { status: 400, json: { message: 'Missing schema name.' } };
-  const existingSchema = await db.get('Select * from schemas where name = ?', [
-    name,
-  ]);
+
+  const existingSchema = await db.query.schemas.findFirst({
+    where: fields => eq(fields.name, name),
+  });
   if (existingSchema) {
     return { status: 400, json: { message: 'Schema with this name already exist.' } };
   }
@@ -27,11 +28,8 @@ export async function createSchema({
     return { status: 400, json: { message: validate.error } };
   }
 
-  const { lastID } = await db.run(
-    'INSERT INTO schemas(name, schema_definition) VALUES(?, ?)',
-    [name, schema],
-  );
-  return { status: 201, json: { id: lastID, name, schema_definition: JSON.parse(schema) } };
+  const newSchema = await db.insert(schemas).values({ name, fields: JSON.parse(schema), projectId: PROJECT_ID }).returning();
+  return { status: 201, json: newSchema };
 }
 
 type GetSchemaProps = {
@@ -40,9 +38,13 @@ type GetSchemaProps = {
 
 export async function getSchemaById({ id }: GetSchemaProps) {
   try {
-    const query = 'SELECT * from schemas where id = ?';
-    const schema = await db.get(query, [id]) as Schema;
-    return { status: 200, json: mapSchema(schema) };
+    const getSchema = await db.query.schemas.findFirst({
+      where: fields => eq(fields.id, id),
+    });
+    if (!getSchema) {
+      return { status: 400, json: { message: 'Schema not found.' } };
+    }
+    return { status: 200, json: getSchema };
   }
   catch (err) {
     console.error('DB error:', err);
@@ -52,9 +54,8 @@ export async function getSchemaById({ id }: GetSchemaProps) {
 
 export async function getAllSchemas() {
   try {
-    const query = 'Select * from schemas';
-    const schemas = await db.all(query) as Schema[];
-    return { status: 200, json: mapSchemas(schemas) };
+    const getSchemas = await db.select().from(schemas);
+    return { status: 200, json: getSchemas };
   }
   catch (err) {
     console.error('DB error:', err);
@@ -62,10 +63,13 @@ export async function getAllSchemas() {
   }
 }
 
-function mapSchemas(schemas: Schema[]) {
-  return schemas.map(schema => mapSchema(schema));
-}
-
-function mapSchema(schema: Schema) {
-  return { ...schema, schema_definition: JSON.parse(schema.schema_definition) };
+export async function deleteSchema(id: string) {
+  try {
+    await db.delete(schemas).where(eq(schemas.id, id));
+    return { status: 200, json: { message: 'Schema deleted' } };
+  }
+  catch (err) {
+    console.error('DB error:', err);
+    return { status: 400, json: { message: 'Schemas not found.' } };
+  }
 }
