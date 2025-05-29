@@ -50,6 +50,11 @@ const SchemaDefinitionSchema = z
     return primaryFields.length === 1;
   }, 'Schema must have exactly one primary key field')
   .refine((fields): fields is FieldDefinition[] => {
+    // Ensure exactly one primary key
+    const primaryField = fields.filter(f => f.primary)[0];
+    return ['string', 'number'].includes(primaryField.type);
+  }, 'Primary key field must be type of string or number')
+  .refine((fields): fields is FieldDefinition[] => {
     // Validate that minLength <= maxLength
     return fields.every((field) => {
       const val = field.validation;

@@ -5,7 +5,7 @@ import { validateData } from '@shared/validators/schemaValidator';
 
 import { getSchemaById } from './schemaService';
 
-function generatePrimaryKeyValue(schema: SchemaDefinition, existingData: Array<MockData | Record<string, unknown>> = []) {
+function generatePrimaryKeyValue(schema: SchemaDefinition, existingData: Array<Record<string, unknown>> = []) {
   const primaryField = schema.find(field => field.primary);
   if (!primaryField) {
     return;
@@ -17,7 +17,7 @@ function generatePrimaryKeyValue(schema: SchemaDefinition, existingData: Array<M
 
   else if (primaryField.type === 'number') {
     const maxId = existingData.reduce((max, item) => {
-      const data = item.data ? JSON.parse(item.data as MockData['data']) : {};
+      const data: Record<string, unknown> = item.data ? JSON.parse(item.data as MockData['data']) : {};
       const id = item.data
         ? data[primaryField.name]
         : (typeof item === 'object' && item !== null && !(item as MockData).data
@@ -35,12 +35,12 @@ export async function getMockData(schemaId: number) {
   try {
     const query = 'Select * from mock_data where schema_id = ?';
     const mockData = (await db.get(query, [schemaId])) as MockData | undefined;
-    const data = mockData ? JSON.parse(mockData.data) : [];
+    const data: Record<string, unknown>[] = mockData ? JSON.parse(mockData.data) : [];
     return { status: 200, json: data };
   }
   catch (err) {
     console.error('DB error:', err);
-    return { status: 400, json: { message: 'Mock data not found' } };
+    return { status: 400, json: [] };
   }
 }
 
@@ -54,7 +54,7 @@ export async function createMockData(schemaId: string, data: Record<string, unkn
   const schemaDefinition = schema.schema_definition as SchemaDefinition;
 
   // Get existing data for auto-increment and sorting
-  const existingData = (await getMockData(schema.id)).json || [];
+  const existingData = (await getMockData(schema.id)).json;
 
   // Generate primary key if not provided
   const primaryField = schemaDefinition.find(field => field.primary);
@@ -71,7 +71,6 @@ export async function createMockData(schemaId: string, data: Record<string, unkn
 
   // Prepare new data array (keep max 10, sorted by updated_at)
   const newData = [...existingData, validation.data]
-    .sort((a: MockData, b: MockData) => (a.updated_at > b.updated_at ? 1 : (a.updated_at < b.updated_at ? -1 : 0)))
     .slice(-10);
 
   // Upsert data
@@ -84,4 +83,30 @@ export async function createMockData(schemaId: string, data: Record<string, unkn
   await db.run(query, params);
 
   return { status: 200, json: validation.data };
+}
+
+export async function deleteMockData(schemaId: string, primaryKeyValue: string) {
+  // Fetch schema
+  const schemaObj = await getSchemaById({ id: schemaId });
+  if (schemaObj.status > 200 || ('message' in schemaObj.json)) {
+    return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
+  }
+
+  const schema = schemaObj.json;
+  const schemaDefinition = schema.schema_definition as SchemaDefinition;
+
+  const primaryField = schemaDefinition.find(field => field.primary)!.name;
+  const mockData = (await getMockData(schema.id)).json || [];
+
+  const dataIndex = mockData.findIndex((data: Record<string, unknown>) => data[primaryField] === primaryKeyValue);
+  if (dataIndex < 0) {
+    return { status: 400, json: { message: `No data found for ${primaryField} with value of ${primaryKeyValue}` } };
+  }
+
+  mockData.splice(dataIndex, 1);
+  const query = 'UPDATE mock_data SET data = ? WHERE schema_id = ?';
+  const params = [JSON.stringify(mockData), schema.id];
+  await db.run(query, params);
+
+  return { status: 200, json: { message: 'Data deleted' } };
 }

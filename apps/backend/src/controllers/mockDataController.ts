@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { createMockData, getMockData } from '@backend/services/mockDataService';
+import { createMockData, deleteMockData, getMockData } from '@backend/services/mockDataService';
 
 export async function getMockDataRequest(req: Request, res: Response) {
   const { schemaId } = req.params;
@@ -32,6 +32,14 @@ export async function createMockDataRequest(req: Request, res: Response) {
 
 // }
 
-// export function deleteMockDataRequest(req: Request, res: Response) {
-
-// }
+export async function deleteMockDataRequest(req: Request, res: Response) {
+  try {
+    const { schemaId, primaryKeyValue } = req.params;
+    const mockData = await deleteMockData(schemaId, primaryKeyValue);
+    return res.status(mockData.status).json(mockData.json);
+  }
+  catch (e) {
+    console.log('error', (e as Error).message);
+    return res.status(400).json('Something went wrong');
+  }
+}
