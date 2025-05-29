@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 
-import { createSchema, getAllSchemas, getSchemaById } from '@backend/services/schemaService';
+import { createSchema, deleteSchema, getAllSchemas, getSchemaById } from '@backend/services/schemaService';
 
 export async function createSchemaRequest(req: Request, res: Response) {
   try {
@@ -21,5 +21,11 @@ export async function getAllSchemasRequest(_req: Request, res: Response) {
 export async function getSchemaByIdRequest(req: Request, res: Response) {
   const { id } = req.params;
   const schemas = await getSchemaById({ id });
+  return res.status(schemas.status).json(schemas.json);
+}
+
+export async function deleteSchemaRequest(req: Request, res: Response) {
+  const { id } = req.params;
+  const schemas = await deleteSchema(id);
   return res.status(schemas.status).json(schemas.json);
 }

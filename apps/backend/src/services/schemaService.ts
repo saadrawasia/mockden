@@ -62,3 +62,14 @@ export async function getAllSchemas() {
     return { status: 400, json: { message: 'Schemas not found.' } };
   }
 }
+
+export async function deleteSchema(id: string) {
+  try {
+    await db.delete(schemas).where(eq(schemas.id, id));
+    return { status: 200, json: { message: 'Schema deleted' } };
+  }
+  catch (err) {
+    console.error('DB error:', err);
+    return { status: 400, json: { message: 'Schemas not found.' } };
+  }
+}
