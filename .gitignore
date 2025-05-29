@@ -48,3 +48,5 @@ vitest.config.*.timestamp*
 test-output
 
 /apps/backend/src/db/mockden.db
+.env.development
+.env.production
