@@ -49,7 +49,7 @@ export type SchemaError = {
 export type Schema = {
   id: number;
   name: string;
-  schema_definition: string;
+  fields: string;
   created_at: string;
 };
 

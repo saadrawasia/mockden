@@ -41,7 +41,7 @@ function generatePrimaryKeyValue(
  * Gets mock data for a schema.
  */
 export async function getMockData<T = Record<string, unknown>[]>(
-  schemaId: number,
+  schemaId: string,
 ): Promise<{ status: number; json: T }> {
   try {
     const query = 'Select * from mock_data where schema_id = ?';
@@ -65,7 +65,7 @@ export async function createMockData(schemaId: string, data: Record<string, unkn
     return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
   }
   const schema = schemaObj.json;
-  const schemaDefinition = schema.schema_definition as SchemaDefinition;
+  const schemaDefinition = schema.fields as SchemaDefinition;
 
   // Get existing data for auto-increment and sorting
   const existingData = (await getMockData<Record<string, unknown>[]>(schema.id)).json;
@@ -119,7 +119,7 @@ export async function deleteMockData(schemaId: string, primaryKeyValue: string) 
   }
 
   const schema = schemaObj.json;
-  const schemaDefinition = schema.schema_definition as SchemaDefinition;
+  const schemaDefinition = schema.fields as SchemaDefinition;
   const primaryField = schemaDefinition.find(field => field.primary)!.name;
   const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
 
@@ -156,7 +156,7 @@ export async function updateMockData(
   }
 
   const schema = schemaObj.json;
-  const schemaDefinition = schema.schema_definition as SchemaDefinition;
+  const schemaDefinition = schema.fields as SchemaDefinition;
   const primaryField = schemaDefinition.find(field => field.primary)!.name;
   const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
 
