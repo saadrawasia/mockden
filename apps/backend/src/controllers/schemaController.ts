@@ -20,7 +20,6 @@ export async function getAllSchemasRequest(_req: Request, res: Response) {
 
 export async function getSchemaByIdRequest(req: Request, res: Response) {
   const { id } = req.params;
-  console.log({ id });
   const schemas = await getSchemaById({ id });
   return res.status(schemas.status).json(schemas.json);
 }

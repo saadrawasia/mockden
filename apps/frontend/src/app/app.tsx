@@ -20,7 +20,6 @@ export default function App() {
   const fetchData = async (schemaId: number) => {
     const res = await fetch(`http://localhost:4000/${schemaId}`);
     const json = await res.json();
-    console.log({ schemaId, json });
     setData(json);
   };
 
