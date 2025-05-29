@@ -34,7 +34,7 @@ export default function SchemaForm() {
       // Do something with form data
       setErrorMessage('');
       const schema = JSON.stringify(JSON.parse(value.schema), null, 4); // prettify json
-      const res = await fetch('http://localhost:4000/schema', {
+      const res = await fetch('http://localhost:4000/schemas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: value.name, schema }),
