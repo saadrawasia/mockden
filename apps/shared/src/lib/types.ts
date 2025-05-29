@@ -45,3 +45,18 @@ export type ValidationResult<T = unknown> = {
 export type SchemaError = {
   error: string;
 };
+
+export type Schema = {
+  id: number;
+  name: string;
+  schema_definition: string;
+  created_at: string;
+};
+
+export type MockData = {
+  id: number;
+  schema_id: number;
+  data: string;
+  created_at: string;
+  updated_at: string;
+};

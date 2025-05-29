@@ -1,3 +1,5 @@
+import type { Schema } from '@shared/lib/types';
+
 import SchemaForm from '@frontend/components/schemaForm/schemaForm';
 import { useEffect, useState } from 'react';
 
@@ -5,19 +7,13 @@ type DataItem = {
   id: number;
 } & Record<string, unknown>;
 
-type Resource = {
-  id: string;
-  name: string;
-  schema_definition: string;
-};
-
 export default function App() {
-  const [schemas, setSchemas] = useState<Resource[]>([]);
+  const [schemas, setSchemas] = useState<Schema[]>([]);
   const [data, setData] = useState<DataItem[]>([]);
 
   const fetchAllSchemas = async () => {
     const res = await fetch(`http://localhost:4000/schemas`);
-    const json: Resource[] = await res.json();
+    const json: Schema[] = await res.json();
     setSchemas(json);
   };
 
@@ -39,7 +35,7 @@ export default function App() {
       <div>
         <h2>Available Schemas:</h2>
         {schemas.map(r => (
-          <button key={r.id} onClick={() => fetchData(r.id)}>
+          <button type="button" key={r.id} onClick={() => fetchData(r.id)}>
             {r.name}
           </button>
         ))}

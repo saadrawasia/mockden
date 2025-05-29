@@ -1,3 +1,5 @@
+import type { Schema } from '@shared/lib/types';
+
 import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
 
 import db from '../db/db';
@@ -39,8 +41,8 @@ type GetSchemaProps = {
 export async function getSchemaById({ id }: GetSchemaProps) {
   try {
     const query = 'SELECT * from schemas where id = ?';
-    const schema = await db.get(query, [id]);
-    return { status: 200, json: schema };
+    const schema = await db.get(query, [id]) as Schema;
+    return { status: 200, json: mapSchema(schema) };
   }
   catch (err) {
     console.error('DB error:', err);
@@ -51,11 +53,19 @@ export async function getSchemaById({ id }: GetSchemaProps) {
 export async function getAllSchemas() {
   try {
     const query = 'Select * from schemas';
-    const schemas = await db.all(query);
-    return { status: 200, json: schemas };
+    const schemas = await db.all(query) as Schema[];
+    return { status: 200, json: mapSchemas(schemas) };
   }
   catch (err) {
     console.error('DB error:', err);
     return { status: 400, json: { message: 'Schemas not found.' } };
   }
+}
+
+function mapSchemas(schemas: Schema[]) {
+  return schemas.map(schema => mapSchema(schema));
+}
+
+function mapSchema(schema: Schema) {
+  return { ...schema, schema_definition: JSON.parse(schema.schema_definition) };
 }
