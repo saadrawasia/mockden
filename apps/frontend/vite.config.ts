@@ -1,5 +1,6 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-/// <reference types='vitest' />
+import path from 'node:path';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -14,7 +15,13 @@ export default defineConfig(() => ({
     port: 4300,
     host: 'localhost',
   },
-  plugins: [react(), tsconfigPaths()],
+  plugins: [react(), tailwindcss(), tsconfigPaths()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@shared': path.resolve(__dirname, '../shared/src'),
+    },
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

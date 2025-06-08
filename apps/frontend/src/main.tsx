@@ -1,8 +1,7 @@
+import { Button } from '@shared/components/ui/button';
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-
-import App from './app/app';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -11,7 +10,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <div className="flex min-h-svh flex-col items-center justify-center">
+        <Button>Click me</Button>
+      </div>
     </BrowserRouter>
   </StrictMode>,
 );

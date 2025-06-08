@@ -11,7 +11,8 @@
     "paths": {
       "@shared/*": ["apps/shared/src/*"],
       "@backend/*": ["apps/backend/src/*"],
-      "@frontend/*": ["apps/frontend/src/*"]
+      "@frontend/*": ["apps/frontend/src/*"],
+      "@/*": ["./*"]
     },
     "strict": true,
     "noFallthroughCasesInSwitch": true,
