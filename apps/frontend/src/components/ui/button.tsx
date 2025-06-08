@@ -1,7 +1,7 @@
 import type { VariantProps } from 'class-variance-authority';
 
+import { cn } from '@frontend/lib/utils';
 import { Slot } from '@radix-ui/react-slot';
-import { cn } from '@shared/lib/utils';
 import { cva } from 'class-variance-authority';
 import * as React from 'react';
 
@@ -57,5 +57,4 @@ function Button({
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants };
