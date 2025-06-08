@@ -14,7 +14,7 @@
   },
   "references": [
     {
-      "path": "../shared/tsconfig.lib.json"
+      "path": "../shared"
     }
   ],
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx", "../../apps/shared/src/**/*"],
