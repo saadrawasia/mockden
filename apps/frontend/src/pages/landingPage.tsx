@@ -24,6 +24,12 @@ import { ArrowRight, Braces, CircleCheck, Cog, Database } from 'lucide-react';
 export default function LandingPage() {
   return (
     <PageShell>
+      <title>Mockden</title>
+      <meta
+        name="description"
+        content="Create, validate, and manage mock data with schemas. Built for
+          developers who demand reliability and speed."
+      />
       {/* Navbar */}
       <section className="flex justify-between">
         <Logo withText={true} />
@@ -59,7 +65,7 @@ export default function LandingPage() {
         <TypographyLargeP className="text-muted-foreground text-center">
           Define your schema once, get validated mock data everywhere.
         </TypographyLargeP>
-        <div className="w-md md:w-2xl select-none rounded-2xl bg-black p-8">
+        <div className="w-xs sm:w-xl md:w-2xl select-none overflow-x-hidden rounded-2xl bg-black p-8 ">
           <div className="mb-6 flex items-center space-x-2">
             <div className="h-3 w-3 rounded-full bg-red-500" />
             <div className="h-3 w-3 rounded-full bg-yellow-500" />
@@ -68,7 +74,7 @@ export default function LandingPage() {
           </div>
 
           <pre className="text-sm text-green-400">
-            <code>
+            <code className="whitespace-break-spaces break-all">
               {`// Define your schema
 POST /api/myproject/schemas
 {
@@ -102,7 +108,7 @@ GET /api/myproject/users
 
       {/* How it works */}
       <section className="flex flex-col items-center gap-4 text-center md:gap-6">
-        <TypographyH3>How It Works</TypographyH3>
+        <TypographyH3 className="text-center">How It Works</TypographyH3>
         <div className="flex flex-col gap-6 md:flex-row md:gap-24">
           <div className="flex flex-col items-center gap-2 ">
             <Braces />
@@ -134,7 +140,9 @@ GET /api/myproject/users
 
       {/* Pricing */}
       <section className="flex flex-col items-center gap-4  py-6 md:gap-6 md:py-12">
-        <TypographyH3>Simple, Transparent Pricing</TypographyH3>
+        <TypographyH3 className="text-center">
+          Simple, Transparent Pricing
+        </TypographyH3>
         <div className="flex flex-col gap-6 md:flex-row md:gap-24">
           <Card>
             <CardHeader>
@@ -147,19 +155,19 @@ GET /api/myproject/users
                 <span className="text-sm font-medium">/month</span>
               </TypographyH4>
               <TypographyP className="inline-flex gap-2">
-                <CircleCheck color="#009689" />
+                <CircleCheck className="text-green-500" />
                 1 Project
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
-                <CircleCheck color="#009689" />
+                <CircleCheck className="text-green-500" />
                 Upto 3 Schemas
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
-                <CircleCheck color="#009689" />
+                <CircleCheck className="text-green-500" />
                 Upto 100 records per Schema
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
-                <CircleCheck color="#009689" />
+                <CircleCheck className="text-green-500" />
                 100 API calls per day
               </TypographyP>
             </CardContent>
@@ -179,19 +187,19 @@ GET /api/myproject/users
                 <span className="text-sm font-medium">/month</span>
               </TypographyH4>
               <TypographyP className="inline-flex gap-2">
-                <CircleCheck color="#009689" />
+                <CircleCheck className="text-green-500" />
                 Upto 3 Projects
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
-                <CircleCheck color="#009689" />
+                <CircleCheck className="text-green-500" />
                 Unlimited Schemas
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
-                <CircleCheck color="#009689" />
+                <CircleCheck className="text-green-500" />
                 Upto 1000 records per Schema
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
-                <CircleCheck color="#009689" />
+                <CircleCheck className="text-green-500" />
                 1000 API calls per day
               </TypographyP>
             </CardContent>
