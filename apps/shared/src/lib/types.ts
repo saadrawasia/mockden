@@ -42,7 +42,7 @@ export type ValidationResult<T = unknown> = {
   errors: ValidationError[];
 };
 
-export type SchemaError = {
+export type ZodError = {
   error: string;
 };
 
@@ -59,4 +59,15 @@ export type MockData = {
   data: string;
   created_at: string;
   updated_at: string;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type ProjectDefinition = {
+  name: string;
+  description: string;
 };

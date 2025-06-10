@@ -1,35 +1,23 @@
-import projectSVG from '@frontend/assets/projects.svg';
+import type { Project } from '@shared/lib/types';
+
 import Navbar from '@frontend/components/navbar/navbar';
-import {
-  TypographyH2,
-  TypographyH5,
-  TypographyP,
-} from '@frontend/components/typography/typography';
+import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
+import { TypographyH2 } from '@frontend/components/typography/typography';
 import { Button } from '@frontend/components/ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@frontend/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@frontend/components/ui/dropdownMenu';
+import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
 import PageShell from '@frontend/pageShell';
-import { EllipsisVertical, Pencil, Plus, Trash2 } from 'lucide-react';
+import ListProjectsSection from '@frontend/sections/projects/listProjects';
+import NewProjectSection from '@frontend/sections/projects/newProject';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
-type Project = {
-  id: string;
-  name: string;
-  description: string;
+const defaultProject = {
+  name: '',
+  description: '',
 };
 
 export default function ProjectsPage() {
+  const [project, setProject] = useState(defaultProject);
   const [projects, setProjects] = useState<Project[]>([
     {
       id: 'test',
@@ -43,11 +31,20 @@ export default function ProjectsPage() {
     },
   ]);
 
+  const [open, setOpen] = useState(false);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+
   const deleteProject = (id: string) => {
     const index = projects.findIndex(project => project.id === id);
     const updatedProjects = [...projects];
     updatedProjects.splice(index, 1);
     setProjects(updatedProjects);
+  };
+
+  const editProject = (index: number) => {
+    const { id, ...projectToEdit } = projects[index] ?? defaultProject;
+
+    setProject(projectToEdit);
   };
 
   return (
@@ -62,79 +59,53 @@ export default function ProjectsPage() {
       <div className="flex justify-between">
         <TypographyH2>Projects</TypographyH2>
         {projects.length > 0 && (
-          <Button>
-            <Plus />
-            {' '}
-            Create Project
-          </Button>
+          <ProjectFormDialog
+            button={(
+              <Button onClick={() => setOpen(prev => !prev)}>
+                <Plus />
+                {' '}
+                Create Project
+              </Button>
+            )}
+            isDesktop={isDesktop}
+            setOpen={setOpen}
+            open={open}
+            project={project}
+            title="New Project"
+          />
         )}
       </div>
 
-      {projects.length === 0 && <NewProject />}
+      {projects.length === 0 && (
+        <NewProjectSection
+          button={(
+            <ProjectFormDialog
+              button={(
+                <Button onClick={() => setOpen(prev => !prev)}>
+                  <Plus />
+                  {' '}
+                  Create Project
+                </Button>
+              )}
+              isDesktop={isDesktop}
+              setOpen={setOpen}
+              open={open}
+              project={project}
+              title="New Project"
+            />
+          )}
+        />
+      )}
       {projects.length > 0 && (
-        <ListProjects projects={projects} deleteProject={deleteProject} />
+        <ListProjectsSection
+          projects={projects}
+          deleteProject={deleteProject}
+          isDesktop={isDesktop}
+          setOpen={setOpen}
+          open={open}
+          editProject={editProject}
+        />
       )}
     </PageShell>
-  );
-}
-
-function NewProject() {
-  return (
-    <div className="flex flex-auto flex-col items-center justify-center gap-8 text-center">
-      <img src={projectSVG} alt="create-project" className="sm:w-md" />
-      <Button>
-        <Plus />
-        {' '}
-        Create Project
-      </Button>
-    </div>
-  );
-}
-
-type ListProjectsProps = {
-  projects: Project[];
-  deleteProject: (id: string) => void;
-};
-
-function ListProjects({ projects, deleteProject }: ListProjectsProps) {
-  return (
-    <div className="flex flex-col gap-6 sm:flex-row">
-      {projects.map((project) => {
-        return (
-          <Card key={project.id} className="sm:w-sm w-full cursor-pointer">
-            <CardHeader>
-              <CardTitle>
-                <TypographyH5>{project.name}</TypographyH5>
-              </CardTitle>
-              <CardAction>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild className="cursor-pointer">
-                    <EllipsisVertical />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem className="cursor-pointer">
-                      <Pencil />
-                      {' '}
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive cursor-pointer"
-                      onClick={() => deleteProject(project.id)}
-                    >
-                      <Trash2 className="text-destructive" />
-                      {' '}
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              <TypographyP>{project.description}</TypographyP>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
   );
 }
