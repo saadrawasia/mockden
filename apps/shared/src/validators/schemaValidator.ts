@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { FieldDefinition, SchemaDefinition, SchemaError, ValidationError, ValidationResult } from '../lib/types';
+import type { FieldDefinition, SchemaDefinition, ValidationError, ValidationResult, ZodError } from '../lib/types';
 
 // Zod Schema for Field Definition
 const FieldSchema = z.object({
@@ -78,7 +78,7 @@ const SchemaDefinitionSchema = z
 // Validate schema definition using Zod
 export function validateSchemaDefinition(
   fields: unknown,
-): SchemaDefinition | SchemaError {
+): SchemaDefinition | ZodError {
   try {
     return SchemaDefinitionSchema.parse(fields);
   }

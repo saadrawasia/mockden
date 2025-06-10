@@ -1,4 +1,4 @@
-import Logo from '@frontend/components/logo/logo';
+import Navbar from '@frontend/components/navbar/navbar';
 import {
   TypographyCaption,
   TypographyH1,
@@ -31,13 +31,7 @@ export default function LandingPage() {
           developers who demand reliability and speed."
       />
       {/* Navbar */}
-      <section className="flex justify-between">
-        <Logo withText={true} />
-        <div className="flex items-center gap-2">
-          <Button>Log In</Button>
-          <Button variant="outline">Sign Up</Button>
-        </div>
-      </section>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="flex flex-col items-center gap-4 text-center md:gap-6">

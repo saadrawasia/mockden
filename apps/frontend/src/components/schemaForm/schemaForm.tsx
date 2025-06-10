@@ -1,16 +1,8 @@
-import type { AnyFieldApi } from '@tanstack/react-form';
-
 import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
 import { useForm } from '@tanstack/react-form';
 import { useState } from 'react';
 
-function ErrorInfo({ field }: { field: AnyFieldApi }) {
-  return field.state.meta.isTouched && !field.state.meta.isValid
-    ? (
-        <em>{field.state.meta.errors.join(', ')}</em>
-      )
-    : null;
-}
+import { ErrorInfo } from '../ui/errorInfo';
 
 type Schema = {
   id: string;
@@ -71,7 +63,7 @@ export default function SchemaForm() {
   };
 
   return (
-    <div className="flex gap-2 flex-col">
+    <div className="flex flex-col gap-2">
       <h2>Create Schema</h2>
       <form
         onSubmit={(e) => {
