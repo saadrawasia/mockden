@@ -118,6 +118,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    font-family: var(--font-roboto);
+  }
   body {
     @apply bg-background text-foreground;
   }

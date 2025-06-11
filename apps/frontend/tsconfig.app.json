@@ -14,10 +14,16 @@
   },
   "references": [
     {
-      "path": "../shared"
+      "path": "../shared/tsconfig.lib.json"
     }
   ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx", "../../apps/shared/src/**/*"],
+  "include": [
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../../apps/shared/src/**/*"
+  ],
   "exclude": [
     "out-tsc",
     "dist",

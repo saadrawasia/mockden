@@ -5,11 +5,22 @@ import {
   TypographyH5,
   TypographyP,
 } from '@frontend/components/typography/typography';
-import { Button } from '@frontend/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@frontend/components/ui/alertDialog';
+import { Button, buttonVariants } from '@frontend/components/ui/button';
 import {
   Card,
   CardAction,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@frontend/components/ui/card';
@@ -19,7 +30,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
+import { ArrowRight, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 export type ListProjectsProps = {
   projects: Project[];
@@ -33,21 +45,25 @@ export type ListProjectsProps = {
 export default function ListProjectsSection({
   projects,
   deleteProject,
-  open,
-  setOpen,
   isDesktop,
   editProject,
 }: ListProjectsProps) {
+  const [open, setOpen] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [project, setProject] = useState<Project | null>(null);
   const handleEdit = (index: number) => {
     editProject(index);
-    setOpen(prev => !prev);
+  };
+
+  const handleClick = () => {
+    console.log('handleClick');
   };
 
   return (
     <div className="flex flex-col gap-6 sm:flex-row">
       {projects.map((project, idx) => {
         return (
-          <Card key={project.id} className="sm:w-sm w-full cursor-pointer">
+          <Card key={project.id} className="sm:w-sm w-full gap-4">
             <CardHeader>
               <CardTitle>
                 <TypographyH5>{project.name}</TypographyH5>
@@ -58,44 +74,88 @@ export default function ListProjectsSection({
                     <EllipsisVertical />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem className="cursor-pointer">
-                      <ProjectFormDialog
-                        button={(
-                          <Button
-                            variant="ghost"
-                            onClick={() => handleEdit(idx)}
-                            className="has-[>svg]:p-0 w-full justify-start"
-                          >
-                            <Pencil />
-                            {' '}
-                            Edit
-                          </Button>
-                        )}
-                        isDesktop={isDesktop}
-                        setOpen={setOpen}
-                        open={open}
-                        project={project}
-                        title="Edit Project"
-                      />
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onSelect={() => {
+                        setProject(project);
+                        handleEdit(idx);
+                        setOpen(prev => !prev);
+                      }}
+                    >
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full justify-start"
+                      >
+                        <Pencil />
+                        {' '}
+                        Edit
+                      </Button>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive cursor-pointer"
-                      onClick={() => deleteProject(project.id)}
+                      onSelect={() => {
+                        setProject(project);
+                        setOpenAlert(prev => !prev);
+                      }}
                     >
-                      <Trash2 className="text-destructive" />
-                      {' '}
-                      Delete
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="hover:text-destructive w-full justify-start"
+                      >
+                        <Trash2 className="text-destructive" />
+                        {' '}
+                        Delete
+                      </Button>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardAction>
             </CardHeader>
             <CardContent>
-              <TypographyP>{project.description}</TypographyP>
+              <TypographyP className="text-muted-foreground">
+                {project.description}
+              </TypographyP>
             </CardContent>
+            <CardFooter>
+              <Button onClick={handleClick}>
+                Goto Schema
+                {' '}
+                <ArrowRight />
+              </Button>
+            </CardFooter>
           </Card>
         );
       })}
+      <ProjectFormDialog
+        open={open}
+        setOpen={setOpen}
+        isDesktop={isDesktop}
+        project={project!}
+        title="Edit Project"
+      />
+
+      <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              Project with all its schemas and records.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className={buttonVariants({ variant: 'destructive' })}
+              onClick={() => deleteProject(project!.id)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

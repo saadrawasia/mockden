@@ -2,50 +2,41 @@ import type { ProjectDefinition } from '@shared/lib/types';
 
 import { ProjectSchema } from '@shared/validators/projectValidator';
 import { useForm } from '@tanstack/react-form';
+import { Loader2Icon } from 'lucide-react';
 import { useState } from 'react';
 
 import { TypographyCaption } from '../typography/typography';
 import { Button } from '../ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '../ui/drawer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '../ui/drawer';
 import { ErrorInfo } from '../ui/errorInfo';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 
 type ProjectFormDialogProps = {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isDesktop: boolean;
   project: ProjectDefinition;
   title: string;
-  button: React.ReactNode;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export default function ProjectFormDialog({
-  open,
-  setOpen,
   isDesktop,
   project,
   title,
-  button,
+  open,
+  setOpen,
 }: ProjectFormDialogProps) {
+  const handleOpen = (open = false) => {
+    console.log('handleOpen', open);
+    setOpen(open);
+  };
+
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{button}</DialogTrigger>
+      <Dialog open={open} onOpenChange={handleOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
@@ -56,11 +47,10 @@ export default function ProjectFormDialog({
     );
   }
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{button}</DrawerTrigger>
+    <Drawer open={open} onOpenChange={handleOpen}>
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm pb-8">
-          <DrawerHeader>
+          <DrawerHeader className="pl-0">
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
           <ProjectForm project={project} setOpen={setOpen} />
@@ -79,10 +69,15 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
 
   const form = useForm({
     defaultValues: project,
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       setErrorMessage('');
-      setOpen(false);
-      console.log(value);
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          setOpen(false);
+          console.log(value);
+          resolve();
+        }, 1500);
+      });
     },
   });
 
@@ -100,7 +95,7 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
         <form.Field
           name="name"
           validators={{
-            onBlur: ({ value }) => {
+            onChange: ({ value }) => {
               const result = ProjectSchema.shape.name.safeParse(value);
               if (!result.success) {
                 // Return first Zod error message
@@ -121,7 +116,7 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
                     placeholder="Name"
                     name={field.name}
                     value={field.state.value}
-                    onBlur={field.handleBlur}
+                    // onBlur={field.handleBlur}
                     onChange={e => field.handleChange(e.target.value)}
                   />
                 </div>
@@ -136,7 +131,7 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
         <form.Field
           name="description"
           validators={{
-            onBlur: ({ value }) => {
+            onChange: ({ value }) => {
               const result = ProjectSchema.shape.description.safeParse(value);
               if (!result.success) {
                 // Return first Zod error message
@@ -155,7 +150,7 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
                 id={field.name}
                 name={field.name}
                 value={field.state.value}
-                onBlur={field.handleBlur}
+                // onBlur={field.handleBlur}
                 onChange={e => field.handleChange(e.target.value)}
               />
               <ErrorInfo field={field} />
@@ -172,7 +167,8 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
         selector={state => [state.canSubmit, state.isSubmitting]}
         children={([canSubmit, isSubmitting]) => (
           <Button type="submit" disabled={!canSubmit}>
-            {isSubmitting ? '...' : 'Submit'}
+            {isSubmitting && <Loader2Icon className="animate-spin" />}
+            Submit
           </Button>
         )}
       />
