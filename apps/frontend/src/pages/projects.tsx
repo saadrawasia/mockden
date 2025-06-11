@@ -1,14 +1,11 @@
 import type { Project } from '@shared/lib/types';
 
 import Navbar from '@frontend/components/navbar/navbar';
-import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
 import { TypographyH2 } from '@frontend/components/typography/typography';
-import { Button } from '@frontend/components/ui/button';
 import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
 import PageShell from '@frontend/pageShell';
 import ListProjectsSection from '@frontend/sections/projects/listProjects';
 import NewProjectSection from '@frontend/sections/projects/newProject';
-import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 const defaultProject = {
@@ -17,7 +14,6 @@ const defaultProject = {
 };
 
 export default function ProjectsPage() {
-  const [project, setProject] = useState(defaultProject);
   const [projects, setProjects] = useState<Project[]>([
     {
       id: 'test',
@@ -43,8 +39,7 @@ export default function ProjectsPage() {
 
   const editProject = (index: number) => {
     const { id, ...projectToEdit } = projects[index] ?? defaultProject;
-
-    setProject(projectToEdit);
+    console.log(projectToEdit);
   };
 
   return (
@@ -59,41 +54,19 @@ export default function ProjectsPage() {
       <div className="flex justify-between">
         <TypographyH2>Projects</TypographyH2>
         {projects.length > 0 && (
-          <ProjectFormDialog
-            button={(
-              <Button onClick={() => setOpen(prev => !prev)}>
-                <Plus />
-                {' '}
-                Create Project
-              </Button>
-            )}
+          <NewProjectSection
             isDesktop={isDesktop}
-            setOpen={setOpen}
-            open={open}
-            project={project}
-            title="New Project"
+            defaultProject={defaultProject}
+            renderSVG={false}
           />
         )}
       </div>
 
       {projects.length === 0 && (
         <NewProjectSection
-          button={(
-            <ProjectFormDialog
-              button={(
-                <Button onClick={() => setOpen(prev => !prev)}>
-                  <Plus />
-                  {' '}
-                  Create Project
-                </Button>
-              )}
-              isDesktop={isDesktop}
-              setOpen={setOpen}
-              open={open}
-              project={project}
-              title="New Project"
-            />
-          )}
+          isDesktop={isDesktop}
+          defaultProject={defaultProject}
+          renderSVG={true}
         />
       )}
       {projects.length > 0 && (

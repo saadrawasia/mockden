@@ -6,7 +6,7 @@ export const ProjectSchema = z.object({
   name: z
     .string()
     .min(1, 'Name is required')
-    .regex(/^[a-z]\w*$/i, 'Name must be a valid with only alphabets'),
+    .regex(/^[A-Z][A-Z0-9 ]*$/i, 'Name must be a valid e.g Project, Project 1'),
   description: z
     .string()
     .min(1, 'Description is required')
