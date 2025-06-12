@@ -89,12 +89,16 @@ export default function SchemaFormDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={handleOpen}>
-        <DialogContent className="sm:max-w-6xl w-full">
+        <DialogContent className="w-full sm:max-w-6xl">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           <div className="flex gap-2">
-            <SchemaForm schema={schema} setOpen={setOpen} isDesktop={isDesktop} />
+            <SchemaForm
+              schema={schema}
+              setOpen={setOpen}
+              isDesktop={isDesktop}
+            />
             <Separator orientation="vertical" />
             <div className="flex flex-auto flex-col gap-2">
               <Label>Example:</Label>
@@ -134,7 +138,6 @@ export default function SchemaFormDialog({
               </div>
             </div>
           </div>
-
         </DialogContent>
       </Dialog>
     );
@@ -146,10 +149,13 @@ export default function SchemaFormDialog({
           <DrawerHeader className="px-2">
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
-          <ScrollArea className="px-2 max-h-[60vh] overflow-auto">
-            <SchemaForm schema={schema} setOpen={setOpen} isDesktop={isDesktop} />
+          <ScrollArea className="max-h-[60vh] overflow-auto px-2">
+            <SchemaForm
+              schema={schema}
+              setOpen={setOpen}
+              isDesktop={isDesktop}
+            />
           </ScrollArea>
-
         </div>
       </DrawerContent>
     </Drawer>
@@ -212,7 +218,7 @@ function SchemaForm({ schema, setOpen, isDesktop }: SchemaFormProps) {
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className="flex max-w-xs md:max-w-md lg:max-w-xl flex-col gap-4"
+      className="flex max-w-xs flex-col gap-4 md:max-w-md lg:max-w-xl"
     >
       <div className="flex flex-col gap-2">
         {/* A type-safe field component */}

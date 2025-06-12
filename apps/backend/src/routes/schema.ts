@@ -1,4 +1,9 @@
-import { createSchemaRequest, deleteSchemaRequest, getAllSchemasRequest, getSchemaByIdRequest } from '@backend/controllers/schemaController';
+import {
+  createSchemaRequest,
+  deleteSchemaRequest,
+  getAllSchemasRequest,
+  getSchemaByIdRequest,
+} from '@backend/controllers/schemaController';
 import express from 'express';
 
 const schemaRouter = express.Router();

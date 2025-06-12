@@ -1,6 +1,13 @@
 import { z } from 'zod';
 
-import type { FieldDefinition, SchemaBase, SchemaDefinition, ValidationError, ValidationResult, ZodError } from '../lib/types';
+import type {
+  FieldDefinition,
+  SchemaBase,
+  SchemaDefinition,
+  ValidationError,
+  ValidationResult,
+  ZodError,
+} from '../lib/types';
 
 // Zod Schema for Field Definition
 const FieldSchema = z.object({

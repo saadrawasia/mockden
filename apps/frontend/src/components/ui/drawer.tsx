@@ -62,7 +62,7 @@ function DrawerContent({
         )}
         {...props}
       >
-        <div className="bg-gray-200 mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-gray-200 group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
         {children}
       </DrawerPrimitive.Content>
     </DrawerPortal>
@@ -99,7 +99,10 @@ function DrawerTitle({
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn('font-poppins scroll-m-20 text-[23px] font-semibold tracking-tight', className)}
+      className={cn(
+        'font-poppins scroll-m-20 text-[23px] font-semibold tracking-tight',
+        className,
+      )}
       {...props}
     />
   );

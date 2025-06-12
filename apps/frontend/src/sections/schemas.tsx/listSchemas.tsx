@@ -3,7 +3,6 @@ import type { Schema } from '@shared/lib/types';
 import {
   TypographyH5,
   TypographyP,
-
 } from '@frontend/components/typography/typography';
 import {
   AlertDialog,
@@ -67,9 +66,11 @@ export default function ListSchemasSection({
               <div className="flex flex-col gap-4">
                 <Badge
                   variant="outline"
-                  className={cn('px-3 py-1 rounded-full', {
-                    'text-green-500 border-green-500 bg-green-50': schema.status === 'active',
-                    'text-red-500 border-red-500 bg-red-50': schema.status === 'inactive',
+                  className={cn('rounded-full px-3 py-1', {
+                    'border-green-500 bg-green-50 text-green-500':
+                      schema.status === 'active',
+                    'border-red-500 bg-red-50 text-red-500':
+                      schema.status === 'inactive',
                   })}
                 >
                   {schema.status}
@@ -131,25 +132,32 @@ export default function ListSchemasSection({
               <div className="flex flex-col gap-4">
                 <div>
                   <TypographyP className="font-semibold">API:</TypographyP>
-                  <div className="cursor-pointer flex gap-2 group">
+                  <div className="group flex cursor-pointer gap-2">
                     <TypographyP className="text-muted-foreground">
                       https://mockden.com/api/project-slug/
                       {schema.slug}
                     </TypographyP>
-                    <Copy className="md:hidden hidden group-hover:flex text-muted-foreground" size={20} />
+                    <Copy
+                      className="text-muted-foreground hidden group-hover:flex md:hidden"
+                      size={20}
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <TypographyP className="font-semibold">Custom Headers:</TypographyP>
-                  <div className="cursor-pointer flex gap-2 group">
+                  <TypographyP className="font-semibold">
+                    Custom Headers:
+                  </TypographyP>
+                  <div className="group flex cursor-pointer gap-2">
                     <TypographyP className="text-muted-foreground">
                       x-mockden-key: random-api-key
                     </TypographyP>
-                    <Copy className="md:hidden hidden group-hover:flex text-muted-foreground" size={20} />
+                    <Copy
+                      className="text-muted-foreground hidden group-hover:flex md:hidden"
+                      size={20}
+                    />
                   </div>
                 </div>
-
               </div>
             </CardContent>
           </Card>

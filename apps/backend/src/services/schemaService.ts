@@ -9,10 +9,7 @@ type CreateSchemaProps = {
   schema: string;
 };
 
-export async function createSchema({
-  name,
-  schema,
-}: CreateSchemaProps) {
+export async function createSchema({ name, schema }: CreateSchemaProps) {
   if (!name)
     return { status: 400, json: { message: 'Missing schema name.' } };
 
@@ -20,7 +17,10 @@ export async function createSchema({
     where: fields => eq(fields.name, name),
   });
   if (existingSchema) {
-    return { status: 400, json: { message: 'Schema with this name already exist.' } };
+    return {
+      status: 400,
+      json: { message: 'Schema with this name already exist.' },
+    };
   }
 
   const validate = validateSchemaDefinition(JSON.parse(schema));
@@ -28,7 +28,10 @@ export async function createSchema({
     return { status: 400, json: { message: validate.error } };
   }
 
-  const newSchema = await db.insert(schemas).values({ name, fields: JSON.parse(schema), projectId: PROJECT_ID }).returning();
+  const newSchema = await db
+    .insert(schemas)
+    .values({ name, fields: JSON.parse(schema), projectId: PROJECT_ID })
+    .returning();
   return { status: 201, json: newSchema };
 }
 
