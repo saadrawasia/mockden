@@ -1,6 +1,5 @@
-import type { Project } from '@shared/lib/types';
+import type { Schema } from '@shared/lib/types';
 
-import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
 import {
   TypographyH5,
   TypographyP,
@@ -20,7 +19,6 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@frontend/components/ui/card';
@@ -30,43 +28,41 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
-import { ArrowRight, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
+import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
-export type ListProjectsProps = {
-  projects: Project[];
-  deleteProject: (id: string) => void;
+import SchemaFormDialog from '../../components/schemaForm/schemaForm';
+
+export type ListSchemasProps = {
+  schemas: Schema[];
+  deleteSchema: (id: string) => void;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isDesktop: boolean;
-  editProject: (index: number) => void;
+  editSchema: (index: number) => void;
 };
 
-export default function ListProjectsSection({
-  projects,
-  deleteProject,
+export default function ListSchemasSection({
+  schemas,
+  deleteSchema,
   isDesktop,
-  editProject,
-}: ListProjectsProps) {
+  editSchema,
+}: ListSchemasProps) {
   const [open, setOpen] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
-  const [project, setProject] = useState<Project | null>(null);
+  const [schema, setSchema] = useState<Schema | null>(null);
   const handleEdit = (index: number) => {
-    editProject(index);
-  };
-
-  const handleClick = () => {
-    console.log('handleClick');
+    editSchema(index);
   };
 
   return (
     <div className="flex flex-col gap-6 sm:flex-row">
-      {projects.map((project, idx) => {
+      {schemas.map((schema, idx) => {
         return (
-          <Card key={project.id} className="sm:w-sm w-full gap-4">
+          <Card key={schema.id} className="sm:w-sm w-full gap-4">
             <CardHeader>
               <CardTitle>
-                <TypographyH5>{project.name}</TypographyH5>
+                <TypographyH5>{schema.name}</TypographyH5>
               </CardTitle>
               <CardAction>
                 <DropdownMenu>
@@ -77,7 +73,7 @@ export default function ListProjectsSection({
                     <DropdownMenuItem
                       className="cursor-pointer"
                       onSelect={() => {
-                        setProject(project);
+                        setSchema(schema);
                         handleEdit(idx);
                         setOpen(prev => !prev);
                       }}
@@ -95,7 +91,7 @@ export default function ListProjectsSection({
                     <DropdownMenuItem
                       className="text-destructive cursor-pointer"
                       onSelect={() => {
-                        setProject(project);
+                        setSchema(schema);
                         setOpenAlert(prev => !prev);
                       }}
                     >
@@ -114,26 +110,17 @@ export default function ListProjectsSection({
               </CardAction>
             </CardHeader>
             <CardContent>
-              <TypographyP className="text-muted-foreground">
-                {project.description}
-              </TypographyP>
+              <TypographyP className="text-muted-foreground">data</TypographyP>
             </CardContent>
-            <CardFooter>
-              <Button onClick={handleClick}>
-                Goto Schema
-                {' '}
-                <ArrowRight />
-              </Button>
-            </CardFooter>
           </Card>
         );
       })}
-      <ProjectFormDialog
+      <SchemaFormDialog
         open={open}
         setOpen={setOpen}
         isDesktop={isDesktop}
-        project={project!}
-        title="Edit Project"
+        schema={schema!}
+        title="Edit Schema"
       />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
@@ -142,14 +129,14 @@ export default function ListProjectsSection({
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete your
-              Project with all its schemas and records.
+              Schema with all its records.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: 'destructive' })}
-              onClick={() => deleteProject(project!.id)}
+              onClick={() => deleteSchema(schema!.id)}
             >
               Delete
             </AlertDialogAction>

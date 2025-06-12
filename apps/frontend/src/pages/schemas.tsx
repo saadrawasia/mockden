@@ -1,4 +1,3 @@
-/* eslint-disable unused-imports/no-unused-vars */
 import type { Schema, SchemaBase } from '@shared/lib/types';
 
 import { useState } from 'react';
@@ -6,6 +5,7 @@ import { useState } from 'react';
 import { TypographyH2 } from '../components/typography/typography';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import PageShell from '../pageShell';
+import ListSchemasSection from '../sections/schemas.tsx/listSchemas';
 import NewSchemaSection from '../sections/schemas.tsx/newSchema';
 
 const defaultSchema: SchemaBase = {
@@ -61,6 +61,18 @@ export default function SchemasPage() {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
+  const deleteSchema = (id: string) => {
+    const index = schemas.findIndex(schema => schema.id === id);
+    const updatedSchemas = [...schemas];
+    updatedSchemas.splice(index, 1);
+    setSchemas(updatedSchemas);
+  };
+
+  const editSchema = (index: number) => {
+    const { id, ...schemaToEdit } = schemas[index] ?? defaultSchema;
+    console.log(schemaToEdit);
+  };
+
   return (
     <PageShell>
       <title>Mockden - Schemas</title>
@@ -87,7 +99,16 @@ export default function SchemasPage() {
           renderSVG={true}
         />
       )}
-      {schemas.length > 0 && <div>list schemas</div>}
+      {schemas.length > 0 && (
+        <ListSchemasSection
+          schemas={schemas}
+          open={open}
+          setOpen={setOpen}
+          isDesktop={isDesktop}
+          deleteSchema={deleteSchema}
+          editSchema={editSchema}
+        />
+      )}
     </PageShell>
   );
 }
