@@ -12,6 +12,8 @@ const defaultSchema: SchemaBase = {
   name: '',
   fields: '',
   fakeData: false,
+  slug: '',
+  status: 'active',
 };
 
 export default function SchemasPage() {
@@ -34,6 +36,8 @@ export default function SchemasPage() {
         },
       ]`,
       fakeData: true,
+      slug: 'users',
+      status: 'active',
       created_at: '01-01-2025',
     },
     {
@@ -54,6 +58,8 @@ export default function SchemasPage() {
         },
       ]`,
       fakeData: false,
+      slug: 'projects',
+      status: 'inactive',
       created_at: '01-01-2025',
     },
   ]);

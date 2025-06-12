@@ -3,6 +3,7 @@ import type { Schema } from '@shared/lib/types';
 import {
   TypographyH5,
   TypographyP,
+
 } from '@frontend/components/typography/typography';
 import {
   AlertDialog,
@@ -28,10 +29,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
-import { EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
+import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 import SchemaFormDialog from '../../components/schemaForm/schemaForm';
+import { Badge } from '../../components/ui/badge';
+import { cn } from '../../lib/utils';
 
 export type ListSchemasProps = {
   schemas: Schema[];
@@ -56,14 +59,29 @@ export default function ListSchemasSection({
   };
 
   return (
-    <div className="flex flex-col gap-6 sm:flex-row">
+    <div className="flex flex-col gap-6">
       {schemas.map((schema, idx) => {
         return (
-          <Card key={schema.id} className="sm:w-sm w-full gap-4">
+          <Card key={schema.id} className="w-full gap-4">
             <CardHeader>
-              <CardTitle>
-                <TypographyH5>{schema.name}</TypographyH5>
-              </CardTitle>
+              <div className="flex flex-col gap-4">
+                <Badge
+                  variant="outline"
+                  className={cn('px-3 py-1 rounded-full', {
+                    'text-green-500 border-green-500 bg-green-50': schema.status === 'active',
+                    'text-red-500 border-red-500 bg-red-50': schema.status === 'inactive',
+                  })}
+                >
+                  {schema.status}
+                </Badge>
+                <CardTitle>
+                  <TypographyH5>
+                    /
+                    {schema.slug}
+                  </TypographyH5>
+                </CardTitle>
+              </div>
+
               <CardAction>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild className="cursor-pointer">
@@ -110,7 +128,29 @@ export default function ListSchemasSection({
               </CardAction>
             </CardHeader>
             <CardContent>
-              <TypographyP className="text-muted-foreground">data</TypographyP>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <TypographyP className="font-semibold">API:</TypographyP>
+                  <div className="cursor-pointer flex gap-2 group">
+                    <TypographyP className="text-muted-foreground">
+                      https://mockden.com/api/project-slug/
+                      {schema.slug}
+                    </TypographyP>
+                    <Copy className="md:hidden hidden group-hover:flex text-muted-foreground" size={20} />
+                  </div>
+                </div>
+
+                <div>
+                  <TypographyP className="font-semibold">Custom Headers:</TypographyP>
+                  <div className="cursor-pointer flex gap-2 group">
+                    <TypographyP className="text-muted-foreground">
+                      x-mockden-key: random-api-key
+                    </TypographyP>
+                    <Copy className="md:hidden hidden group-hover:flex text-muted-foreground" size={20} />
+                  </div>
+                </div>
+
+              </div>
             </CardContent>
           </Card>
         );

@@ -51,6 +51,8 @@ export type Schema = {
   name: string;
   fields: string;
   fakeData: boolean;
+  slug: string;
+  status: 'active' | 'inactive';
   created_at: string;
 };
 
