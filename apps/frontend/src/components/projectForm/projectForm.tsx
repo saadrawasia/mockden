@@ -1,6 +1,6 @@
-import type { ProjectDefinition } from '@shared/lib/types';
+import type { ProjectBase } from '@shared/lib/types';
 
-import { ProjectSchema } from '@shared/validators/projectValidator';
+import { ProjectZod } from '@shared/validators/projectValidator';
 import { useForm } from '@tanstack/react-form';
 import { Loader2Icon } from 'lucide-react';
 import { useState } from 'react';
@@ -16,7 +16,7 @@ import { Textarea } from '../ui/textarea';
 
 type ProjectFormDialogProps = {
   isDesktop: boolean;
-  project: ProjectDefinition;
+  project: ProjectBase;
   title: string;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -61,7 +61,7 @@ export default function ProjectFormDialog({
 }
 
 type ProjectFormProps = {
-  project: ProjectDefinition;
+  project: ProjectBase;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 function ProjectForm({ project, setOpen }: ProjectFormProps) {
@@ -96,7 +96,7 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
           name="name"
           validators={{
             onChange: ({ value }) => {
-              const result = ProjectSchema.shape.name.safeParse(value);
+              const result = ProjectZod.shape.name.safeParse(value);
               if (!result.success) {
                 // Return first Zod error message
                 return result.error.issues[0].message;
@@ -118,6 +118,9 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
                     value={field.state.value}
                     // onBlur={field.handleBlur}
                     onChange={e => field.handleChange(e.target.value)}
+                    aria-invalid={
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    }
                   />
                 </div>
 
@@ -132,7 +135,7 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
           name="description"
           validators={{
             onChange: ({ value }) => {
-              const result = ProjectSchema.shape.description.safeParse(value);
+              const result = ProjectZod.shape.description.safeParse(value);
               if (!result.success) {
                 // Return first Zod error message
                 return result.error.issues[0].message;
@@ -152,6 +155,9 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
                 value={field.state.value}
                 // onBlur={field.handleBlur}
                 onChange={e => field.handleChange(e.target.value)}
+                aria-invalid={
+                  field.state.meta.isTouched && !field.state.meta.isValid
+                }
               />
               <ErrorInfo field={field} />
             </>
@@ -168,7 +174,7 @@ function ProjectForm({ project, setOpen }: ProjectFormProps) {
         children={([canSubmit, isSubmitting]) => (
           <Button type="submit" disabled={!canSubmit}>
             {isSubmitting && <Loader2Icon className="animate-spin" />}
-            Submit
+            Save
           </Button>
         )}
       />

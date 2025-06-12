@@ -47,11 +47,14 @@ export type ZodError = {
 };
 
 export type Schema = {
-  id: number;
+  id: string;
   name: string;
   fields: string;
+  fakeData: boolean;
   created_at: string;
 };
+
+export type SchemaBase = Omit<Schema, 'id' | 'created_at'>;
 
 export type MockData = {
   id: number;
@@ -67,7 +70,7 @@ export type Project = {
   description: string;
 };
 
-export type ProjectDefinition = {
+export type ProjectBase = {
   name: string;
   description: string;
 };

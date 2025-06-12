@@ -1,6 +1,5 @@
 import type { Project } from '@shared/lib/types';
 
-import Navbar from '@frontend/components/navbar/navbar';
 import { TypographyH2 } from '@frontend/components/typography/typography';
 import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
 import PageShell from '@frontend/pageShell';
@@ -50,7 +49,6 @@ export default function ProjectsPage() {
         content="Create, validate, and manage mock data with schemas. Built for
           developers who demand reliability and speed."
       />
-      <Navbar />
       <div className="flex justify-between">
         <TypographyH2>Projects</TypographyH2>
         {projects.length > 0 && (

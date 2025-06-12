@@ -47,7 +47,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(97.575% 0.00843 236.992);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -124,5 +124,11 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  .ace_editor .ace_content,
+  .ace_editor .ace_gutter {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
   }
 }
