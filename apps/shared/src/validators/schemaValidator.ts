@@ -1,6 +1,13 @@
 import { z } from 'zod';
 
-import type { FieldDefinition, SchemaDefinition, ValidationError, ValidationResult, ZodError } from '../lib/types';
+import type {
+  FieldDefinition,
+  SchemaBase,
+  SchemaDefinition,
+  ValidationError,
+  ValidationResult,
+  ZodError,
+} from '../lib/types';
 
 // Zod Schema for Field Definition
 const FieldSchema = z.object({
@@ -293,3 +300,12 @@ export function validateData<T = Record<string, unknown>>(
     };
   }
 }
+
+export const SchemaZod = z.object({
+  name: z
+    .string()
+    .min(1, 'Name is required')
+    .max(25, 'Name cannot be more than 25 characters')
+    .regex(/^[A-Z][A-Z0-9 ]*$/i, 'Name must be a valid e.g Project, Project 1'),
+  fakeData: z.boolean(),
+}) satisfies z.ZodType<Omit<SchemaBase, 'fields'>>;

@@ -8,22 +8,19 @@ export default function Navbar() {
   return (
     <nav className="flex justify-between">
       <Logo withText={true} />
-      {
-        isUserLoggedIn
-          ? (
-              <Avatar>
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-            )
-          : (
-              <div className="flex items-center gap-2">
-                <Button>Log In</Button>
-                <Button variant="outline">Sign Up</Button>
-              </div>
-            )
-      }
-
+      {isUserLoggedIn
+        ? (
+            <Avatar>
+              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          )
+        : (
+            <div className="flex items-center gap-2">
+              <Button>Log In</Button>
+              <Button variant="outline">Sign Up</Button>
+            </div>
+          )}
     </nav>
   );
 }

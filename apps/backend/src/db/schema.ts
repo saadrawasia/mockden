@@ -22,8 +22,7 @@ export const users = pgTable('users', {
 // --- Projects table ---
 export const projects = pgTable('projects', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id')
-    .references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).notNull(),
   description: text('description'),
@@ -32,27 +31,35 @@ export const projects = pgTable('projects', {
 });
 
 // --- Schemas table ---
-export const schemas = pgTable('schemas', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  projectId: uuid('project_id')
-    .references(() => projects.id, { onDelete: 'cascade' }),
-  name: varchar('name', { length: 255 }).notNull(),
-  fields: jsonb('fields').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-}, table => [
-  index('idx_schemas_project_id').on(table.projectId),
-]);
+export const schemas = pgTable(
+  'schemas',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    projectId: uuid('project_id').references(() => projects.id, {
+      onDelete: 'cascade',
+    }),
+    name: varchar('name', { length: 255 }).notNull(),
+    fields: jsonb('fields').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  table => [index('idx_schemas_project_id').on(table.projectId)],
+);
 
 // --- Mock Data table ---
-export const mockData = pgTable('mock_data', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  schemaId: uuid('schema_id')
-    .references(() => schemas.id, { onDelete: 'cascade' }),
-  data: jsonb('data').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-}, table => [
-  index('idx_mock_data_schema_id').on(table.schemaId),
-  index('idx_mock_data_jsonb').on(table.data),
-]);
+export const mockData = pgTable(
+  'mock_data',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    schemaId: uuid('schema_id').references(() => schemas.id, {
+      onDelete: 'cascade',
+    }),
+    data: jsonb('data').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  table => [
+    index('idx_mock_data_schema_id').on(table.schemaId),
+    index('idx_mock_data_jsonb').on(table.data),
+  ],
+);

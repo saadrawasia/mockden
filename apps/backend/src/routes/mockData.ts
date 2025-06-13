@@ -1,4 +1,9 @@
-import { createMockDataRequest, deleteMockDataRequest, getMockDataRequest, updateMockDataRequest } from '@backend/controllers/mockDataController';
+import {
+  createMockDataRequest,
+  deleteMockDataRequest,
+  getMockDataRequest,
+  updateMockDataRequest,
+} from '@backend/controllers/mockDataController';
 import express from 'express';
 
 const mockDataRouter = express.Router();

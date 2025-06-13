@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
 import '../index.css';
-import ProjectsPage from './pages/projects';
+import SchemasPage from './pages/schemas';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <BrowserRouter>
-      <ProjectsPage />
+      <SchemasPage />
     </BrowserRouter>
   </StrictMode>,
 );

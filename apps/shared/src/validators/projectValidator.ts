@@ -1,21 +1,22 @@
 import { z } from 'zod';
 
-import type { ProjectDefinition, ZodError } from '../lib/types';
+import type { ProjectBase, ZodError } from '../lib/types';
 
-export const ProjectSchema = z.object({
+export const ProjectZod = z.object({
   name: z
     .string()
     .min(1, 'Name is required')
+    .max(25, 'Name cannot be more than 25 characters')
     .regex(/^[A-Z][A-Z0-9 ]*$/i, 'Name must be a valid e.g Project, Project 1'),
   description: z
     .string()
     .min(1, 'Description is required')
     .max(100, 'Description cannot be more than 100 characters'),
-}) satisfies z.ZodType<ProjectDefinition>;
+}) satisfies z.ZodType<ProjectBase>;
 
-export function validateProject(fields: unknown): ProjectDefinition | ZodError {
+export function validateProject(fields: unknown): ProjectBase | ZodError {
   try {
-    return ProjectSchema.parse(fields);
+    return ProjectZod.parse(fields);
   }
   catch (error) {
     if (error instanceof z.ZodError) {

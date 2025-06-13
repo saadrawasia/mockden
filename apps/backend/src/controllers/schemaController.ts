@@ -1,6 +1,11 @@
 import type { Request, Response } from 'express';
 
-import { createSchema, deleteSchema, getAllSchemas, getSchemaById } from '@backend/services/schemaService';
+import {
+  createSchema,
+  deleteSchema,
+  getAllSchemas,
+  getSchemaById,
+} from '@backend/services/schemaService';
 
 export async function createSchemaRequest(req: Request, res: Response) {
   try {

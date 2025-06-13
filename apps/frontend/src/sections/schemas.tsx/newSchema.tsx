@@ -1,23 +1,23 @@
-import type { ProjectBase } from '@shared/lib/types';
+import type { SchemaBase } from '@shared/lib/types';
 
-import projectSVG from '@frontend/assets/projects.svg';
-import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
+import schemaSVG from '@frontend/assets/server.svg';
+import SchemaFormDialog from '@frontend/components/schemaForm/schemaForm';
 import { Button } from '@frontend/components/ui/button';
 import { cn } from '@frontend/lib/utils';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
-type NewProjectSectionProps = {
-  defaultProject: ProjectBase;
+type NewSchemaSectionProps = {
+  defaultSchema: SchemaBase;
   isDesktop: boolean;
   renderSVG: boolean;
 };
 
-export default function NewProjectSection({
-  defaultProject,
+export default function NewSchemaSection({
+  defaultSchema,
   isDesktop,
   renderSVG,
-}: NewProjectSectionProps) {
+}: NewSchemaSectionProps) {
   const [open, setOpen] = useState(false);
   return (
     <div
@@ -27,7 +27,7 @@ export default function NewProjectSection({
       )}
     >
       {renderSVG && (
-        <img src={projectSVG} alt="create-project" className="sm:w-md" />
+        <img src={schemaSVG} alt="create-project" className="sm:w-md" />
       )}
       <Button
         onClick={() => {
@@ -36,14 +36,14 @@ export default function NewProjectSection({
       >
         <Plus />
         {' '}
-        Create Project
+        Create Schema
       </Button>
-      <ProjectFormDialog
+      <SchemaFormDialog
         open={open}
         setOpen={setOpen}
         isDesktop={isDesktop}
-        project={defaultProject}
-        title="New Project"
+        schema={defaultSchema}
+        title="New Schema"
       />
     </div>
   );

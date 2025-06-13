@@ -1,6 +1,11 @@
 import type { Request, Response } from 'express';
 
-import { createMockData, deleteMockData, getMockData, updateMockData } from '@backend/services/mockDataService';
+import {
+  createMockData,
+  deleteMockData,
+  getMockData,
+  updateMockData,
+} from '@backend/services/mockDataService';
 
 export async function getMockDataRequest(req: Request, res: Response) {
   const { schemaId } = req.params;

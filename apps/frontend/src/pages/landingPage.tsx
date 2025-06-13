@@ -1,4 +1,3 @@
-import Navbar from '@frontend/components/navbar/navbar';
 import {
   TypographyCaption,
   TypographyH1,
@@ -30,8 +29,6 @@ export default function LandingPage() {
         content="Create, validate, and manage mock data with schemas. Built for
           developers who demand reliability and speed."
       />
-      {/* Navbar */}
-      <Navbar />
 
       {/* Hero Section */}
       <section className="flex flex-col items-center gap-4 text-center md:gap-6">
