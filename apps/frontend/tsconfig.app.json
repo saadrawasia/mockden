@@ -22,7 +22,8 @@
     "src/**/*.jsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "../../apps/shared/src/**/*"
+    "../../apps/shared/src/**/*",
+    "src/sections/schemas"
   ],
   "exclude": [
     "out-tsc",

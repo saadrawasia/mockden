@@ -22,7 +22,7 @@ export function TypographyH2({ children, className }: TypographyProps) {
   return (
     <h2
       className={cn(
-        'font-poppins scroll-m-20 text-[40px] font-semibold tracking-tight',
+        'font-poppins scroll-m-20 text-4xl font-semibold tracking-tight',
         className,
       )}
     >
@@ -35,7 +35,7 @@ export function TypographyH3({ children, className }: TypographyProps) {
   return (
     <h3
       className={cn(
-        'font-poppins scroll-m-20 text-[33px] font-semibold tracking-tight',
+        'font-poppins scroll-m-20 text-3xl font-semibold tracking-tight',
         className,
       )}
     >
@@ -48,7 +48,7 @@ export function TypographyH4({ children, className }: TypographyProps) {
   return (
     <h4
       className={cn(
-        'font-poppins scroll-m-20 text-[28px] font-semibold tracking-tight',
+        'font-poppins scroll-m-20 text-2xl font-semibold tracking-tight',
         className,
       )}
     >
@@ -61,7 +61,7 @@ export function TypographyH5({ children, className }: TypographyProps) {
   return (
     <h5
       className={cn(
-        'font-poppins scroll-m-20 text-[23px] font-semibold tracking-tight',
+        'font-poppins scroll-m-20 text-xl font-semibold tracking-tight',
         className,
       )}
     >
@@ -75,9 +75,9 @@ export function TypographyP({ children, className }: TypographyProps) {
 }
 
 export function TypographyLargeP({ children, className }: TypographyProps) {
-  return <p className={cn('font-roboto text-[19px]', className)}>{children}</p>;
+  return <p className={cn('font-roboto text-lg', className)}>{children}</p>;
 }
 
 export function TypographyCaption({ children, className }: TypographyProps) {
-  return <p className={cn('font-roboto text-[13px]', className)}>{children}</p>;
+  return <p className={cn('font-roboto text-md', className)}>{children}</p>;
 }
