@@ -32,8 +32,8 @@ import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 import SchemaFormDialog from '../../components/schemaForm/schemaForm';
-import { Badge } from '../../components/ui/badge';
-import { cn } from '../../lib/utils';
+import { Label } from '../../components/ui/label';
+import { Switch } from '../../components/ui/switch';
 
 export type ListSchemasProps = {
   schemas: Schema[];
@@ -64,17 +64,6 @@ export default function ListSchemasSection({
           <Card key={schema.id} className="w-full gap-4">
             <CardHeader>
               <div className="flex flex-col gap-4">
-                <Badge
-                  variant="outline"
-                  className={cn('rounded-full px-3 py-1', {
-                    'border-green-500 bg-green-50 text-green-500':
-                      schema.status === 'active',
-                    'border-red-500 bg-red-50 text-red-500':
-                      schema.status === 'inactive',
-                  })}
-                >
-                  {schema.status}
-                </Badge>
                 <CardTitle>
                   <TypographyH5>
                     /
@@ -157,6 +146,13 @@ export default function ListSchemasSection({
                       size={20}
                     />
                   </div>
+                </div>
+
+                <div className="flex space-x-2">
+                  <Switch id="active" checked={schema.status === 'active'} />
+                  <Label htmlFor="active" className="text-md font-semibold">
+                    Active
+                  </Label>
                 </div>
               </div>
             </CardContent>

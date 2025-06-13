@@ -218,7 +218,7 @@ function SchemaForm({ schema, setOpen, isDesktop }: SchemaFormProps) {
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className="flex max-w-xs flex-col gap-4 md:max-w-md lg:max-w-xl"
+      className="mx-auto flex max-w-xs flex-col gap-4 md:max-w-md lg:max-w-xl"
     >
       <div className="flex flex-col gap-2">
         {/* A type-safe field component */}
