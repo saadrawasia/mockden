@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { TypographyH2 } from '../components/typography/typography';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import PageShell from '../pageShell';
-import ListSchemasSection from '../sections/schemas.tsx/listSchemas';
-import NewSchemaSection from '../sections/schemas.tsx/newSchema';
+import ListSchemasSection from '../sections/schemas/listSchemas';
+import NewSchemaSection from '../sections/schemas/newSchema';
 
 const defaultSchema: SchemaBase = {
   name: '',

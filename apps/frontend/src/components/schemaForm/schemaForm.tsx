@@ -328,14 +328,14 @@ function SchemaForm({ schema, setOpen, isDesktop }: SchemaFormProps) {
         }}
         children={field => (
           <>
-            <Label className="hover:bg-accent/50 has-[[aria-checked=true]]:border-green-600 has-[[aria-checked=true]]:bg-green-50 dark:has-[[aria-checked=true]]:border-green-900 dark:has-[[aria-checked=true]]:bg-green-950 flex cursor-pointer items-start gap-3 rounded-lg border p-3">
+            <Label className="hover:bg-accent/50 has-[[aria-checked=true]]:border-primary has-[[aria-checked=true]]:bg-neutral-50 flex cursor-pointer items-start gap-3 rounded-lg border p-3">
               <Checkbox
                 id="toggle-2"
                 name={field.name}
                 checked={field.state.value}
                 // onBlur={field.handleBlur}
                 onCheckedChange={() => field.handleChange(!field.state.value)}
-                className="data-[state=checked]:border-green-600 data-[state=checked]:bg-green-600 data-[state=checked]:text-white dark:data-[state=checked]:border-green-700 dark:data-[state=checked]:bg-green-700"
+                className="data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-white"
               />
               <div className="grid gap-1.5 font-normal">
                 <p className="text-sm font-medium leading-none">
