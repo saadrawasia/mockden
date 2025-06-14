@@ -1,24 +1,22 @@
-import type { ProjectBase } from '@shared/lib/types';
-
 import projectSVG from '@frontend/assets/projects.svg';
 import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
 import { Button } from '@frontend/components/ui/button';
 import { cn } from '@frontend/lib/utils';
+import { useProjectStore } from '@frontend/stores/projectStore';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 type NewProjectSectionProps = {
-  defaultProject: ProjectBase;
-  isDesktop: boolean;
   renderSVG: boolean;
 };
 
 export default function NewProjectSection({
-  defaultProject,
-  isDesktop,
   renderSVG,
 }: NewProjectSectionProps) {
   const [open, setOpen] = useState(false);
+  const setSelectedProject = useProjectStore(state => state.setSelectedProject);
+  const defaultProject = useProjectStore(state => state.defaultProject);
+
   return (
     <div
       className={cn(
@@ -31,6 +29,7 @@ export default function NewProjectSection({
       )}
       <Button
         onClick={() => {
+          setSelectedProject(defaultProject);
           setOpen(prev => !prev);
         }}
       >
@@ -41,8 +40,6 @@ export default function NewProjectSection({
       <ProjectFormDialog
         open={open}
         setOpen={setOpen}
-        isDesktop={isDesktop}
-        project={defaultProject}
         title="New Project"
       />
     </div>

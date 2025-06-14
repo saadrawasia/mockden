@@ -30,28 +30,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
+import { useProjectStore } from '@frontend/stores/projectStore';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowRight, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
-export type ListProjectsProps = {
-  projects: Project[];
-  deleteProject: (id: string) => void;
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isDesktop: boolean;
-  editProject: (index: number) => void;
-};
+export default function ListProjectsSection() {
+  const projects = useProjectStore(state => state.projects);
+  const editProject = useProjectStore(state => state.editProject);
+  const selectedProject = useProjectStore(state => state.selectedProject);
+  const setSelectedProject = useProjectStore(
+    state => state.setSelectedProject,
+  );
+  const deleteProject = useProjectStore(state => state.deleteProject);
 
-export default function ListProjectsSection({
-  projects,
-  deleteProject,
-  isDesktop,
-  editProject,
-}: ListProjectsProps) {
   const [open, setOpen] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
-  const [project, setProject] = useState<Project | null>(null);
   const navigate = useNavigate();
   const handleEdit = (index: number) => {
     editProject(index);
@@ -84,7 +78,6 @@ export default function ListProjectsSection({
                     <DropdownMenuItem
                       className="cursor-pointer"
                       onSelect={() => {
-                        setProject(project);
                         handleEdit(idx);
                         setOpen(prev => !prev);
                       }}
@@ -102,7 +95,7 @@ export default function ListProjectsSection({
                     <DropdownMenuItem
                       className="text-destructive cursor-pointer"
                       onSelect={() => {
-                        setProject(project);
+                        setSelectedProject(project);
                         setOpenAlert(prev => !prev);
                       }}
                     >
@@ -135,13 +128,7 @@ export default function ListProjectsSection({
           </Card>
         );
       })}
-      <ProjectFormDialog
-        open={open}
-        setOpen={setOpen}
-        isDesktop={isDesktop}
-        project={project!}
-        title="Edit Project"
-      />
+      <ProjectFormDialog open={open} setOpen={setOpen} title="Edit Project" />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>
@@ -156,7 +143,7 @@ export default function ListProjectsSection({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: 'destructive' })}
-              onClick={() => deleteProject(project!.id)}
+              onClick={() => deleteProject((selectedProject as Project).id)}
             >
               Delete
             </AlertDialogAction>

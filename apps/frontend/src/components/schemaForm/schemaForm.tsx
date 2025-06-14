@@ -1,5 +1,5 @@
-import type { SchemaBase } from '@shared/lib/types';
-
+import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
+import { useSchemaStore } from '@frontend/stores/schemasStore';
 import {
   SchemaZod,
   validateSchemaDefinition,
@@ -14,33 +14,31 @@ import { TypographyCaption } from '../typography/typography';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '../ui/drawer';
-import { ErrorInfo } from '../ui/errorInfo';
 
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '../ui/drawer';
+import { ErrorInfo } from '../ui/errorInfo';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scrollArea';
 import { Separator } from '../ui/separator';
 
 type SchemaFormDialogProps = {
-  isDesktop: boolean;
-  schema: SchemaBase;
   title: string;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export default function SchemaFormDialog({
-  isDesktop,
-  schema,
   title,
   open,
   setOpen,
 }: SchemaFormDialogProps) {
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+
   const handleOpen = (open = false) => {
     console.log('handleOpen', open);
     setOpen(open);
@@ -94,11 +92,7 @@ export default function SchemaFormDialog({
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           <div className="flex gap-2">
-            <SchemaForm
-              schema={schema}
-              setOpen={setOpen}
-              isDesktop={isDesktop}
-            />
+            <SchemaForm setOpen={setOpen} />
             <Separator orientation="vertical" />
             <div className="flex flex-auto flex-col gap-2">
               <Label>Example:</Label>
@@ -150,11 +144,7 @@ export default function SchemaFormDialog({
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
           <ScrollArea className="max-h-[60vh] overflow-auto px-2">
-            <SchemaForm
-              schema={schema}
-              setOpen={setOpen}
-              isDesktop={isDesktop}
-            />
+            <SchemaForm setOpen={setOpen} />
           </ScrollArea>
         </div>
       </DrawerContent>
@@ -163,16 +153,17 @@ export default function SchemaFormDialog({
 }
 
 type SchemaFormProps = {
-  schema: SchemaBase;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isDesktop: boolean;
 };
 
-function SchemaForm({ schema, setOpen, isDesktop }: SchemaFormProps) {
+function SchemaForm({ setOpen }: SchemaFormProps) {
+  const selectedSchema = useSchemaStore(state => state.selectedSchema);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+
   const [errorMessage, setErrorMessage] = useState('');
 
   const form = useForm({
-    defaultValues: schema,
+    defaultValues: selectedSchema,
     onSubmit: async ({ value }) => {
       // Do something with form data
       setErrorMessage('');
