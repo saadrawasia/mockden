@@ -1,5 +1,5 @@
-import type { ProjectBase } from '@shared/lib/types';
-
+import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
+import { useProjectStore } from '@frontend/stores/projectStore';
 import { ProjectZod } from '@shared/validators/projectValidator';
 import { useForm } from '@tanstack/react-form';
 import { Loader2Icon } from 'lucide-react';
@@ -15,20 +15,18 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 
 type ProjectFormDialogProps = {
-  isDesktop: boolean;
-  project: ProjectBase;
   title: string;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export default function ProjectFormDialog({
-  isDesktop,
-  project,
   title,
   open,
   setOpen,
 }: ProjectFormDialogProps) {
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+
   const handleOpen = (open = false) => {
     console.log('handleOpen', open);
     setOpen(open);
@@ -37,23 +35,26 @@ export default function ProjectFormDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={handleOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="sm:max-w-[425px]"
+          aria-describedby="Project Form Dialog"
+        >
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
-          <ProjectForm project={project} setOpen={setOpen} />
+          <ProjectForm setOpen={setOpen} />
         </DialogContent>
       </Dialog>
     );
   }
   return (
     <Drawer open={open} onOpenChange={handleOpen}>
-      <DrawerContent>
+      <DrawerContent aria-describedby="Project Form Drawer">
         <div className="mx-auto w-full max-w-sm pb-8">
           <DrawerHeader className="pl-0">
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
-          <ProjectForm project={project} setOpen={setOpen} />
+          <ProjectForm setOpen={setOpen} />
         </div>
       </DrawerContent>
     </Drawer>
@@ -61,10 +62,10 @@ export default function ProjectFormDialog({
 }
 
 type ProjectFormProps = {
-  project: ProjectBase;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
-function ProjectForm({ project, setOpen }: ProjectFormProps) {
+function ProjectForm({ setOpen }: ProjectFormProps) {
+  const project = useProjectStore(state => state.selectedProject);
   const [errorMessage, setErrorMessage] = useState('');
 
   const form = useForm({

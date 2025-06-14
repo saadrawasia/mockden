@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UserSettingsRouteImport } from './routes/user-settings'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
-import { Route as ProjectsProjectIdSchemasRouteImport } from './routes/projects/$projectId/schemas'
+import { Route as ProjectsProjectSlugSchemasRouteImport } from './routes/projects/$projectSlug/schemas'
 
 const UserSettingsRoute = UserSettingsRouteImport.update({
   id: '/user-settings',
@@ -29,10 +29,10 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsProjectIdSchemasRoute =
-  ProjectsProjectIdSchemasRouteImport.update({
-    id: '/projects/$projectId/schemas',
-    path: '/projects/$projectId/schemas',
+const ProjectsProjectSlugSchemasRoute =
+  ProjectsProjectSlugSchemasRouteImport.update({
+    id: '/projects/$projectSlug/schemas',
+    path: '/projects/$projectSlug/schemas',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -40,20 +40,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/user-settings': typeof UserSettingsRoute
   '/projects': typeof ProjectsIndexRoute
-  '/projects/$projectId/schemas': typeof ProjectsProjectIdSchemasRoute
+  '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/user-settings': typeof UserSettingsRoute
   '/projects': typeof ProjectsIndexRoute
-  '/projects/$projectId/schemas': typeof ProjectsProjectIdSchemasRoute
+  '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/user-settings': typeof UserSettingsRoute
   '/projects/': typeof ProjectsIndexRoute
-  '/projects/$projectId/schemas': typeof ProjectsProjectIdSchemasRoute
+  '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -61,22 +61,22 @@ export interface FileRouteTypes {
     | '/'
     | '/user-settings'
     | '/projects'
-    | '/projects/$projectId/schemas'
+    | '/projects/$projectSlug/schemas'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/user-settings' | '/projects' | '/projects/$projectId/schemas'
+  to: '/' | '/user-settings' | '/projects' | '/projects/$projectSlug/schemas'
   id:
     | '__root__'
     | '/'
     | '/user-settings'
     | '/projects/'
-    | '/projects/$projectId/schemas'
+    | '/projects/$projectSlug/schemas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UserSettingsRoute: typeof UserSettingsRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
-  ProjectsProjectIdSchemasRoute: typeof ProjectsProjectIdSchemasRoute
+  ProjectsProjectSlugSchemasRoute: typeof ProjectsProjectSlugSchemasRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -102,11 +102,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/$projectId/schemas': {
-      id: '/projects/$projectId/schemas'
-      path: '/projects/$projectId/schemas'
-      fullPath: '/projects/$projectId/schemas'
-      preLoaderRoute: typeof ProjectsProjectIdSchemasRouteImport
+    '/projects/$projectSlug/schemas': {
+      id: '/projects/$projectSlug/schemas'
+      path: '/projects/$projectSlug/schemas'
+      fullPath: '/projects/$projectSlug/schemas'
+      preLoaderRoute: typeof ProjectsProjectSlugSchemasRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -116,7 +116,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UserSettingsRoute: UserSettingsRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
-  ProjectsProjectIdSchemasRoute: ProjectsProjectIdSchemasRoute,
+  ProjectsProjectSlugSchemasRoute: ProjectsProjectSlugSchemasRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

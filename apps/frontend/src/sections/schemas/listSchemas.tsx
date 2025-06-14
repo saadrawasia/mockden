@@ -28,6 +28,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
+import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
+import { useSchemaStore } from '@frontend/stores/schemasStore';
 import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -35,24 +37,16 @@ import SchemaFormDialog from '../../components/schemaForm/schemaForm';
 import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
 
-export type ListSchemasProps = {
-  schemas: Schema[];
-  deleteSchema: (id: string) => void;
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isDesktop: boolean;
-  editSchema: (index: number) => void;
-};
+export default function ListSchemasSection() {
+  const { projectSlug } = Route.useLoaderData();
+  const schemas = useSchemaStore(state => state.schemas);
+  const deleteSchema = useSchemaStore(state => state.deleteSchema);
+  const editSchema = useSchemaStore(state => state.editSchema);
+  const setSelectedSchema = useSchemaStore(state => state.setSelectedSchema);
+  const selectedSchema = useSchemaStore(state => state.selectedSchema);
 
-export default function ListSchemasSection({
-  schemas,
-  deleteSchema,
-  isDesktop,
-  editSchema,
-}: ListSchemasProps) {
   const [open, setOpen] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
-  const [schema, setSchema] = useState<Schema | null>(null);
   const handleEdit = (index: number) => {
     editSchema(index);
   };
@@ -81,7 +75,6 @@ export default function ListSchemasSection({
                     <DropdownMenuItem
                       className="cursor-pointer"
                       onSelect={() => {
-                        setSchema(schema);
                         handleEdit(idx);
                         setOpen(prev => !prev);
                       }}
@@ -99,7 +92,7 @@ export default function ListSchemasSection({
                     <DropdownMenuItem
                       className="text-destructive cursor-pointer"
                       onSelect={() => {
-                        setSchema(schema);
+                        setSelectedSchema(schema);
                         setOpenAlert(prev => !prev);
                       }}
                     >
@@ -123,7 +116,9 @@ export default function ListSchemasSection({
                   <TypographyP className="font-semibold">API:</TypographyP>
                   <div className="group flex cursor-pointer gap-2">
                     <TypographyP className="text-muted-foreground">
-                      https://mockden.com/api/project-slug/
+                      https://mockden.com/api/
+                      {projectSlug}
+                      /
                       {schema.slug}
                     </TypographyP>
                     <Copy
@@ -159,13 +154,7 @@ export default function ListSchemasSection({
           </Card>
         );
       })}
-      <SchemaFormDialog
-        open={open}
-        setOpen={setOpen}
-        isDesktop={isDesktop}
-        schema={schema!}
-        title="Edit Schema"
-      />
+      <SchemaFormDialog open={open} setOpen={setOpen} title="Edit Schema" />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>
@@ -180,7 +169,7 @@ export default function ListSchemasSection({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: 'destructive' })}
-              onClick={() => deleteSchema(schema!.id)}
+              onClick={() => deleteSchema((selectedSchema as Schema).id)}
             >
               Delete
             </AlertDialogAction>

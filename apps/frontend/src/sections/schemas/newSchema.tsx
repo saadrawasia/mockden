@@ -1,24 +1,20 @@
-import type { SchemaBase } from '@shared/lib/types';
-
 import schemaSVG from '@frontend/assets/server.svg';
 import SchemaFormDialog from '@frontend/components/schemaForm/schemaForm';
 import { Button } from '@frontend/components/ui/button';
 import { cn } from '@frontend/lib/utils';
+import { useSchemaStore } from '@frontend/stores/schemasStore';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 type NewSchemaSectionProps = {
-  defaultSchema: SchemaBase;
-  isDesktop: boolean;
   renderSVG: boolean;
 };
 
-export default function NewSchemaSection({
-  defaultSchema,
-  isDesktop,
-  renderSVG,
-}: NewSchemaSectionProps) {
+export default function NewSchemaSection({ renderSVG }: NewSchemaSectionProps) {
+  const setSelectedSchema = useSchemaStore(state => state.setSelectedSchema);
+  const defaultSchema = useSchemaStore(state => state.defaultSchema);
   const [open, setOpen] = useState(false);
+
   return (
     <div
       className={cn(
@@ -31,6 +27,7 @@ export default function NewSchemaSection({
       )}
       <Button
         onClick={() => {
+          setSelectedSchema(defaultSchema);
           setOpen(prev => !prev);
         }}
       >
@@ -38,13 +35,7 @@ export default function NewSchemaSection({
         {' '}
         Create Schema
       </Button>
-      <SchemaFormDialog
-        open={open}
-        setOpen={setOpen}
-        isDesktop={isDesktop}
-        schema={defaultSchema}
-        title="New Schema"
-      />
+      <SchemaFormDialog open={open} setOpen={setOpen} title="New Schema" />
     </div>
   );
 }
