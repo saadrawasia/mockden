@@ -30,6 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
+import { useNavigate } from '@tanstack/react-router';
 import { ArrowRight, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -51,12 +52,18 @@ export default function ListProjectsSection({
   const [open, setOpen] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [project, setProject] = useState<Project | null>(null);
+  const navigate = useNavigate();
   const handleEdit = (index: number) => {
     editProject(index);
   };
 
-  const handleClick = () => {
-    console.log('handleClick');
+  const handleClick = (projectId: string) => {
+    navigate({
+      to: '/projects/$projectId/schemas',
+      params: {
+        projectId,
+      },
+    });
   };
 
   return (
@@ -119,7 +126,7 @@ export default function ListProjectsSection({
               </TypographyP>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleClick}>
+              <Button onClick={() => handleClick(project.id)}>
                 Goto Schema
                 {' '}
                 <ArrowRight />

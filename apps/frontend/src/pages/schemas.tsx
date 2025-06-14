@@ -1,5 +1,6 @@
 import type { Schema, SchemaBase } from '@shared/lib/types';
 
+import { Route } from '@frontend/routes/projects/$projectId/schemas';
 import { useState } from 'react';
 
 import { TypographyH2 } from '../components/typography/typography';
@@ -17,6 +18,8 @@ const defaultSchema: SchemaBase = {
 };
 
 export default function SchemasPage() {
+  const { projectId } = Route.useLoaderData();
+  console.log({ projectId });
   const [schemas, setSchemas] = useState<Schema[]>([
     {
       id: 'test',
