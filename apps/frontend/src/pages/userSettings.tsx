@@ -5,7 +5,7 @@ import UserDetailsSection from '@frontend/sections/userSettings/userDetails';
 import { TypographyH2 } from '../components/typography/typography';
 import PageShell from '../pageShell';
 
-export default function UserSettings() {
+export default function UserSettingsPage() {
   return (
     <PageShell>
       <title>Mockden - User Settings</title>

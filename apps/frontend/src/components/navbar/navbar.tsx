@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router';
+
 import Logo from '../logo/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -26,15 +28,19 @@ export default function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="flex flex-col gap-2">
                 <DropdownMenuItem className="cursor-pointer hover:bg-transparent">
-                  <Button type="button" variant="ghost">
-                    User Settings
-                  </Button>
+                  <Link to="/user-settings">
+                    <Button type="button" variant="ghost">
+                      User Settings
+                    </Button>
+                  </Link>
                 </DropdownMenuItem>
                 <Separator />
                 <DropdownMenuItem className="cursor-pointer  hover:bg-transparent">
-                  <Button type="button" variant="ghost">
-                    Logout
-                  </Button>
+                  <Link to="/">
+                    <Button type="button" variant="ghost">
+                      Logout
+                    </Button>
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

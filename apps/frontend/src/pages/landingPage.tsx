@@ -18,6 +18,7 @@ import {
 } from '@frontend/components/ui/card';
 import { Separator } from '@frontend/components/ui/separator';
 import PageShell from '@frontend/pageShell';
+import { Link } from '@tanstack/react-router';
 import { ArrowRight, Braces, CircleCheck, Cog, Database } from 'lucide-react';
 
 export default function LandingPage() {
@@ -40,10 +41,12 @@ export default function LandingPage() {
           Create, validate, and manage mock data with schemas. Built for
           developers who demand reliability and speed.
         </TypographyLargeP>
-        <Button>
-          Start Building
-          <ArrowRight />
-        </Button>
+        <Link to="/projects">
+          <Button>
+            Start Building
+            <ArrowRight />
+          </Button>
+        </Link>
       </section>
 
       <Separator />
@@ -163,7 +166,9 @@ GET /api/myproject/users
               </TypographyP>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Get Started</Button>
+              <Link to="/projects" className="w-full">
+                <Button className="w-full">Get Started</Button>
+              </Link>
             </CardFooter>
           </Card>
 
@@ -195,9 +200,11 @@ GET /api/myproject/users
               </TypographyP>
             </CardContent>
             <CardFooter>
-              <Button variant="secondary" className="w-full">
-                Get Pro
-              </Button>
+              <Link to="/projects" className="w-full">
+                <Button variant="secondary" className="w-full">
+                  Get Pro
+                </Button>
+              </Link>
             </CardFooter>
           </Card>
         </div>
@@ -212,10 +219,12 @@ GET /api/myproject/users
         <TypographyLargeP className="text-muted-foreground text-center">
           Join Mockden for your mock data needs.
         </TypographyLargeP>
-        <Button>
-          Start for Free
-          <ArrowRight />
-        </Button>
+        <Link to="/projects">
+          <Button>
+            Start for Free
+            <ArrowRight />
+          </Button>
+        </Link>
       </section>
     </PageShell>
   );

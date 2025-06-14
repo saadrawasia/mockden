@@ -11,7 +11,7 @@ export default antfu(
       semi: true,
       quotes: 'single',
     },
-    ignores: ['**/migrations/*'],
+    ignores: ['**/migrations/*', '**/routeTree.gen.ts'],
   },
   {
     files: [
