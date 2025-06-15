@@ -6,7 +6,6 @@ import { createFileRoute, notFound } from '@tanstack/react-router';
 export const Route = createFileRoute('/projects/$projectSlug/schemas')({
   component: SchemasPage,
   loader: async ({ params }) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
     const project = getProjectBySlug(params.projectSlug);
     if (!project) {
       throw notFound();

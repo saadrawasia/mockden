@@ -308,4 +308,4 @@ export const SchemaZod = z.object({
     .max(25, 'Name cannot be more than 25 characters')
     .regex(/^[A-Z][A-Z0-9 ]*$/i, 'Name must be a valid e.g Project, Project 1'),
   fakeData: z.boolean(),
-}) satisfies z.ZodType<Omit<SchemaBase, 'fields'>>;
+}) satisfies z.ZodType<Pick<SchemaBase, 'name' | 'fakeData'>>;

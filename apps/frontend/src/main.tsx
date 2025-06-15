@@ -1,8 +1,11 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
-import * as ReactDOM from 'react-dom/client';
 
 import '../index.css';
+
+import * as ReactDOM from 'react-dom/client';
+
 import PageNotFound from './pages/pageNotFound';
 import { routeTree } from './routeTree.gen';
 
@@ -16,12 +19,16 @@ const router = createRouter({ routeTree, defaultNotFoundComponent: PageNotFound 
 //   };
 // }
 
+const queryClient = new QueryClient();
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
 
 root.render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </StrictMode>,
 );

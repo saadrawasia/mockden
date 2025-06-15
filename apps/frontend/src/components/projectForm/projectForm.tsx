@@ -1,4 +1,7 @@
+import type { Message, Project } from '@shared/lib/types';
+
 import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
+import config from '@frontend/lib/config';
 import { useProjectStore } from '@frontend/stores/projectStore';
 import { ProjectZod } from '@shared/validators/projectValidator';
 import { useForm } from '@tanstack/react-form';
@@ -26,6 +29,7 @@ export default function ProjectFormDialog({
   setOpen,
 }: ProjectFormDialogProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const requestType = title.includes('Edit') ? 'edit' : 'create';
 
   const handleOpen = (open = false) => {
     console.log('handleOpen', open);
@@ -42,7 +46,7 @@ export default function ProjectFormDialog({
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
-          <ProjectForm setOpen={setOpen} />
+          <ProjectForm setOpen={setOpen} requestType={requestType} />
         </DialogContent>
       </Dialog>
     );
@@ -54,7 +58,7 @@ export default function ProjectFormDialog({
           <DrawerHeader className="pl-0">
             <DrawerTitle>{title}</DrawerTitle>
           </DrawerHeader>
-          <ProjectForm setOpen={setOpen} />
+          <ProjectForm setOpen={setOpen} requestType={requestType} />
         </div>
       </DrawerContent>
     </Drawer>
@@ -63,22 +67,37 @@ export default function ProjectFormDialog({
 
 type ProjectFormProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  requestType: 'edit' | 'create';
 };
-function ProjectForm({ setOpen }: ProjectFormProps) {
+function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
   const project = useProjectStore(state => state.selectedProject);
+  const projects = useProjectStore(state => state.projects);
+  const setProjects = useProjectStore(state => state.setProjects);
   const [errorMessage, setErrorMessage] = useState('');
 
   const form = useForm({
     defaultValues: project,
     onSubmit: async ({ value }) => {
+      if (requestType === 'edit') {
+        setOpen(false);
+        return;
+      }
+
       setErrorMessage('');
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          setOpen(false);
-          console.log(value);
-          resolve();
-        }, 1500);
+      const res = await fetch(`${config.BACKEND_URL}/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: value?.name, description: value?.description }),
       });
+      const json: Project | Message = await res.json();
+      console.log({ json });
+      if ('message' in json) {
+        setErrorMessage(json.message);
+      }
+      else {
+        setProjects([...projects, json]);
+        setOpen(false);
+      }
     },
   });
 

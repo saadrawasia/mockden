@@ -1,4 +1,4 @@
-import type { Project } from '@shared/lib/types';
+import type { Message, Project } from '@shared/lib/types';
 
 import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
 import {
@@ -30,10 +30,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
+import config from '@frontend/lib/config';
 import { useProjectStore } from '@frontend/stores/projectStore';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowRight, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
+import { ArrowRight, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function ListProjectsSection() {
   const projects = useProjectStore(state => state.projects);
@@ -45,6 +47,7 @@ export default function ListProjectsSection() {
   const deleteProject = useProjectStore(state => state.deleteProject);
 
   const [open, setOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const navigate = useNavigate();
   const handleEdit = (index: number) => {
@@ -58,6 +61,25 @@ export default function ListProjectsSection() {
         projectId,
       },
     });
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    const res = await fetch(`${config.BACKEND_URL}/projects/${(selectedProject as Project).id}`, {
+      method: 'DELETE',
+    });
+    const json: Message = await res.json();
+    if (json.message.includes('deleted')) {
+      deleteProject((selectedProject as Project).id);
+      setOpenAlert(false);
+    }
+    else {
+      toast('Something went wrong!', {
+        description: json.message,
+
+      });
+    }
+    setIsDeleting(false);
   };
 
   return (
@@ -143,9 +165,17 @@ export default function ListProjectsSection() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: 'destructive' })}
-              onClick={() => deleteProject((selectedProject as Project).id)}
+              asChild
             >
-              Delete
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting && <Loader2Icon className="animate-spin" />}
+                Delete
+              </Button>
+
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

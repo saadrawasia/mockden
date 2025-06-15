@@ -77,3 +77,7 @@ export type ProjectBase = {
   name: string;
   description: string;
 };
+
+export type Message = {
+  message: string;
+};

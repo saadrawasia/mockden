@@ -13,17 +13,7 @@ type ProjectsStore = {
 };
 
 export const useProjectStore = create<ProjectsStore>(set => ({
-  projects: [{
-    id: 'test',
-    name: 'Project 1',
-    description: 'Description of Project 1',
-    slug: 'project-1',
-  }, {
-    id: 'test 2',
-    name: 'Project 2',
-    description: 'Description of Project 2',
-    slug: 'project-2',
-  }],
+  projects: [],
   setProjects: (updatedProjects) => {
     set(() => ({ projects: updatedProjects }));
   },
