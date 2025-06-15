@@ -7,7 +7,6 @@ import {
 } from '@frontend/components/typography/typography';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -15,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@frontend/components/ui/alertDialog';
-import { Button, buttonVariants } from '@frontend/components/ui/button';
+import { Button } from '@frontend/components/ui/button';
 import {
   Card,
   CardAction,
@@ -69,15 +68,15 @@ export default function ListProjectsSection() {
       method: 'DELETE',
     });
     const json: Message = await res.json();
-    if (json.message.includes('deleted')) {
-      deleteProject((selectedProject as Project).id);
-      setOpenAlert(false);
-    }
-    else {
+    if (res.status === 400) {
       toast('Something went wrong!', {
         description: json.message,
 
       });
+    }
+    else {
+      deleteProject((selectedProject as Project).id);
+      setOpenAlert(false);
     }
     setIsDeleting(false);
   };
@@ -163,20 +162,16 @@ export default function ListProjectsSection() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className={buttonVariants({ variant: 'destructive' })}
-              asChild
-            >
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting && <Loader2Icon className="animate-spin" />}
-                Delete
-              </Button>
 
-            </AlertDialogAction>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting && <Loader2Icon className="animate-spin" />}
+              Delete
+            </Button>
+
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

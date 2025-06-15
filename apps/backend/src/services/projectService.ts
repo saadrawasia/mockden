@@ -7,9 +7,9 @@ import { slugify } from '@backend/utils/helpers';
 import { validateProject } from '@shared/validators/projectValidator';
 import { eq } from 'drizzle-orm';
 
-type CreateSchemaProps = ProjectBase;
+type CreateProjectProps = ProjectBase;
 
-export async function createProject({ name, description }: CreateSchemaProps) {
+export async function createProject({ name, description }: CreateProjectProps) {
   const project = validateProject({ name, description });
 
   if ('error' in project)
@@ -72,4 +72,23 @@ export async function deleteProject(id: string) {
     console.error('DB error:', err);
     return { status: 400, json: { message: 'Project not found.' } };
   }
+}
+
+type EditProjectProps = ProjectBase & {
+  id: string;
+};
+
+export async function editProject({ id, name, description }: EditProjectProps) {
+  const project = validateProject({ name, description });
+
+  if ('error' in project)
+    return { status: 400, json: { message: project.error } };
+
+  const updatedProject = await db
+    .update(projects)
+    .set({ name, description, slug: slugify(name) })
+    .where(eq(projects.id, id))
+    .returning();
+
+  return { status: 200, json: updatedProject[0] };
 }

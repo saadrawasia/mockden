@@ -1,4 +1,4 @@
-import type { Message, Project } from '@shared/lib/types';
+import type { Message, Project, ProjectBase } from '@shared/lib/types';
 
 import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
 import config from '@frontend/lib/config';
@@ -70,33 +70,57 @@ type ProjectFormProps = {
   requestType: 'edit' | 'create';
 };
 function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
-  const project = useProjectStore(state => state.selectedProject);
+  const selectedProject = useProjectStore(state => state.selectedProject);
   const projects = useProjectStore(state => state.projects);
   const setProjects = useProjectStore(state => state.setProjects);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const form = useForm({
-    defaultValues: project,
-    onSubmit: async ({ value }) => {
-      if (requestType === 'edit') {
-        setOpen(false);
-        return;
-      }
+  const createProject = async (value: ProjectBase) => {
+    setErrorMessage('');
+    const res = await fetch(`${config.BACKEND_URL}/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: value?.name, description: value?.description }),
+    });
+    const json: Project | Message = await res.json();
+    if ('message' in json) {
+      setErrorMessage(json.message);
+    }
+    else {
+      setProjects([...projects, json]);
+      setOpen(false);
+    }
+  };
 
-      setErrorMessage('');
-      const res = await fetch(`${config.BACKEND_URL}/projects`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: value?.name, description: value?.description }),
-      });
-      const json: Project | Message = await res.json();
-      console.log({ json });
-      if ('message' in json) {
-        setErrorMessage(json.message);
+  const editProject = async (value: ProjectBase) => {
+    const project = selectedProject as Project;
+    setErrorMessage('');
+    const res = await fetch(`${config.BACKEND_URL}/projects/${project.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: value?.name, description: value?.description }),
+    });
+    const json: Project | Message = await res.json();
+    if ('message' in json) {
+      setErrorMessage(json.message);
+    }
+    else {
+      const index = projects.findIndex(p => p.id === project.id);
+      const updatedProjects = [...projects];
+      updatedProjects[index] = json;
+      setProjects(updatedProjects);
+      setOpen(false);
+    }
+  };
+
+  const form = useForm({
+    defaultValues: selectedProject,
+    onSubmit: async ({ value }) => {
+      if (requestType === 'create') {
+        await createProject(value as ProjectBase);
       }
       else {
-        setProjects([...projects, json]);
-        setOpen(false);
+        await editProject(value as ProjectBase);
       }
     },
   });

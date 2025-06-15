@@ -1,12 +1,24 @@
 import type { Request, Response } from 'express';
 
-import { createProject, deleteProject, getAllProjects, getProjectById } from '@backend/services/projectService';
+import { createProject, deleteProject, editProject, getAllProjects, getProjectById } from '@backend/services/projectService';
 
 export async function createProjectRequest(req: Request, res: Response) {
   try {
     const { name, description } = req.body;
     const newProject = await createProject({ name, description });
     return res.status(newProject.status).json(newProject.json);
+  }
+  catch {
+    return res.status(400).json({ message: 'Something went wrong.' });
+  }
+}
+
+export async function editProjectRequest(req: Request, res: Response) {
+  try {
+    const { name, description } = req.body;
+    const { id } = req.params;
+    const updatedProject = await editProject({ id, name, description });
+    return res.status(updatedProject.status).json(updatedProject.json);
   }
   catch {
     return res.status(400).json({ message: 'Something went wrong.' });
