@@ -1,10 +1,7 @@
 import type { Message, Project } from '@shared/lib/types';
 
 import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
-import {
-  TypographyH5,
-  TypographyP,
-} from '@frontend/components/typography/typography';
+import { TypographyH5, TypographyP } from '@frontend/components/typography/typography';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -33,123 +30,124 @@ import config from '@frontend/lib/config';
 import { useProjectStore } from '@frontend/stores/projectStore';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowRight, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 export default function ListProjectsSection() {
-  const projects = useProjectStore(state => state.projects);
-  const editProject = useProjectStore(state => state.editProject);
-  const selectedProject = useProjectStore(state => state.selectedProject);
-  const setSelectedProject = useProjectStore(
-    state => state.setSelectedProject,
-  );
-  const deleteProject = useProjectStore(state => state.deleteProject);
+  const {
+    projects,
+    editProject,
+    selectedProject,
+    setSelectedProject,
+    deleteProject,
+  } = useProjectStore();
 
-  const [open, setOpen] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const navigate = useNavigate();
-  const handleEdit = (index: number) => {
-    editProject(index);
-  };
 
-  const handleClick = (projectId: string) => {
+  const handleEdit = useCallback((index: number) => {
+    editProject(index);
+    setOpenEdit(true);
+  }, [editProject]);
+
+  const handleClick = useCallback((projectId: string) => {
     navigate({
       to: '/projects/$projectId/schemas',
-      params: {
-        projectId,
-      },
+      params: { projectId },
     });
-  };
+  }, [navigate]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
+    if (!selectedProject)
+      return;
     setIsDeleting(true);
-    const res = await fetch(`${config.BACKEND_URL}/projects/${(selectedProject as Project).id}`, {
-      method: 'DELETE',
-    });
-    const json: Message = await res.json();
-    if (res.status === 400) {
-      toast('Something went wrong!', {
-        description: json.message,
-
+    try {
+      const res = await fetch(`${config.BACKEND_URL}/projects/${(selectedProject as Project).id}`, {
+        method: 'DELETE',
       });
+      const json: Message = await res.json();
+      if (res.status === 400) {
+        toast('Something went wrong!', { description: json.message });
+      }
+      else {
+        deleteProject((selectedProject as Project).id);
+        setOpenAlert(false);
+      }
     }
-    else {
-      deleteProject((selectedProject as Project).id);
-      setOpenAlert(false);
+    catch {
+      toast('Something went wrong!', { description: 'Network error.' });
     }
-    setIsDeleting(false);
-  };
+    finally {
+      setIsDeleting(false);
+    }
+  }, [selectedProject, deleteProject]);
 
   return (
     <div className="flex flex-col gap-6 sm:flex-row">
-      {projects.map((project, idx) => {
-        return (
-          <Card key={project.id} className="sm:w-sm w-full gap-4">
-            <CardHeader>
-              <CardTitle>
-                <TypographyH5>{project.name}</TypographyH5>
-              </CardTitle>
-              <CardAction>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild className="cursor-pointer">
-                    <EllipsisVertical />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onSelect={() => {
-                        handleEdit(idx);
-                        setOpen(prev => !prev);
-                      }}
+      {projects.map((project, idx) => (
+        <Card key={project.id} className="sm:w-sm w-full gap-4">
+          <CardHeader>
+            <CardTitle>
+              <TypographyH5>{project.name}</TypographyH5>
+            </CardTitle>
+            <CardAction>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="cursor-pointer">
+                  <EllipsisVertical />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={() => handleEdit(idx)}
+                  >
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full justify-start"
                     >
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="w-full justify-start"
-                      >
-                        <Pencil />
-                        {' '}
-                        Edit
-                      </Button>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive cursor-pointer"
-                      onSelect={() => {
-                        setSelectedProject(project);
-                        setOpenAlert(prev => !prev);
-                      }}
+                      <Pencil />
+                      {' '}
+                      Edit
+                    </Button>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-destructive cursor-pointer"
+                    onSelect={() => {
+                      setSelectedProject(project);
+                      setOpenAlert(true);
+                    }}
+                  >
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="hover:text-destructive w-full justify-start"
                     >
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="hover:text-destructive w-full justify-start"
-                      >
-                        <Trash2 className="text-destructive" />
-                        {' '}
-                        Delete
-                      </Button>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              <TypographyP className="text-muted-foreground">
-                {project.description}
-              </TypographyP>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={() => handleClick(project.id)}>
-                Goto Schema
-                {' '}
-                <ArrowRight />
-              </Button>
-            </CardFooter>
-          </Card>
-        );
-      })}
-      <ProjectFormDialog open={open} setOpen={setOpen} title="Edit Project" />
+                      <Trash2 className="text-destructive" />
+                      {' '}
+                      Delete
+                    </Button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            <TypographyP className="text-muted-foreground">
+              {project.description}
+            </TypographyP>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={() => handleClick(project.id)}>
+              Goto Schema
+              {' '}
+              <ArrowRight />
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
+      <ProjectFormDialog open={openEdit} setOpen={setOpenEdit} title="Edit Project" />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>
@@ -162,7 +160,6 @@ export default function ListProjectsSection() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-
             <Button
               variant="destructive"
               onClick={handleDelete}
@@ -171,7 +168,6 @@ export default function ListProjectsSection() {
               {isDeleting && <Loader2Icon className="animate-spin" />}
               Delete
             </Button>
-
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

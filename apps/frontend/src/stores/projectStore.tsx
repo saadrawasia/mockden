@@ -1,14 +1,14 @@
-import type { Project, ProjectBase } from '@shared/lib/types';
+import type { Project } from '@shared/lib/types';
 
 import { create } from 'zustand';
 
 type ProjectsStore = {
   projects: Project[];
   setProjects: (updatedProjects: Project[]) => void;
-  selectedProject: Project | ProjectBase | null;
-  setSelectedProject: (project: Project | ProjectBase | null) => void;
+  selectedProject: Project | null;
+  setSelectedProject: (project: Project | null) => void;
   deleteProject: (id: string) => void;
-  defaultProject: ProjectBase;
+  defaultProject: Project;
   editProject: (index: number) => void;
 };
 
@@ -30,13 +30,15 @@ export const useProjectStore = create<ProjectsStore>(set => ({
     state.setProjects(updatedProjects);
   },
   defaultProject: {
+    id: '',
     name: '',
     description: '',
+    slug: '',
   },
   editProject: (index) => {
     const state = useProjectStore.getState();
     const projects = state.projects;
-    const selectedProject: Project | ProjectBase = projects[index] ?? state.defaultProject;
+    const selectedProject = projects[index] ?? state.defaultProject;
     state.setSelectedProject(selectedProject);
   },
 }));

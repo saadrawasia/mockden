@@ -7,21 +7,19 @@ import ListProjectsSection from '@frontend/sections/projects/listProjects';
 import NewProjectSection from '@frontend/sections/projects/newProject';
 import { useProjectStore } from '@frontend/stores/projectStore';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 
 export default function ProjectsPage() {
-  const projects = useProjectStore(state => state.projects);
-  const setProjects = useProjectStore(state => state.setProjects);
-  const { data } = useSuspenseQuery({
+  const { projects, setProjects } = useProjectStore();
+  const { data } = useSuspenseQuery<Project[] | Message>({
     queryKey: ['projects'],
     queryFn: async () => {
       const res = await fetch(`${config.BACKEND_URL}/projects`);
-      const json: Project[] | Message = await res.json();
+      const json = await res.json();
       if ('message' in json) {
-        toast('Something went wrong!', {
+        toast.error('Something went wrong!', {
           description: json.message,
-
         });
       }
       return json;
@@ -29,37 +27,26 @@ export default function ProjectsPage() {
   });
 
   useEffect(() => {
-    if (!('message' in data)) {
+    if (Array.isArray(data)) {
       setProjects(data);
     }
   }, [data, setProjects]);
+
+  const hasProjects = useMemo(() => projects.length > 0, [projects.length]);
 
   return (
     <PageShell>
       <title>Mockden - Projects</title>
       <meta
         name="description"
-        content="Create, validate, and manage mock data with schemas. Built for
-          developers who demand reliability and speed."
+        content="Create, validate, and manage mock data with schemas. Built for developers who demand reliability and speed."
       />
       <div className="flex justify-between">
         <TypographyH2>Projects</TypographyH2>
-        {projects.length > 0 && (
-          <NewProjectSection
-            renderSVG={false}
-          />
-        )}
+        {hasProjects && <NewProjectSection renderSVG={false} />}
       </div>
-
-      {projects.length === 0 && (
-        <NewProjectSection
-          renderSVG={true}
-        />
-      )}
-      {projects.length > 0 && (
-        <ListProjectsSection />
-      )}
-
+      {!hasProjects && <NewProjectSection renderSVG={true} />}
+      {hasProjects && <ListProjectsSection />}
     </PageShell>
   );
 }
