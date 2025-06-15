@@ -1,6 +1,5 @@
 import type { Message, Project } from '@shared/lib/types';
 
-import SuspenseComponent from '@frontend/components/suspense/suspense';
 import { TypographyH2 } from '@frontend/components/typography/typography';
 import config from '@frontend/lib/config';
 import PageShell from '@frontend/pageShell';
@@ -52,17 +51,14 @@ export default function ProjectsPage() {
         )}
       </div>
 
-      <SuspenseComponent>
-
-        {projects.length === 0 && (
-          <NewProjectSection
-            renderSVG={true}
-          />
-        )}
-        {projects.length > 0 && (
-          <ListProjectsSection />
-        )}
-      </SuspenseComponent>
+      {projects.length === 0 && (
+        <NewProjectSection
+          renderSVG={true}
+        />
+      )}
+      {projects.length > 0 && (
+        <ListProjectsSection />
+      )}
 
     </PageShell>
   );
