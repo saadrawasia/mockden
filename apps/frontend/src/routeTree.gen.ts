@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UserSettingsRouteImport } from './routes/user-settings'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as ProjectsProjectSlugSchemasRouteImport } from './routes/projects/$projectSlug/schemas'
@@ -17,6 +19,16 @@ import { Route as ProjectsProjectSlugSchemasRouteImport } from './routes/project
 const UserSettingsRoute = UserSettingsRouteImport.update({
   id: '/user-settings',
   path: '/user-settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -38,12 +50,16 @@ const ProjectsProjectSlugSchemasRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/user-settings': typeof UserSettingsRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/user-settings': typeof UserSettingsRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
@@ -51,6 +67,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/user-settings': typeof UserSettingsRoute
   '/projects/': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
@@ -59,14 +77,24 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/sign-in'
+    | '/sign-up'
     | '/user-settings'
     | '/projects'
     | '/projects/$projectSlug/schemas'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/user-settings' | '/projects' | '/projects/$projectSlug/schemas'
+  to:
+    | '/'
+    | '/sign-in'
+    | '/sign-up'
+    | '/user-settings'
+    | '/projects'
+    | '/projects/$projectSlug/schemas'
   id:
     | '__root__'
     | '/'
+    | '/sign-in'
+    | '/sign-up'
     | '/user-settings'
     | '/projects/'
     | '/projects/$projectSlug/schemas'
@@ -74,6 +102,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
   UserSettingsRoute: typeof UserSettingsRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   ProjectsProjectSlugSchemasRoute: typeof ProjectsProjectSlugSchemasRoute
@@ -86,6 +116,20 @@ declare module '@tanstack/react-router' {
       path: '/user-settings'
       fullPath: '/user-settings'
       preLoaderRoute: typeof UserSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -114,6 +158,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
   UserSettingsRoute: UserSettingsRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   ProjectsProjectSlugSchemasRoute: ProjectsProjectSlugSchemasRoute,

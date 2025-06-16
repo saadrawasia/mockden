@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/clerk-react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
@@ -12,13 +13,7 @@ import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
 const router = createRouter({ routeTree, defaultNotFoundComponent: PageNotFound });
-
-// Register the router instance for type safety
-// declare module '@tanstack/react-router' {
-//   type Register = {
-//     router: typeof router;
-//   };
-// }
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -26,8 +21,10 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </ClerkProvider>
   </StrictMode>,
 );

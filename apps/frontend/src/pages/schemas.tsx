@@ -1,19 +1,42 @@
+import type { Project } from '@shared/lib/types';
+
+import { Button } from '@frontend/components/ui/button';
 import { Skeleton } from '@frontend/components/ui/skeleton';
+import { useProjectsQuery } from '@frontend/hooks/useProjects';
 import { useSchemasQuery } from '@frontend/hooks/useSchemas';
+import { getProjectBySlug } from '@frontend/lib/projectHelpers';
 import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
+import { useNavigate } from '@tanstack/react-router';
+import { ArrowLeft } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { TypographyH2 } from '../components/typography/typography';
+import { TypographyH2, TypographyP } from '../components/typography/typography';
 import PageShell from '../pageShell';
 import ListSchemasSection from '../sections/schemas/listSchemas';
 import NewSchemaSection from '../sections/schemas/newSchema';
+import PageNotFound from './pageNotFound';
 
 export default function SchemasPage() {
-  const { project } = Route.useLoaderData();
+  const { projectSlug } = Route.useLoaderData();
+  const { data: projects } = useProjectsQuery();
 
+  const project = getProjectBySlug(projectSlug, projects);
+  if (!project) {
+    return <PageNotFound />;
+  }
+
+  return <SchemaPageImplementation project={project} />;
+}
+
+type SchemaPageImplementationProps = {
+  project: Project;
+};
+
+function SchemaPageImplementation({ project }: SchemaPageImplementationProps) {
   const { data: schemas, isLoading } = useSchemasQuery(project.id);
 
   const hasSchemas = useMemo(() => schemas.length > 0, [schemas.length]);
+  const navigate = useNavigate();
 
   return (
     <PageShell>
@@ -23,6 +46,17 @@ export default function SchemasPage() {
         content="Create, validate, and manage mock data with schemas. Built for
               developers who demand reliability and speed."
       />
+      <Button
+        variant="link"
+        className="hover:no-underline justify-start"
+        onClick={() => navigate({
+          to: '/projects',
+        })}
+      >
+        <ArrowLeft />
+        {' '}
+        <TypographyP>Goto Projects</TypographyP>
+      </Button>
       <div className="flex justify-between">
         <TypographyH2>
           {project?.name}
