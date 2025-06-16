@@ -45,6 +45,7 @@ import { useCallback, useState } from 'react';
 export default function ListProjectsSection() {
   const queryClient = useQueryClient();
   const projects = queryClient.getQueryData<Project[]>(['projects']) ?? [];
+
   const { selectedProject, setSelectedProject } = useProjectStore();
 
   const deleteProjectMutation = useDeleteProjectMutation();
@@ -63,10 +64,10 @@ export default function ListProjectsSection() {
   );
 
   const handleClick = useCallback(
-    (projectId: string) => {
+    (projectSlug: string) => {
       navigate({
-        to: '/projects/$projectId/schemas',
-        params: { projectId },
+        to: '/projects/$projectSlug/schemas',
+        params: { projectSlug },
       });
     },
     [navigate],
@@ -141,7 +142,7 @@ export default function ListProjectsSection() {
             </TypographyP>
           </CardContent>
           <CardFooter>
-            <Button onClick={() => handleClick(project.id)}>
+            <Button onClick={() => handleClick(project.slug)}>
               Goto Schema
               {' '}
               <ArrowRight />

@@ -91,11 +91,13 @@ type ProjectFormProps = {
 function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
   const { selectedProject } = useProjectStore();
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const createProjectMutation = useCreateProjectMutation();
   const editProjectMutation = useEditProjectMutation();
 
   const createProject = useCallback(
     async (value: ProjectBase) => {
+      setIsSaving(true);
       setErrorMessage('');
       try {
         createProjectMutation.mutate(
@@ -104,7 +106,6 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
             onSuccess: (result) => {
               if ('message' in result) {
                 setErrorMessage(result.message);
-                setOpen(false);
               }
               else {
                 setOpen(false);
@@ -116,14 +117,18 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
       catch {
         setErrorMessage('Network error. Please try again.');
       }
+      finally {
+        setIsSaving(false);
+      }
     },
-    [createProjectMutation, setOpen],
+    [createProjectMutation, setOpen, setIsSaving],
   );
 
   const editProject = useCallback(
     async (value: ProjectBase) => {
       if (!selectedProject)
         return;
+      setIsSaving(true);
       setErrorMessage('');
       try {
         editProjectMutation.mutate(
@@ -135,7 +140,6 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
             onSuccess: (result) => {
               if ('message' in result) {
                 setErrorMessage(result.message);
-                setOpen(false);
               }
               else {
                 setOpen(false);
@@ -146,6 +150,9 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
       }
       catch {
         setErrorMessage('Network error. Please try again.');
+      }
+      finally {
+        setIsSaving(false);
       }
     },
     [selectedProject, editProjectMutation, setOpen],
@@ -245,13 +252,13 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
         selector={state => [state.canSubmit, state.isSubmitting]}
       >
         {([canSubmit, isSubmitting]) => (
-          <Button type="submit" disabled={!canSubmit}>
+          <Button type="submit" disabled={!canSubmit || isSaving}>
             {isSubmitting && <Loader2Icon className="animate-spin" />}
             Save
           </Button>
         )}
       </form.Subscribe>
-      <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+      <Button variant="outline" type="button" disabled={isSaving} onClick={() => setOpen(false)}>
         Cancel
       </Button>
     </form>

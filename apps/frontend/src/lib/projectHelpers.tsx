@@ -1,7 +1,6 @@
-import { useProjectStore } from '@frontend/stores/projectStore';
+import type { Project } from '@shared/lib/types';
 
-export function getProjectBySlug(slug: string) {
-  const projects = useProjectStore.getState().projects;
+export function getProjectBySlug(slug: string, projects: Project[]) {
   const project = projects.find(project => project.slug === slug);
   return project;
 }

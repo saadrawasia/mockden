@@ -6,7 +6,6 @@ import {
 } from '@frontend/components/typography/typography';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -14,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@frontend/components/ui/alertDialog';
-import { Button, buttonVariants } from '@frontend/components/ui/button';
+import { Button } from '@frontend/components/ui/button';
 import {
   Card,
   CardAction,
@@ -28,32 +27,53 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
+import { useDeleteSchemaMutation } from '@frontend/hooks/useSchemas';
 import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
 import { useSchemaStore } from '@frontend/stores/schemasStore';
-import { Copy, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { Copy, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 import SchemaFormDialog from '../../components/schemaForm/schemaForm';
 import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
 
 export default function ListSchemasSection() {
-  const { projectSlug } = Route.useLoaderData();
-  const schemas = useSchemaStore(state => state.schemas);
-  const deleteSchema = useSchemaStore(state => state.deleteSchema);
-  const editSchema = useSchemaStore(state => state.editSchema);
-  const setSelectedSchema = useSchemaStore(state => state.setSelectedSchema);
-  const selectedSchema = useSchemaStore(state => state.selectedSchema);
+  const { projectSlug, project } = Route.useLoaderData();
+  const queryClient = useQueryClient();
+  const schemas = queryClient.getQueryData<Schema[]>(['schemas']) ?? [];
 
-  const [open, setOpen] = useState(false);
+  const { selectedSchema, setSelectedSchema } = useSchemaStore();
+  const deleteSchemasMutation = useDeleteSchemaMutation();
+
+  const [openEdit, setOpenEdit] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
-  const handleEdit = (index: number) => {
-    editSchema(index);
-  };
+  const handleEdit = useCallback(
+    (schema: Schema) => {
+      setSelectedSchema(schema);
+      setOpenEdit(true);
+    },
+    [setSelectedSchema, setOpenEdit],
+  );
+
+  const handleDelete = useCallback(async () => {
+    if (!selectedSchema)
+      return;
+    setIsDeleting(true);
+    deleteSchemasMutation.mutate({ projectId: project.id, id: selectedSchema.id }, {
+      onSuccess: (result) => {
+        if ('id' in result) {
+          setOpenAlert(false);
+        }
+        setIsDeleting(false);
+      },
+    });
+  }, [selectedSchema, deleteSchemasMutation, project]);
 
   return (
     <div className="flex flex-col gap-6">
-      {schemas.map((schema, idx) => {
+      {schemas.map((schema) => {
         return (
           <Card key={schema.id} className="w-full gap-4">
             <CardHeader>
@@ -74,10 +94,7 @@ export default function ListSchemasSection() {
                   <DropdownMenuContent align="start">
                     <DropdownMenuItem
                       className="cursor-pointer"
-                      onSelect={() => {
-                        handleEdit(idx);
-                        setOpen(prev => !prev);
-                      }}
+                      onSelect={() => handleEdit(schema)}
                     >
                       <Button
                         type="button"
@@ -154,7 +171,7 @@ export default function ListSchemasSection() {
           </Card>
         );
       })}
-      <SchemaFormDialog open={open} setOpen={setOpen} title="Edit Schema" />
+      <SchemaFormDialog open={openEdit} setOpen={setOpenEdit} title="Edit Schema" />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>
@@ -167,12 +184,14 @@ export default function ListSchemasSection() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className={buttonVariants({ variant: 'destructive' })}
-              onClick={() => deleteSchema((selectedSchema as Schema).id)}
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
             >
+              {isDeleting && <Loader2Icon className="animate-spin" />}
               Delete
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

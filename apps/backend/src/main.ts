@@ -5,8 +5,8 @@ import schemaRouter from './routes/schema';
 
 const port = process.env.PORT || 4000;
 
-app.use('/schemas', schemaRouter);
 app.use('/projects', projectRouter);
+app.use('/projects/:projectId/schemas', schemaRouter);
 
 app.use('/api', mockDataRouter);
 

@@ -1,25 +1,30 @@
+import type { SchemaBase } from '@shared/lib/types';
+
 import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
+import { useCreateSchemaMutation, useEditSchemaMutation } from '@frontend/hooks/useSchemas';
+import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
 import { useSchemaStore } from '@frontend/stores/schemasStore';
+import { DialogDescription } from '@radix-ui/react-dialog';
 import {
   SchemaZod,
   validateSchemaDefinition,
 } from '@shared/validators/schemaValidator';
 import { useForm } from '@tanstack/react-form';
 import { Loader2Icon } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import AceEditor from 'react-ace';
 
 import { cn } from '../../lib/utils';
-import { TypographyCaption } from '../typography/typography';
-import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '../ui/drawer';
+import { TypographyCaption } from '../typography/typography';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '../ui/drawer';
 import { ErrorInfo } from '../ui/errorInfo';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -38,11 +43,13 @@ export default function SchemaFormDialog({
   setOpen,
 }: SchemaFormDialogProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const requestType = title.includes('Edit') ? 'edit' : 'create';
 
-  const handleOpen = (open = false) => {
-    console.log('handleOpen', open);
-    setOpen(open);
-  };
+  const handleOpen = useCallback((open = false) => setOpen(open), [setOpen]);
+
+  const FormComponent = (
+    <SchemaForm setOpen={setOpen} requestType={requestType} />
+  );
 
   const exampleSchema = `[
   {
@@ -90,9 +97,12 @@ export default function SchemaFormDialog({
         <DialogContent className="w-full sm:max-w-6xl">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
+            <DialogDescription className="sr-only">
+              Schema Form Dialog
+            </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2">
-            <SchemaForm setOpen={setOpen} />
+            {FormComponent}
             <Separator orientation="vertical" />
             <div className="flex flex-auto flex-col gap-2">
               <Label>Example:</Label>
@@ -123,9 +133,7 @@ export default function SchemaFormDialog({
                     showLineNumbers: false,
                     tabSize: 2,
                     printMargin: 8,
-                    rendererOptions: {
-                      padding: 16, // adjust as needed
-                    },
+                    useWorker: false,
                   }}
                   className="rounded-md"
                 />
@@ -142,9 +150,12 @@ export default function SchemaFormDialog({
         <div className="mx-auto w-full max-w-sm  pb-8 ">
           <DrawerHeader className="px-2">
             <DrawerTitle>{title}</DrawerTitle>
+            <DrawerDescription className="sr-only">
+              Schema Form Dialog
+            </DrawerDescription>
           </DrawerHeader>
           <ScrollArea className="max-h-[60vh] overflow-auto px-2">
-            <SchemaForm setOpen={setOpen} />
+            {FormComponent}
           </ScrollArea>
         </div>
       </DrawerContent>
@@ -154,36 +165,92 @@ export default function SchemaFormDialog({
 
 type SchemaFormProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  requestType: 'edit' | 'create';
 };
 
-function SchemaForm({ setOpen }: SchemaFormProps) {
+function SchemaForm({ setOpen, requestType }: SchemaFormProps) {
   const selectedSchema = useSchemaStore(state => state.selectedSchema);
+  const { project } = Route.useLoaderData();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const createSchemaMutation = useCreateSchemaMutation();
+  const editSchemaMutation = useEditSchemaMutation();
+
+  const createSchema = useCallback(
+    async (value: SchemaBase) => {
+      setErrorMessage('');
+      setIsSaving(true);
+      try {
+        createSchemaMutation.mutate(
+          { projectId: project.id, newSchema: { name: value?.name, fields: value?.fields } },
+          {
+            onSuccess: (result) => {
+              if ('message' in result) {
+                setErrorMessage(result.message);
+              }
+              else {
+                setOpen(false);
+              }
+            },
+          },
+        );
+      }
+      catch {
+        setErrorMessage('Network error. Please try again.');
+      }
+      finally {
+        setIsSaving(false);
+      }
+    },
+    [createSchemaMutation, setOpen, project],
+  );
+
+  const editSchema = useCallback(
+    async (value: SchemaBase) => {
+      if (!selectedSchema)
+        return;
+      setErrorMessage('');
+      setIsSaving(true);
+      try {
+        editSchemaMutation.mutate(
+          {
+            id: selectedSchema.id,
+            projectId: project.id,
+            schema: { name: value?.name, fields: value?.fields },
+          },
+          {
+            onSuccess: (result) => {
+              if ('message' in result) {
+                setErrorMessage(result.message);
+              }
+              else {
+                setOpen(false);
+              }
+            },
+          },
+        );
+      }
+      catch {
+        setErrorMessage('Network error. Please try again.');
+      }
+      finally {
+        setIsSaving(false);
+      }
+    },
+    [selectedSchema, editSchemaMutation, setOpen, project],
+  );
 
   const form = useForm({
-    defaultValues: selectedSchema,
+    defaultValues: { ...selectedSchema, fields: Array.isArray(selectedSchema?.fields) ? JSON.stringify(selectedSchema?.fields, undefined, 2) : selectedSchema?.fields },
     onSubmit: async ({ value }) => {
-      // Do something with form data
-      setErrorMessage('');
-      // const schema = JSON.stringify(JSON.parse(value.fields), null, 4); // prettify json
-      // const res = await fetch('http://localhost:4000/schemas', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name: value.name, schema }),
-      // });
-      // const json: Schema | Message = await res.json();
-      // if ('message' in json) {
-      //   setErrorMessage(json.message);
-      // }
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          setOpen(false);
-          console.log(value);
-          resolve();
-        }, 1500);
-      });
+      if (requestType === 'create') {
+        await createSchema(value as SchemaBase);
+      }
+      else {
+        await editSchema(value as SchemaBase);
+      }
     },
   });
 
@@ -254,7 +321,7 @@ function SchemaForm({ setOpen }: SchemaFormProps) {
         <form.Field
           name="fields"
           validators={{
-            onBlur: ({ value }) => validateSchema(value),
+            onBlur: ({ value }) => validateSchema(value ?? ''),
           }}
           children={field => (
             <>
@@ -291,9 +358,7 @@ function SchemaForm({ setOpen }: SchemaFormProps) {
                     showLineNumbers: false,
                     tabSize: 2,
                     printMargin: 8,
-                    rendererOptions: {
-                      padding: 16, // adjust as needed
-                    },
+                    useWorker: false,
                   }}
                   className="rounded-md"
                 />
@@ -346,16 +411,21 @@ function SchemaForm({ setOpen }: SchemaFormProps) {
           {errorMessage}
         </TypographyCaption>
       )}
+
+      {
+        requestType === 'edit' && <TypographyCaption className="italic text-muted-foreground">* Editing the schema with remove all the previous records.</TypographyCaption>
+      }
       <form.Subscribe
         selector={state => [state.canSubmit, state.isSubmitting]}
         children={([canSubmit, isSubmitting]) => (
-          <Button type="submit" disabled={!canSubmit}>
+
+          <Button type="submit" disabled={!canSubmit || isSaving}>
             {isSubmitting && <Loader2Icon className="animate-spin" />}
             Save
           </Button>
         )}
       />
-      <Button variant="outline" onClick={() => setOpen(false)}>
+      <Button variant="outline" disabled={isSaving} onClick={() => setOpen(false)}>
         Cancel
       </Button>
     </form>

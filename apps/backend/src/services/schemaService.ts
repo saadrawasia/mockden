@@ -1,15 +1,16 @@
+import type { SchemaBase } from '@shared/lib/types';
+
 import db from '@backend/db/client';
 import { schemas } from '@backend/db/schema';
-import { PROJECT_ID } from '@backend/utils/constants';
+import { slugify } from '@backend/utils/helpers';
 import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
-type CreateSchemaProps = {
-  name: string;
-  schema: string;
+type CreateSchemaProps = SchemaBase & {
+  projectId: string;
 };
 
-export async function createSchema({ name, schema }: CreateSchemaProps) {
+export async function createSchema({ name, fields, projectId }: CreateSchemaProps) {
   if (!name)
     return { status: 400, json: { message: 'Missing schema name.' } };
 
@@ -23,16 +24,18 @@ export async function createSchema({ name, schema }: CreateSchemaProps) {
     };
   }
 
-  const validate = validateSchemaDefinition(JSON.parse(schema));
+  const validate = validateSchemaDefinition(JSON.parse(fields));
   if ('error' in validate) {
     return { status: 400, json: { message: validate.error } };
   }
 
   const newSchema = await db
     .insert(schemas)
-    .values({ name, fields: JSON.parse(schema), projectId: PROJECT_ID })
+    .values({ name, fields: JSON.parse(fields), projectId })
     .returning();
-  return { status: 201, json: newSchema };
+
+  const mappedSchema = { ...newSchema[0], slug: slugify(newSchema[0].name), fakeData: false };
+  return { status: 201, json: mappedSchema };
 }
 
 type GetSchemaProps = {
@@ -47,7 +50,9 @@ export async function getSchemaById({ id }: GetSchemaProps) {
     if (!getSchema) {
       return { status: 400, json: { message: 'Schema not found.' } };
     }
-    return { status: 200, json: getSchema };
+
+    const mappedSchema = { ...getSchema, slug: slugify(getSchema.name), fakeData: false };
+    return { status: 200, json: mappedSchema };
   }
   catch (err) {
     console.error('DB error:', err);
@@ -58,7 +63,8 @@ export async function getSchemaById({ id }: GetSchemaProps) {
 export async function getAllSchemas() {
   try {
     const getSchemas = await db.select().from(schemas);
-    return { status: 200, json: getSchemas };
+    const mappedSchemas = getSchemas.map(schema => ({ ...schema, slug: slugify(schema.name), fakeData: false }));
+    return { status: 200, json: mappedSchemas };
   }
   catch (err) {
     console.error('DB error:', err);
@@ -75,4 +81,31 @@ export async function deleteSchema(id: string) {
     console.error('DB error:', err);
     return { status: 400, json: { message: 'Schemas not found.' } };
   }
+}
+
+type EditSchemaProps = SchemaBase & {
+  id: string;
+  projectId: string;
+};
+
+export async function editSchema({ id, name, fields, projectId }: EditSchemaProps) {
+  if (!name)
+    return { status: 400, json: { message: 'Missing schema name.' } };
+
+  const validate = validateSchemaDefinition(JSON.parse(fields));
+  if ('error' in validate) {
+    return { status: 400, json: { message: validate.error } };
+  }
+
+  const updatedSchema = await db
+    .update(schemas)
+    .set({ name, fields })
+    .where(
+      and(eq(schemas.id, id), eq(schemas.projectId, projectId)),
+    )
+    .returning();
+
+  const mappedSchema = { ...updatedSchema[0], slug: slugify(updatedSchema[0].name), fakeData: false };
+
+  return { status: 200, json: mappedSchema };
 }

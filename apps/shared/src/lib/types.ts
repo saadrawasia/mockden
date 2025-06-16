@@ -56,7 +56,11 @@ export type Schema = {
   created_at: string;
 };
 
-export type SchemaBase = Omit<Schema, 'id' | 'created_at'>;
+export type SchemaBase = {
+  name: string;
+  fields: string;
+  fakeData: boolean;
+};
 
 export type MockData = {
   id: number;

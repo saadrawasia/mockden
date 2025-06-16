@@ -1,5 +1,7 @@
+import { Skeleton } from '@frontend/components/ui/skeleton';
+import { useSchemasQuery } from '@frontend/hooks/useSchemas';
 import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
-import { useSchemaStore } from '@frontend/stores/schemasStore';
+import { useMemo } from 'react';
 
 import { TypographyH2 } from '../components/typography/typography';
 import PageShell from '../pageShell';
@@ -7,10 +9,11 @@ import ListSchemasSection from '../sections/schemas/listSchemas';
 import NewSchemaSection from '../sections/schemas/newSchema';
 
 export default function SchemasPage() {
-  const { project, projectSlug } = Route.useLoaderData();
-  console.log({ project, projectSlug });
+  const { project } = Route.useLoaderData();
 
-  const schemas = useSchemaStore(state => state.schemas);
+  const { data: schemas, isLoading } = useSchemasQuery(project.id);
+
+  const hasSchemas = useMemo(() => schemas.length > 0, [schemas.length]);
 
   return (
     <PageShell>
@@ -26,11 +29,20 @@ export default function SchemasPage() {
           {' '}
           - Schemas
         </TypographyH2>
-        {schemas.length > 0 && <NewSchemaSection renderSVG={false} />}
+        {hasSchemas && <NewSchemaSection renderSVG={false} />}
       </div>
 
-      {schemas.length === 0 && <NewSchemaSection renderSVG={true} />}
-      {schemas.length > 0 && <ListSchemasSection />}
+      {!isLoading
+        ? (
+            <>
+              {!hasSchemas && <NewSchemaSection renderSVG={true} />}
+              {hasSchemas && <ListSchemasSection />}
+
+            </>
+          )
+        : (
+            <Skeleton className="h-[176px] w-[384px] rounded-xl" />
+          )}
     </PageShell>
   );
 }
