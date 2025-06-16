@@ -15,7 +15,9 @@ export default function PageShell({ children }: PageShellProps) {
         toastOptions={{
           classNames: {
             description: '!text-neutral-900',
+            error: '!bg-red-400 !border-red-600 !border-2',
           },
+          duration: 2000,
         }}
       />
     </div>

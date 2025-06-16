@@ -1,7 +1,10 @@
-import type { Message, Project, ProjectBase } from '@shared/lib/types';
+import type { ProjectBase } from '@shared/lib/types';
 
 import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
-import config from '@frontend/lib/config';
+import {
+  useCreateProjectMutation,
+  useEditProjectMutation,
+} from '@frontend/hooks/useProjects';
 import { useProjectStore } from '@frontend/stores/projectStore';
 import { ProjectZod } from '@shared/validators/projectValidator';
 import { useForm } from '@tanstack/react-form';
@@ -10,8 +13,20 @@ import { useCallback, useState } from 'react';
 
 import { TypographyCaption } from '../typography/typography';
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '../ui/drawer';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from '../ui/drawer';
 import { ErrorInfo } from '../ui/errorInfo';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -43,7 +58,9 @@ export default function ProjectFormDialog({
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>{title}</DialogTitle>
-              <DialogDescription className="sr-only">Project Form Dialog</DialogDescription>
+              <DialogDescription className="sr-only">
+                Project Form Dialog
+              </DialogDescription>
             </DialogHeader>
             {FormComponent}
           </DialogContent>
@@ -55,7 +72,9 @@ export default function ProjectFormDialog({
             <div className="mx-auto w-full max-w-sm pb-8">
               <DrawerHeader className="pl-0">
                 <DrawerTitle>{title}</DrawerTitle>
-                <DrawerDescription className="sr-only">Project Form Dialog</DrawerDescription>
+                <DrawerDescription className="sr-only">
+                  Project Form Dialog
+                </DrawerDescription>
               </DrawerHeader>
               {FormComponent}
             </div>
@@ -70,55 +89,67 @@ type ProjectFormProps = {
 };
 
 function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
-  const { selectedProject, projects, setProjects } = useProjectStore();
+  const { selectedProject } = useProjectStore();
   const [errorMessage, setErrorMessage] = useState('');
+  const createProjectMutation = useCreateProjectMutation();
+  const editProjectMutation = useEditProjectMutation();
 
-  const createProject = useCallback(async (value: ProjectBase) => {
-    setErrorMessage('');
-    try {
-      const res = await fetch(`${config.BACKEND_URL}/projects`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: value?.name, description: value?.description }),
-      });
-      const json: Project | Message = await res.json();
-      if ('message' in json) {
-        setErrorMessage(json.message);
+  const createProject = useCallback(
+    async (value: ProjectBase) => {
+      setErrorMessage('');
+      try {
+        createProjectMutation.mutate(
+          { name: value?.name, description: value?.description },
+          {
+            onSuccess: (result) => {
+              if ('message' in result) {
+                setErrorMessage(result.message);
+                setOpen(false);
+              }
+              else {
+                setOpen(false);
+              }
+            },
+          },
+        );
       }
-      else {
-        setProjects([...projects, json]);
-        setOpen(false);
+      catch {
+        setErrorMessage('Network error. Please try again.');
       }
-    }
-    catch {
-      setErrorMessage('Network error. Please try again.');
-    }
-  }, [projects, setProjects, setOpen]);
+    },
+    [createProjectMutation, setOpen],
+  );
 
-  const editProject = useCallback(async (value: ProjectBase) => {
-    if (!selectedProject)
-      return;
-    setErrorMessage('');
-    try {
-      const res = await fetch(`${config.BACKEND_URL}/projects/${selectedProject.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: value?.name, description: value?.description }),
-      });
-      const json: Project | Message = await res.json();
-      if ('message' in json) {
-        setErrorMessage(json.message);
+  const editProject = useCallback(
+    async (value: ProjectBase) => {
+      if (!selectedProject)
+        return;
+      setErrorMessage('');
+      try {
+        editProjectMutation.mutate(
+          {
+            id: selectedProject.id,
+            project: { name: value?.name, description: value?.description },
+          },
+          {
+            onSuccess: (result) => {
+              if ('message' in result) {
+                setErrorMessage(result.message);
+                setOpen(false);
+              }
+              else {
+                setOpen(false);
+              }
+            },
+          },
+        );
       }
-      else {
-        const updatedProjects = projects.map(p => (p.id === selectedProject.id ? json : p));
-        setProjects(updatedProjects);
-        setOpen(false);
+      catch {
+        setErrorMessage('Network error. Please try again.');
       }
-    }
-    catch {
-      setErrorMessage('Network error. Please try again.');
-    }
-  }, [selectedProject, projects, setProjects, setOpen]);
+    },
+    [selectedProject, editProjectMutation, setOpen],
+  );
 
   const form = useForm({
     defaultValues: selectedProject,
@@ -147,7 +178,9 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
           validators={{
             onChange: ({ value }) => {
               const result = ProjectZod.shape.name.safeParse(value);
-              return result.success ? undefined : result.error.issues[0].message;
+              return result.success
+                ? undefined
+                : result.error.issues[0].message;
             },
           }}
         >
@@ -162,7 +195,9 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
                   name={field.name}
                   value={field.state.value}
                   onChange={e => field.handleChange(e.target.value)}
-                  aria-invalid={field.state.meta.isTouched && !field.state.meta.isValid}
+                  aria-invalid={
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  }
                 />
               </div>
               <ErrorInfo field={field} />
@@ -176,7 +211,9 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
           validators={{
             onChange: ({ value }) => {
               const result = ProjectZod.shape.description.safeParse(value);
-              return result.success ? undefined : result.error.issues[0].message;
+              return result.success
+                ? undefined
+                : result.error.issues[0].message;
             },
           }}
         >
@@ -190,7 +227,9 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
                 name={field.name}
                 value={field.state.value}
                 onChange={e => field.handleChange(e.target.value)}
-                aria-invalid={field.state.meta.isTouched && !field.state.meta.isValid}
+                aria-invalid={
+                  field.state.meta.isTouched && !field.state.meta.isValid
+                }
               />
               <ErrorInfo field={field} />
             </>
@@ -202,7 +241,9 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
           {errorMessage}
         </TypographyCaption>
       )}
-      <form.Subscribe selector={state => [state.canSubmit, state.isSubmitting]}>
+      <form.Subscribe
+        selector={state => [state.canSubmit, state.isSubmitting]}
+      >
         {([canSubmit, isSubmitting]) => (
           <Button type="submit" disabled={!canSubmit}>
             {isSubmitting && <Loader2Icon className="animate-spin" />}

@@ -1,7 +1,10 @@
-import type { Message, Project } from '@shared/lib/types';
+import type { Project } from '@shared/lib/types';
 
 import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
-import { TypographyH5, TypographyP } from '@frontend/components/typography/typography';
+import {
+  TypographyH5,
+  TypographyP,
+} from '@frontend/components/typography/typography';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -26,67 +29,66 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
-import config from '@frontend/lib/config';
+import { useDeleteProjectMutation } from '@frontend/hooks/useProjects';
 import { useProjectStore } from '@frontend/stores/projectStore';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowRight, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from 'lucide-react';
+import {
+  ArrowRight,
+  EllipsisVertical,
+  Loader2Icon,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { toast } from 'sonner';
 
 export default function ListProjectsSection() {
-  const {
-    projects,
-    editProject,
-    selectedProject,
-    setSelectedProject,
-    deleteProject,
-  } = useProjectStore();
+  const queryClient = useQueryClient();
+  const projects = queryClient.getQueryData<Project[]>(['projects']) ?? [];
+  const { selectedProject, setSelectedProject } = useProjectStore();
+
+  const deleteProjectMutation = useDeleteProjectMutation();
 
   const [openEdit, setOpenEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const navigate = useNavigate();
 
-  const handleEdit = useCallback((index: number) => {
-    editProject(index);
-    setOpenEdit(true);
-  }, [editProject]);
+  const handleEdit = useCallback(
+    (project: Project) => {
+      setSelectedProject(project);
+      setOpenEdit(true);
+    },
+    [setSelectedProject, setOpenEdit],
+  );
 
-  const handleClick = useCallback((projectId: string) => {
-    navigate({
-      to: '/projects/$projectId/schemas',
-      params: { projectId },
-    });
-  }, [navigate]);
+  const handleClick = useCallback(
+    (projectId: string) => {
+      navigate({
+        to: '/projects/$projectId/schemas',
+        params: { projectId },
+      });
+    },
+    [navigate],
+  );
 
   const handleDelete = useCallback(async () => {
     if (!selectedProject)
       return;
     setIsDeleting(true);
-    try {
-      const res = await fetch(`${config.BACKEND_URL}/projects/${(selectedProject as Project).id}`, {
-        method: 'DELETE',
-      });
-      const json: Message = await res.json();
-      if (res.status === 400) {
-        toast('Something went wrong!', { description: json.message });
-      }
-      else {
-        deleteProject((selectedProject as Project).id);
-        setOpenAlert(false);
-      }
-    }
-    catch {
-      toast('Something went wrong!', { description: 'Network error.' });
-    }
-    finally {
-      setIsDeleting(false);
-    }
-  }, [selectedProject, deleteProject]);
+    deleteProjectMutation.mutate(selectedProject.id, {
+      onSuccess: (result) => {
+        if ('id' in result) {
+          setOpenAlert(false);
+        }
+        setIsDeleting(false);
+      },
+    });
+  }, [selectedProject, deleteProjectMutation]);
 
   return (
-    <div className="flex flex-col gap-6 sm:flex-row">
-      {projects.map((project, idx) => (
+    <div className="flex flex-col flex-wrap gap-4 sm:flex-row">
+      {projects.map(project => (
         <Card key={project.id} className="sm:w-sm w-full gap-4">
           <CardHeader>
             <CardTitle>
@@ -100,7 +102,7 @@ export default function ListProjectsSection() {
                 <DropdownMenuContent align="start">
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onSelect={() => handleEdit(idx)}
+                    onSelect={() => handleEdit(project)}
                   >
                     <Button
                       type="button"
@@ -147,7 +149,11 @@ export default function ListProjectsSection() {
           </CardFooter>
         </Card>
       ))}
-      <ProjectFormDialog open={openEdit} setOpen={setOpenEdit} title="Edit Project" />
+      <ProjectFormDialog
+        open={openEdit}
+        setOpen={setOpenEdit}
+        title="Edit Project"
+      />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>

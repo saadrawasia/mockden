@@ -1,36 +1,13 @@
-import type { Message, Project } from '@shared/lib/types';
-
 import { TypographyH2 } from '@frontend/components/typography/typography';
-import config from '@frontend/lib/config';
+import { Skeleton } from '@frontend/components/ui/skeleton';
+import { useProjectsQuery } from '@frontend/hooks/useProjects';
 import PageShell from '@frontend/pageShell';
 import ListProjectsSection from '@frontend/sections/projects/listProjects';
 import NewProjectSection from '@frontend/sections/projects/newProject';
-import { useProjectStore } from '@frontend/stores/projectStore';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
-import { toast } from 'sonner';
+import { useMemo } from 'react';
 
 export default function ProjectsPage() {
-  const { projects, setProjects } = useProjectStore();
-  const { data } = useSuspenseQuery<Project[] | Message>({
-    queryKey: ['projects'],
-    queryFn: async () => {
-      const res = await fetch(`${config.BACKEND_URL}/projects`);
-      const json = await res.json();
-      if ('message' in json) {
-        toast.error('Something went wrong!', {
-          description: json.message,
-        });
-      }
-      return json;
-    },
-  });
-
-  useEffect(() => {
-    if (Array.isArray(data)) {
-      setProjects(data);
-    }
-  }, [data, setProjects]);
+  const { data: projects, isLoading } = useProjectsQuery();
 
   const hasProjects = useMemo(() => projects.length > 0, [projects.length]);
 
@@ -45,8 +22,16 @@ export default function ProjectsPage() {
         <TypographyH2>Projects</TypographyH2>
         {hasProjects && <NewProjectSection renderSVG={false} />}
       </div>
-      {!hasProjects && <NewProjectSection renderSVG={true} />}
-      {hasProjects && <ListProjectsSection />}
+      {!isLoading
+        ? (
+            <>
+              {!hasProjects && <NewProjectSection renderSVG={true} />}
+              {hasProjects && <ListProjectsSection />}
+            </>
+          )
+        : (
+            <Skeleton className="h-[176px] w-[384px] rounded-xl" />
+          )}
     </PageShell>
   );
 }
