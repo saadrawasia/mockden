@@ -7,7 +7,6 @@ import {
 } from '@frontend/components/typography/typography';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -15,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@frontend/components/ui/alertDialog';
-import { Button, buttonVariants } from '@frontend/components/ui/button';
+import { Button } from '@frontend/components/ui/button';
 import {
   Card,
   CardAction,
@@ -30,105 +29,132 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
+import { useDeleteProjectMutation } from '@frontend/hooks/useProjects';
 import { useProjectStore } from '@frontend/stores/projectStore';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowRight, EllipsisVertical, Pencil, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import {
+  ArrowRight,
+  EllipsisVertical,
+  Loader2Icon,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 export default function ListProjectsSection() {
-  const projects = useProjectStore(state => state.projects);
-  const editProject = useProjectStore(state => state.editProject);
-  const selectedProject = useProjectStore(state => state.selectedProject);
-  const setSelectedProject = useProjectStore(
-    state => state.setSelectedProject,
-  );
-  const deleteProject = useProjectStore(state => state.deleteProject);
+  const queryClient = useQueryClient();
+  const projects = queryClient.getQueryData<Project[]>(['projects']) ?? [];
 
-  const [open, setOpen] = useState(false);
+  const { selectedProject, setSelectedProject } = useProjectStore();
+
+  const deleteProjectMutation = useDeleteProjectMutation();
+
+  const [openEdit, setOpenEdit] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const navigate = useNavigate();
-  const handleEdit = (index: number) => {
-    editProject(index);
-  };
 
-  const handleClick = (projectId: string) => {
-    navigate({
-      to: '/projects/$projectId/schemas',
-      params: {
-        projectId,
+  const handleEdit = useCallback(
+    (project: Project) => {
+      setSelectedProject(project);
+      setOpenEdit(true);
+    },
+    [setSelectedProject, setOpenEdit],
+  );
+
+  const handleClick = useCallback(
+    (projectSlug: string) => {
+      navigate({
+        to: '/projects/$projectSlug/schemas',
+        params: { projectSlug },
+      });
+    },
+    [navigate],
+  );
+
+  const handleDelete = useCallback(async () => {
+    if (!selectedProject)
+      return;
+    setIsDeleting(true);
+    deleteProjectMutation.mutate(selectedProject.id, {
+      onSuccess: (result) => {
+        if ('id' in result) {
+          setOpenAlert(false);
+        }
+        setIsDeleting(false);
       },
     });
-  };
+  }, [selectedProject, deleteProjectMutation]);
 
   return (
-    <div className="flex flex-col gap-6 sm:flex-row">
-      {projects.map((project, idx) => {
-        return (
-          <Card key={project.id} className="sm:w-sm w-full gap-4">
-            <CardHeader>
-              <CardTitle>
-                <TypographyH5>{project.name}</TypographyH5>
-              </CardTitle>
-              <CardAction>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild className="cursor-pointer">
-                    <EllipsisVertical />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onSelect={() => {
-                        handleEdit(idx);
-                        setOpen(prev => !prev);
-                      }}
+    <div className="flex flex-col flex-wrap gap-4 sm:flex-row">
+      {projects.map(project => (
+        <Card key={project.id} className="sm:w-sm w-full gap-4">
+          <CardHeader>
+            <CardTitle>
+              <TypographyH5>{project.name}</TypographyH5>
+            </CardTitle>
+            <CardAction>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="cursor-pointer">
+                  <EllipsisVertical />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={() => handleEdit(project)}
+                  >
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full justify-start"
                     >
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="w-full justify-start"
-                      >
-                        <Pencil />
-                        {' '}
-                        Edit
-                      </Button>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive cursor-pointer"
-                      onSelect={() => {
-                        setSelectedProject(project);
-                        setOpenAlert(prev => !prev);
-                      }}
+                      <Pencil />
+                      {' '}
+                      Edit
+                    </Button>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-destructive cursor-pointer"
+                    onSelect={() => {
+                      setSelectedProject(project);
+                      setOpenAlert(true);
+                    }}
+                  >
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="hover:text-destructive w-full justify-start"
                     >
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="hover:text-destructive w-full justify-start"
-                      >
-                        <Trash2 className="text-destructive" />
-                        {' '}
-                        Delete
-                      </Button>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              <TypographyP className="text-muted-foreground">
-                {project.description}
-              </TypographyP>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={() => handleClick(project.id)}>
-                Goto Schema
-                {' '}
-                <ArrowRight />
-              </Button>
-            </CardFooter>
-          </Card>
-        );
-      })}
-      <ProjectFormDialog open={open} setOpen={setOpen} title="Edit Project" />
+                      <Trash2 className="text-destructive" />
+                      {' '}
+                      Delete
+                    </Button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            <TypographyP className="text-muted-foreground">
+              {project.description}
+            </TypographyP>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={() => handleClick(project.slug)}>
+              Goto Schema
+              {' '}
+              <ArrowRight />
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
+      <ProjectFormDialog
+        open={openEdit}
+        setOpen={setOpenEdit}
+        title="Edit Project"
+      />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>
@@ -141,12 +167,14 @@ export default function ListProjectsSection() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className={buttonVariants({ variant: 'destructive' })}
-              onClick={() => deleteProject((selectedProject as Project).id)}
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
             >
+              {isDeleting && <Loader2Icon className="animate-spin" />}
               Delete
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

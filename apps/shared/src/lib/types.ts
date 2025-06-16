@@ -56,7 +56,11 @@ export type Schema = {
   created_at: string;
 };
 
-export type SchemaBase = Omit<Schema, 'id' | 'created_at'>;
+export type SchemaBase = {
+  name: string;
+  fields: string;
+  fakeData: boolean;
+};
 
 export type MockData = {
   id: number;
@@ -76,4 +80,8 @@ export type Project = {
 export type ProjectBase = {
   name: string;
   description: string;
+};
+
+export type Message = {
+  message: string;
 };
