@@ -18,8 +18,10 @@ async function seed() {
       .values({
         id: randomUUID(), // optional, PostgreSQL will generate if omitted
         email,
-        passwordHash: 'hashed_password_here', // Hash it in real-world apps
         planTier: 'pro',
+        clerkUserId: randomUUID(),
+        firstName: '',
+        lastName: '',
       })
       .returning();
 

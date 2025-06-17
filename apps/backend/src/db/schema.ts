@@ -1,4 +1,5 @@
 // apps/backend/src/db/schema.ts
+import { boolean } from 'drizzle-orm/pg-core';
 import {
   index,
   jsonb,
@@ -9,14 +10,19 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
+const createdAt = timestamp('created_at').notNull().defaultNow();
+const updatedAt = timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date());
+
 // --- Users table ---
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+  firstName: varchar('first_name', { length: 255 }).notNull(),
+  lastName: varchar('last_name', { length: 255 }).notNull(),
+  clerkUserId: varchar('clerk_user_id', { length: 255 }).unique().notNull(),
   planTier: varchar('plan_tier', { length: 50 }).default('free'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt,
+  updatedAt,
 });
 
 // --- Projects table ---
@@ -25,10 +31,11 @@ export const projects = pgTable('projects', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).notNull(),
+  apiKey: uuid('api_key').defaultRandom().notNull(),
   description: text('description'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
+  createdAt,
+  updatedAt,
+}, table => [index('idx_projects_user_id').on(table.userId)]);
 
 // --- Schemas table ---
 export const schemas = pgTable(
@@ -40,8 +47,11 @@ export const schemas = pgTable(
     }),
     name: varchar('name', { length: 255 }).notNull(),
     fields: jsonb('fields').notNull(),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow(),
+    slug: varchar('slug', { length: 255 }).notNull(),
+    fakeData: boolean('fake_data').default(false),
+    isActive: boolean('is_active').default(true),
+    createdAt,
+    updatedAt,
   },
   table => [index('idx_schemas_project_id').on(table.projectId)],
 );
@@ -55,8 +65,8 @@ export const mockData = pgTable(
       onDelete: 'cascade',
     }),
     data: jsonb('data').notNull(),
-    createdAt: timestamp('created_at').defaultNow(),
-    updatedAt: timestamp('updated_at').defaultNow(),
+    createdAt,
+    updatedAt,
   },
   table => [
     index('idx_mock_data_schema_id').on(table.schemaId),

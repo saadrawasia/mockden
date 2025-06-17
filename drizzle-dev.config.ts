@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/filename-case */
 // drizzle.config.ts
 import * as dotenv from 'dotenv';
 import { defineConfig } from 'drizzle-kit';

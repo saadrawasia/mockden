@@ -7,11 +7,13 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit push",
-    "db:seed": "npx tsx --env-file=.env.development apps/backend/src/db/seed.ts"
+    "db:generate:dev": "drizzle-kit generate --config=drizzle-dev.config.ts",
+    "db:migrate:dev": "drizzle-kit push --config=drizzle-dev.config.ts",
+    "db:seed": "npx tsx --env-file=.env.development apps/backend/src/db/seed.ts",
+    "backend:dev": "nx run @mockden/backend:serve & ngrok http 3000"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.32.0",
     "@neondatabase/serverless": "^1.0.0",
     "@tailwindcss/postcss": "^4.1.8",
     "@tailwindcss/vite": "^4.1.8",

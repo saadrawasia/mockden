@@ -10,7 +10,7 @@ type CreateSchemaProps = SchemaBase & {
   projectId: string;
 };
 
-export async function createSchema({ name, fields, projectId }: CreateSchemaProps) {
+export async function createSchema({ name, fields, projectId, fakeData }: CreateSchemaProps) {
   if (!name)
     return { status: 400, json: { message: 'Missing schema name.' } };
 
@@ -31,11 +31,10 @@ export async function createSchema({ name, fields, projectId }: CreateSchemaProp
 
   const newSchema = await db
     .insert(schemas)
-    .values({ name, fields: JSON.parse(fields), projectId })
+    .values({ name, fields: JSON.parse(fields), projectId, fakeData, slug: slugify(name) })
     .returning();
 
-  const mappedSchema = { ...newSchema[0], slug: slugify(newSchema[0].name), fakeData: false };
-  return { status: 201, json: mappedSchema };
+  return { status: 201, json: newSchema[0] };
 }
 
 type GetSchemaProps = {
@@ -51,8 +50,7 @@ export async function getSchemaById({ id }: GetSchemaProps) {
       return { status: 400, json: { message: 'Schema not found.' } };
     }
 
-    const mappedSchema = { ...getSchema, slug: slugify(getSchema.name), fakeData: false };
-    return { status: 200, json: mappedSchema };
+    return { status: 200, json: getSchema };
   }
   catch (err) {
     console.error('DB error:', err);
@@ -63,8 +61,7 @@ export async function getSchemaById({ id }: GetSchemaProps) {
 export async function getAllSchemas() {
   try {
     const getSchemas = await db.select().from(schemas);
-    const mappedSchemas = getSchemas.map(schema => ({ ...schema, slug: slugify(schema.name), fakeData: false }));
-    return { status: 200, json: mappedSchemas };
+    return { status: 200, json: getSchemas };
   }
   catch (err) {
     console.error('DB error:', err);
@@ -88,7 +85,7 @@ type EditSchemaProps = SchemaBase & {
   projectId: string;
 };
 
-export async function editSchema({ id, name, fields, projectId }: EditSchemaProps) {
+export async function editSchema({ id, name, fields, projectId, fakeData }: EditSchemaProps) {
   if (!name)
     return { status: 400, json: { message: 'Missing schema name.' } };
 
@@ -99,13 +96,11 @@ export async function editSchema({ id, name, fields, projectId }: EditSchemaProp
 
   const updatedSchema = await db
     .update(schemas)
-    .set({ name, fields })
+    .set({ name, fields: JSON.parse(fields), slug: slugify(name), fakeData })
     .where(
       and(eq(schemas.id, id), eq(schemas.projectId, projectId)),
     )
     .returning();
 
-  const mappedSchema = { ...updatedSchema[0], slug: slugify(updatedSchema[0].name), fakeData: false };
-
-  return { status: 200, json: mappedSchema };
+  return { status: 200, json: updatedSchema[0] };
 }
