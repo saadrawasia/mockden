@@ -1,17 +1,23 @@
 import type { Message, Schema } from '@shared/lib/types';
 
+import { useAuth } from '@clerk/clerk-react';
 import config from '@frontend/lib/config';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-const API_URL = (projectId: string) => `${config.BACKEND_URL}/projects/${projectId}/schemas`; // adjust based on your backend
+const API_URL = (projectId: number) => `${config.BACKEND_URL}/projects/${projectId}/schemas`; // adjust based on your backend
 
 // Fetch schemas
-export function useSchemasQuery(projectId: string) {
+export function useSchemasQuery(projectId: number) {
+  const { getToken } = useAuth();
   return useSuspenseQuery<Schema[]>({
     queryKey: ['schemas'],
     queryFn: async () => {
-      const res = await fetch(API_URL(projectId));
+      const token = await getToken();
+      const res = await fetch(API_URL(projectId), { headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      } });
       const data = await res.json();
 
       if (!res.ok || !Array.isArray(data)) {
@@ -30,12 +36,14 @@ export function useSchemasQuery(projectId: string) {
 // Create schema
 export function useCreateSchemaMutation() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
-  return useMutation<Schema | Message, unknown, { projectId: string; newSchema: Partial<Schema> }>({
+  return useMutation<Schema | Message, unknown, { projectId: number; newSchema: Partial<Schema> }>({
     mutationFn: async ({ projectId, newSchema }) => {
+      const token = await getToken();
       const res = await fetch(API_URL(projectId), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(newSchema),
       });
 
@@ -63,12 +71,14 @@ export function useCreateSchemaMutation() {
 // Edit schema
 export function useEditSchemaMutation() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
-  return useMutation<Schema | Message, unknown, { projectId: string; id: string; schema: Partial<Schema> }>({
+  return useMutation<Schema | Message, unknown, { projectId: number; id: number; schema: Partial<Schema> }>({
     mutationFn: async ({ id, schema, projectId }) => {
+      const token = await getToken();
       const res = await fetch(`${API_URL(projectId)}/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(schema),
       });
 
@@ -97,12 +107,15 @@ export function useEditSchemaMutation() {
 // Delete schema
 export function useDeleteSchemaMutation() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
-  return useMutation<Message | { id: string }, unknown, { id: string; projectId: string }>({
+  return useMutation<Message | { id: number }, unknown, { id: number; projectId: number }>({
     mutationFn: async ({ id, projectId }) => {
+      const token = await getToken();
       try {
         const res = await fetch(`${API_URL(projectId)}/${id}`, {
           method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const data = await res.json();

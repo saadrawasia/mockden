@@ -7,20 +7,7 @@ import {
   getAllProjects,
   getProjectById,
 } from '@backend/services/projectService';
-import { getUserByClerkId } from '@backend/services/userService';
-import { getAuth } from '@clerk/express';
-
-async function getAuthenticatedUser(req: Request) {
-  const { userId } = getAuth(req);
-  if (!userId) {
-    return null;
-  }
-  const user = await getUserByClerkId(userId);
-  if (!user) {
-    return null;
-  }
-  return user;
-}
+import { getAuthenticatedUser } from '@backend/services/userService';
 
 export async function createProjectRequest(req: Request, res: Response) {
   try {

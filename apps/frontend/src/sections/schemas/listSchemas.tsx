@@ -1,4 +1,4 @@
-import type { Schema } from '@shared/lib/types';
+import type { Project, Schema } from '@shared/lib/types';
 
 import {
   TypographyH5,
@@ -27,8 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
-import { useDeleteSchemaMutation } from '@frontend/hooks/useSchemas';
-import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
+import { useDeleteSchemaMutation, useEditSchemaMutation } from '@frontend/hooks/useSchemas';
 import { useSchemaStore } from '@frontend/stores/schemasStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { Copy, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from 'lucide-react';
@@ -38,13 +37,17 @@ import SchemaFormDialog from '../../components/schemaForm/schemaForm';
 import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
 
-export default function ListSchemasSection() {
-  const { projectSlug, project } = Route.useLoaderData();
+type ListSchemasSectionProps = {
+  project: Project;
+};
+
+export default function ListSchemasSection({ project }: ListSchemasSectionProps) {
   const queryClient = useQueryClient();
   const schemas = queryClient.getQueryData<Schema[]>(['schemas']) ?? [];
 
   const { selectedSchema, setSelectedSchema } = useSchemaStore();
   const deleteSchemasMutation = useDeleteSchemaMutation();
+  const editSchemaMutation = useEditSchemaMutation();
 
   const [openEdit, setOpenEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -70,6 +73,16 @@ export default function ListSchemasSection() {
       },
     });
   }, [selectedSchema, deleteSchemasMutation, project]);
+
+  const handleIsActive = (schema: Schema) => {
+    editSchemaMutation.mutate(
+      {
+        id: schema.id,
+        projectId: project.id,
+        schema: { name: schema.name, fields: schema.fields, fakeData: schema.fakeData, isActive: !schema.isActive },
+      },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -134,7 +147,7 @@ export default function ListSchemasSection() {
                   <div className="group flex cursor-pointer gap-2">
                     <TypographyP className="text-muted-foreground">
                       https://mockden.com/api/
-                      {projectSlug}
+                      {project.slug}
                       /
                       {schema.slug}
                     </TypographyP>
@@ -151,7 +164,9 @@ export default function ListSchemasSection() {
                   </TypographyP>
                   <div className="group flex cursor-pointer gap-2">
                     <TypographyP className="text-muted-foreground">
-                      x-mockden-key: random-api-key
+                      x-mockden-key:
+                      {' '}
+                      {project.apiKey}
                     </TypographyP>
                     <Copy
                       className="text-muted-foreground hidden group-hover:flex md:hidden"
@@ -161,7 +176,7 @@ export default function ListSchemasSection() {
                 </div>
 
                 <div className="flex space-x-2">
-                  <Switch id="active" checked={schema.status === 'active'} />
+                  <Switch id="active" checked={schema.isActive} onCheckedChange={() => handleIsActive(schema)} />
                   <Label htmlFor="active" className="text-md font-semibold">
                     Active
                   </Label>
@@ -171,7 +186,7 @@ export default function ListSchemasSection() {
           </Card>
         );
       })}
-      <SchemaFormDialog open={openEdit} setOpen={setOpenEdit} title="Edit Schema" />
+      <SchemaFormDialog open={openEdit} setOpen={setOpenEdit} title="Edit Schema" project={project} />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>

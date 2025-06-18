@@ -1,8 +1,7 @@
-import type { SchemaBase } from '@shared/lib/types';
+import type { Project, SchemaBase } from '@shared/lib/types';
 
 import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
 import { useCreateSchemaMutation, useEditSchemaMutation } from '@frontend/hooks/useSchemas';
-import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
 import { useSchemaStore } from '@frontend/stores/schemasStore';
 import { DialogDescription } from '@radix-ui/react-dialog';
 import {
@@ -13,13 +12,12 @@ import { useForm } from '@tanstack/react-form';
 import { Loader2Icon } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import AceEditor from 'react-ace';
-
-import { cn } from '../../lib/utils';
-
+import 'ace-builds/src-noconflict/ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
+import { cn } from '../../lib/utils';
 import { TypographyCaption } from '../typography/typography';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -35,12 +33,14 @@ type SchemaFormDialogProps = {
   title: string;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  project: Project;
 };
 
 export default function SchemaFormDialog({
   title,
   open,
   setOpen,
+  project,
 }: SchemaFormDialogProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const requestType = title.includes('Edit') ? 'edit' : 'create';
@@ -48,7 +48,7 @@ export default function SchemaFormDialog({
   const handleOpen = useCallback((open = false) => setOpen(open), [setOpen]);
 
   const FormComponent = (
-    <SchemaForm setOpen={setOpen} requestType={requestType} />
+    <SchemaForm setOpen={setOpen} requestType={requestType} project={project} />
   );
 
   const exampleSchema = `[
@@ -60,13 +60,9 @@ export default function SchemaFormDialog({
   },
   {
     "name": "email",
-    "type": "string",
+    "type": "email",
     "primary": false,
-    "nullable": false,
-    "validation": {
-      "format": "email",
-      "maxLength": 255
-    }
+    "nullable": false
   },
   {
     "name": "age",
@@ -166,11 +162,12 @@ export default function SchemaFormDialog({
 type SchemaFormProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   requestType: 'edit' | 'create';
+  project: Project;
 };
 
-function SchemaForm({ setOpen, requestType }: SchemaFormProps) {
+function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
   const selectedSchema = useSchemaStore(state => state.selectedSchema);
-  const { project } = Route.useLoaderData();
+
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -184,7 +181,7 @@ function SchemaForm({ setOpen, requestType }: SchemaFormProps) {
       setIsSaving(true);
       try {
         createSchemaMutation.mutate(
-          { projectId: project.id, newSchema: { name: value?.name, fields: value?.fields } },
+          { projectId: project.id, newSchema: { name: value?.name, fields: value?.fields, fakeData: value.fakeData } },
           {
             onSuccess: (result) => {
               if ('message' in result) {
@@ -218,7 +215,7 @@ function SchemaForm({ setOpen, requestType }: SchemaFormProps) {
           {
             id: selectedSchema.id,
             projectId: project.id,
-            schema: { name: value?.name, fields: value?.fields },
+            schema: { name: value?.name, fields: value?.fields, fakeData: value.fakeData },
           },
           {
             onSuccess: (result) => {

@@ -1,14 +1,11 @@
 // Type definitions
-type FieldType = 'string' | 'number' | 'boolean' | 'array' | 'object';
-
-type ValidationFormat = 'email' | 'url' | 'uuid';
+type FieldType = 'string' | 'number' | 'boolean' | 'array' | 'object' | 'email' | 'url' | 'uuid' | 'date';
 
 type ValidationRules = {
   // String validations
   minLength?: number;
   maxLength?: number;
   pattern?: string; // regex pattern
-  format?: ValidationFormat;
 
   // Number validations
   min?: number;
@@ -47,13 +44,15 @@ export type ZodError = {
 };
 
 export type Schema = {
-  id: string;
+  id: number;
   name: string;
   fields: string;
   fakeData: boolean;
   slug: string;
-  status: 'active' | 'inactive';
-  created_at: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  projectId: number;
 };
 
 export type SchemaBase = {
@@ -66,8 +65,8 @@ export type MockData = {
   id: number;
   schema_id: number;
   data: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Project = {
@@ -75,6 +74,9 @@ export type Project = {
   name: string;
   description: string;
   slug: string;
+  apiKey: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ProjectBase = {

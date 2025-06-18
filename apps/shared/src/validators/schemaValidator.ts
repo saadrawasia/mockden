@@ -15,7 +15,7 @@ const FieldSchema = z.object({
     .string()
     .min(1, 'Field name is required')
     .regex(/^[a-z_]\w*$/i, 'Field name must be a valid identifier'),
-  type: z.enum(['string', 'number', 'boolean', 'array', 'object'], {
+  type: z.enum(['string', 'number', 'boolean', 'array', 'object', 'date', 'url', 'uuid', 'email'], {
     errorMap: () => ({
       message: 'Type must be one of: string, number, boolean, array, object',
     }),
@@ -28,7 +28,6 @@ const FieldSchema = z.object({
       minLength: z.number().int().min(0).optional(),
       maxLength: z.number().int().positive().optional(),
       pattern: z.string().optional(), // regex pattern
-      format: z.enum(['email', 'url', 'uuid']).optional(),
 
       // Number validations
       min: z.number().optional(),
@@ -156,20 +155,6 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
             );
           }
         }
-
-        if (val.format === 'email') {
-          stringSchema = stringSchema.email(
-            `${field.name} must be a valid email address`,
-          );
-        }
-        else if (val.format === 'url') {
-          stringSchema = stringSchema.url(`${field.name} must be a valid URL`);
-        }
-        else if (val.format === 'uuid') {
-          stringSchema = stringSchema.uuid(
-            `${field.name} must be a valid UUID`,
-          );
-        }
       }
       schema = stringSchema;
       break;
@@ -231,6 +216,22 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 
     case 'object':
       schema = z.object({}).passthrough(); // Allow any object structure
+      break;
+
+    case 'date':
+      schema = z.date();
+      break;
+
+    case 'email':
+      schema = z.string().email();
+      break;
+
+    case 'url':
+      schema = z.string().url();
+      break;
+
+    case 'uuid':
+      schema = z.string().uuid();
       break;
 
     default:
