@@ -13,6 +13,7 @@
     "backend:dev": "nx run @mockden/backend:serve & ngrok http 3000"
   },
   "dependencies": {
+    "@clerk/backend": "^2.1.0",
     "@clerk/clerk-react": "^5.32.0",
     "@clerk/express": "^1.7.0",
     "@neondatabase/serverless": "^1.0.0",

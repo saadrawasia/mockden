@@ -1,4 +1,6 @@
+import { useUser } from '@clerk/clerk-react';
 import { Button } from '@frontend/components/ui/button';
+import { useEditUserMutation } from '@frontend/hooks/useUsers';
 import { UserDetailsZod } from '@shared/validators/userValidator';
 import { useForm } from '@tanstack/react-form';
 import { Loader2Icon } from 'lucide-react';
@@ -15,31 +17,26 @@ import { Label } from '../../components/ui/label';
 
 export default function UserDetailsSection() {
   const [errorMessage, setErrorMessage] = useState('');
+  const { user } = useUser();
+  const editUserMutation = useEditUserMutation();
 
   const form = useForm({
     defaultValues: {
-      name: '',
-      email: '',
+      firstName: user?.firstName ?? '',
+      lastName: user?.lastName ?? '',
     },
     onSubmit: async ({ value }) => {
       // Do something with form data
       setErrorMessage('');
-      // const schema = JSON.stringify(JSON.parse(value.fields), null, 4); // prettify json
-      // const res = await fetch('http://localhost:4000/schemas', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name: value.name, schema }),
-      // });
-      // const json: Schema | Message = await res.json();
-      // if ('message' in json) {
-      //   setErrorMessage(json.message);
-      // }
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log(value);
-          resolve();
-        }, 1500);
-      });
+      const mutate = await editUserMutation.mutateAsync(
+        {
+          firstName: value.firstName,
+          lastName: value.lastName,
+        },
+      );
+      if (mutate.message !== 'User updated.') {
+        setErrorMessage(mutate.message);
+      }
     },
   });
 
@@ -60,7 +57,7 @@ export default function UserDetailsSection() {
           <div className="flex flex-col gap-2">
             {/* A type-safe field component */}
             <form.Field
-              name="name"
+              name="firstName"
               validators={{
                 onChange: ({ value }) => {
                   const result = UserDetailsZod.shape.name.safeParse(value);
@@ -76,11 +73,51 @@ export default function UserDetailsSection() {
                 return (
                   <>
                     <div className="grid w-full items-center gap-3">
-                      <Label htmlFor={field.name}>Name</Label>
+                      <Label htmlFor={field.name}>First Name</Label>
                       <Input
                         type="text"
                         id={field.name}
-                        placeholder="Name"
+                        placeholder="First Name"
+                        name={field.name}
+                        value={field.state.value}
+                        // onBlur={field.handleBlur}
+                        onChange={e => field.handleChange(e.target.value)}
+                        aria-invalid={
+                          field.state.meta.isTouched
+                          && !field.state.meta.isValid
+                        }
+                      />
+                    </div>
+                    <ErrorInfo field={field} />
+                  </>
+                );
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            {/* A type-safe field component */}
+            <form.Field
+              name="lastName"
+              validators={{
+                onChange: ({ value }) => {
+                  const result = UserDetailsZod.shape.name.safeParse(value);
+                  if (!result.success) {
+                    // Return first Zod error message
+                    return result.error.issues[0].message;
+                  }
+                  return undefined;
+                },
+              }}
+              children={(field) => {
+                // Avoid hasty abstractions. Render props are great!
+                return (
+                  <>
+                    <div className="grid w-full items-center gap-3">
+                      <Label htmlFor={field.name}>Last Name</Label>
+                      <Input
+                        type="text"
+                        id={field.name}
+                        placeholder="Last Name"
                         name={field.name}
                         value={field.state.value}
                         // onBlur={field.handleBlur}
@@ -102,9 +139,9 @@ export default function UserDetailsSection() {
             <Input
               type="email"
               id="email"
-              placeholder="Name"
+              placeholder="Email Address"
               name="email"
-              value="test@example.con"
+              value={user?.primaryEmailAddress?.emailAddress}
               disabled
             />
           </div>
@@ -116,10 +153,13 @@ export default function UserDetailsSection() {
           <form.Subscribe
             selector={state => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, isSubmitting]) => (
-              <Button type="submit" disabled={!canSubmit} className="self-end">
-                {isSubmitting && <Loader2Icon className="animate-spin" />}
-                Save
-              </Button>
+              <>
+                {isSubmitting.toString()}
+                <Button type="submit" disabled={!canSubmit || isSubmitting} className="self-end">
+                  {isSubmitting && <Loader2Icon className="animate-spin" />}
+                  Save
+                </Button>
+              </>
             )}
           />
         </form>

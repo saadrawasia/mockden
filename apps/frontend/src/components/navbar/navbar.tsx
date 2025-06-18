@@ -47,7 +47,7 @@ export default function Navbar() {
           <DropdownMenuContent align="end" className="flex flex-col gap-2">
             <DropdownMenuItem className="cursor-pointer hover:bg-transparent">
               <Link to="/user-settings">
-                <Button type="button" variant="ghost">
+                <Button type="button" variant="link" className="hover:no-underline">
                   User Settings
                 </Button>
               </Link>
@@ -55,7 +55,7 @@ export default function Navbar() {
             <Separator />
             <DropdownMenuItem className="cursor-pointer  hover:bg-transparent">
               <Link to="/">
-                <Button type="button" variant="ghost" asChild>
+                <Button type="button" variant="link" className="hover:no-underline" asChild>
                   <SignOutButton />
                 </Button>
               </Link>
