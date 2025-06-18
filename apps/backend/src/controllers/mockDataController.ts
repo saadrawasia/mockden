@@ -9,7 +9,7 @@ import {
 
 export async function getMockDataRequest(req: Request, res: Response) {
   const { schemaId } = req.params;
-  const mockData = await getMockData(schemaId);
+  const mockData = await getMockData(Number.parseInt(schemaId));
   return res.status(mockData.status).json(mockData.json);
 }
 
@@ -20,7 +20,7 @@ export async function createMockDataRequest(req: Request, res: Response) {
     if (!data) {
       return res.status(400).json('Data is missing.');
     }
-    const mockData = await createMockData(schemaId, data);
+    const mockData = await createMockData(Number.parseInt(schemaId), data);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {
@@ -36,7 +36,7 @@ export async function updateMockDataRequest(req: Request, res: Response) {
     if (!data) {
       return res.status(400).json('Data is missing.');
     }
-    const mockData = await updateMockData(schemaId, primaryKeyValue, data);
+    const mockData = await updateMockData(Number.parseInt(schemaId), primaryKeyValue, data);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {
@@ -48,7 +48,7 @@ export async function updateMockDataRequest(req: Request, res: Response) {
 export async function deleteMockDataRequest(req: Request, res: Response) {
   try {
     const { schemaId, primaryKeyValue } = req.params;
-    const mockData = await deleteMockData(schemaId, primaryKeyValue);
+    const mockData = await deleteMockData(Number.parseInt(schemaId), primaryKeyValue);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {

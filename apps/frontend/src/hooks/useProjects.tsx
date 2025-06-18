@@ -1,5 +1,6 @@
 import type { Message, Project } from '@shared/lib/types';
 
+import { useAuth } from '@clerk/clerk-react';
 import config from '@frontend/lib/config';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -8,10 +9,16 @@ const API_URL = `${config.BACKEND_URL}/projects`; // adjust based on your backen
 
 // Fetch projects
 export function useProjectsQuery() {
+  const { getToken } = useAuth();
+
   return useSuspenseQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: async () => {
-      const res = await fetch(API_URL);
+      const token = await getToken();
+      const res = await fetch(API_URL, { headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      } });
       const data = await res.json();
 
       if (!res.ok || !Array.isArray(data)) {
@@ -30,12 +37,15 @@ export function useProjectsQuery() {
 // Create project
 export function useCreateProjectMutation() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
   return useMutation<Project | Message, unknown, Pick<Project, 'name' | 'description'>>({
     mutationFn: async (newProject) => {
+      const token = await getToken();
+
       const res = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(newProject),
       });
 
@@ -63,12 +73,14 @@ export function useCreateProjectMutation() {
 // Edit project
 export function useEditProjectMutation() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
-  return useMutation<Project | Message, unknown, { id: string; project: Partial<Project> }>({
+  return useMutation<Project | Message, unknown, { id: number; project: Partial<Project> }>({
     mutationFn: async ({ id, project }) => {
+      const token = await getToken();
       const res = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(project),
       });
 
@@ -97,12 +109,15 @@ export function useEditProjectMutation() {
 // Delete project
 export function useDeleteProjectMutation() {
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
-  return useMutation<Message | { id: string }, unknown, string>({
+  return useMutation<Message | { id: number }, unknown, number>({
     mutationFn: async (id) => {
+      const token = await getToken();
       try {
         const res = await fetch(`${API_URL}/${id}`, {
           method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         const data = await res.json();

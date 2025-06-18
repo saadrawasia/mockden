@@ -46,7 +46,7 @@ function generatePrimaryKeyValue(
  * Gets mock data for a schema.
  */
 export async function getMockData<T = Record<string, unknown>[]>(
-  schemaId: string,
+  schemaId: number,
 ): Promise<{ status: number; json: T }> {
   try {
     const mockData = await db.query.mockData.findFirst({
@@ -65,11 +65,11 @@ export async function getMockData<T = Record<string, unknown>[]>(
  * Creates new mock data or updates if primary key exists.
  */
 export async function createMockData(
-  schemaId: string,
+  schemaId: number,
   data: Record<string, unknown>,
 ) {
   // Fetch schema and validate existence
-  const schemaObj = await getSchemaById({ id: schemaId });
+  const schemaObj = await getSchemaById(schemaId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
     return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
   }
@@ -132,11 +132,11 @@ export async function createMockData(
  * Deletes mock data by primary key value.
  */
 export async function deleteMockData(
-  schemaId: string,
+  schemaId: number,
   primaryKeyValue: string,
 ) {
   // Fetch schema
-  const schemaObj = await getSchemaById({ id: schemaId });
+  const schemaObj = await getSchemaById(schemaId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
     return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
   }
@@ -173,12 +173,12 @@ export async function deleteMockData(
  * Updates mock data by primary key value.
  */
 export async function updateMockData(
-  schemaId: string,
+  schemaId: number,
   primaryKeyValue: string,
   data: Record<string, unknown>,
 ) {
   // Fetch schema
-  const schemaObj = await getSchemaById({ id: schemaId });
+  const schemaObj = await getSchemaById(schemaId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
     return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
   }

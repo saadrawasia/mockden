@@ -16,7 +16,6 @@ async function seed() {
     const [newUser] = await db
       .insert(users)
       .values({
-        id: randomUUID(), // optional, PostgreSQL will generate if omitted
         email,
         planTier: 'pro',
         clerkUserId: randomUUID(),
@@ -40,7 +39,6 @@ async function seed() {
 
   if (!existingProject) {
     await db.insert(projects).values({
-      id: randomUUID(),
       userId: user.id,
       name: 'Admin Project',
       slug: projectSlug,

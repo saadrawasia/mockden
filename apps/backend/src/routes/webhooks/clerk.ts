@@ -1,5 +1,4 @@
-import db from '@backend/db/client';
-import { users } from '@backend/db/schema';
+import { createUser } from '@backend/services/userService';
 import express from 'express';
 
 const router = express.Router();
@@ -14,12 +13,7 @@ router.post('/clerk/user-created', express.json(), async (req, res) => {
 
     const user = event.data;
 
-    await db.insert(users).values({
-      email: user.email_addresses?.[0]?.email_address || '',
-      firstName: user.first_name || '',
-      lastName: user.last_name || '',
-      clerkUserId: user.id,
-    });
+    await createUser(user);
 
     return res.status(200).send('User created');
   }

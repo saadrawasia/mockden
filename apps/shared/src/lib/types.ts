@@ -71,7 +71,7 @@ export type MockData = {
 };
 
 export type Project = {
-  id: string;
+  id: number;
   name: string;
   description: string;
   slug: string;
