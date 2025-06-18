@@ -1,1 +1,0 @@
-ALTER TABLE "schemas" DROP COLUMN "description";

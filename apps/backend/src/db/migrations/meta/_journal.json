@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1748518605674,
-      "tag": "0000_blushing_piledriver",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1748519089317,
-      "tag": "0001_slippery_norman_osborn",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1750161197876,
-      "tag": "0002_exotic_nekra",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1750162419771,
-      "tag": "0003_naive_natasha_romanoff",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1750164043488,
-      "tag": "0004_petite_avengers",
+      "when": 1750245910794,
+      "tag": "0000_reflective_tana_nile",
       "breakpoints": true
     }
   ]

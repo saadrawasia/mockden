@@ -1,15 +1,22 @@
-import type { ProjectBase } from '@shared/lib/types';
+import type { Project } from '@shared/lib/types';
 
 import db from '@backend/db/client';
 import { projects } from '@backend/db/schema';
-import { USER_ID } from '@backend/utils/constants';
 import { slugify } from '@backend/utils/helpers';
 import { validateProject } from '@shared/validators/projectValidator';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
-type CreateProjectProps = ProjectBase;
+type CreateProjectProps = {
+  name: Project['name'];
+  description: Project['description'];
+  userId: number;
+};
 
-export async function createProject({ name, description }: CreateProjectProps) {
+export async function createProject({ name, description, userId }: CreateProjectProps) {
+  if (!name || !description) {
+    return { status: 400, json: { message: 'Invalid data.' } };
+  }
+
   const project = validateProject({ name, description });
 
   if ('error' in project)
@@ -27,19 +34,15 @@ export async function createProject({ name, description }: CreateProjectProps) {
 
   const newProject = await db
     .insert(projects)
-    .values({ name, description, userId: USER_ID, slug: slugify(name) })
+    .values({ name, description, userId, slug: slugify(name) })
     .returning();
   return { status: 201, json: newProject[0] };
 }
 
-type GetProjectProps = {
-  id: string;
-};
-
-export async function getProjectById({ id }: GetProjectProps) {
+export async function getProjectById(id: number, userId: number) {
   try {
     const getProject = await db.query.projects.findFirst({
-      where: fields => eq(fields.id, id),
+      where: fields => and(eq(fields.id, id), eq(fields.userId, userId)),
     });
     if (!getProject) {
       return { status: 400, json: { message: 'Project not found.' } };
@@ -52,9 +55,9 @@ export async function getProjectById({ id }: GetProjectProps) {
   }
 }
 
-export async function getAllProjects() {
+export async function getAllProjects(userId: number) {
   try {
-    const getProjects = await db.select().from(projects);
+    const getProjects = await db.select().from(projects).where(eq(projects.userId, userId));
     return { status: 200, json: getProjects };
   }
   catch (err) {
@@ -63,9 +66,9 @@ export async function getAllProjects() {
   }
 }
 
-export async function deleteProject(id: string) {
+export async function deleteProject(id: number, userId: number) {
   try {
-    await db.delete(projects).where(eq(projects.id, id));
+    await db.delete(projects).where(and(eq(projects.id, id), eq(projects.userId, userId)));
     return { status: 200, json: { message: 'Project deleted' } };
   }
   catch (err) {
@@ -74,11 +77,14 @@ export async function deleteProject(id: string) {
   }
 }
 
-type EditProjectProps = ProjectBase & {
-  id: string;
+type EditProjectProps = {
+  id: Project['id'];
+  name: Project['name'];
+  description: Project['description'];
+  userId: number;
 };
 
-export async function editProject({ id, name, description }: EditProjectProps) {
+export async function editProject({ id, name, description, userId }: EditProjectProps) {
   const project = validateProject({ name, description });
 
   if ('error' in project)
@@ -87,7 +93,7 @@ export async function editProject({ id, name, description }: EditProjectProps) {
   const updatedProject = await db
     .update(projects)
     .set({ name, description, slug: slugify(name) })
-    .where(eq(projects.id, id))
+    .where(and(eq(projects.id, id), eq(projects.userId, userId)))
     .returning();
 
   return { status: 200, json: updatedProject[0] };

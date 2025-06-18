@@ -7,7 +7,7 @@ import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
 import { and, eq } from 'drizzle-orm';
 
 type CreateSchemaProps = SchemaBase & {
-  projectId: string;
+  projectId: number;
 };
 
 export async function createSchema({ name, fields, projectId, fakeData }: CreateSchemaProps) {
@@ -37,11 +37,7 @@ export async function createSchema({ name, fields, projectId, fakeData }: Create
   return { status: 201, json: newSchema[0] };
 }
 
-type GetSchemaProps = {
-  id: string;
-};
-
-export async function getSchemaById({ id }: GetSchemaProps) {
+export async function getSchemaById(id: number) {
   try {
     const getSchema = await db.query.schemas.findFirst({
       where: fields => eq(fields.id, id),
@@ -69,7 +65,7 @@ export async function getAllSchemas() {
   }
 }
 
-export async function deleteSchema(id: string) {
+export async function deleteSchema(id: number) {
   try {
     await db.delete(schemas).where(eq(schemas.id, id));
     return { status: 200, json: { message: 'Schema deleted' } };
@@ -81,8 +77,8 @@ export async function deleteSchema(id: string) {
 }
 
 type EditSchemaProps = SchemaBase & {
-  id: string;
-  projectId: string;
+  id: number;
+  projectId: number;
 };
 
 export async function editSchema({ id, name, fields, projectId, fakeData }: EditSchemaProps) {
