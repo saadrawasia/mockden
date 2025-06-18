@@ -1,5 +1,8 @@
+import type { Request } from 'express';
+
 import db from '@backend/db/client';
 import { users } from '@backend/db/schema';
+import { getAuth } from '@clerk/express';
 import { eq } from 'drizzle-orm';
 
 export async function getUserByClerkId(clerkId: string) {
@@ -28,4 +31,16 @@ export async function createUser(user: User) {
     lastName: user.last_name || '',
     clerkUserId: user.id,
   });
+}
+
+export async function getAuthenticatedUser(req: Request) {
+  const { userId } = getAuth(req);
+  if (!userId) {
+    return null;
+  }
+  const user = await getUserByClerkId(userId);
+  if (!user) {
+    return null;
+  }
+  return user;
 }

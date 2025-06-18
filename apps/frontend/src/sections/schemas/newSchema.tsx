@@ -1,3 +1,5 @@
+import type { Project } from '@shared/lib/types';
+
 import schemaSVG from '@frontend/assets/server.svg';
 import SchemaFormDialog from '@frontend/components/schemaForm/schemaForm';
 import { Button } from '@frontend/components/ui/button';
@@ -8,9 +10,10 @@ import { useState } from 'react';
 
 type NewSchemaSectionProps = {
   renderSVG: boolean;
+  project: Project;
 };
 
-export default function NewSchemaSection({ renderSVG }: NewSchemaSectionProps) {
+export default function NewSchemaSection({ renderSVG, project }: NewSchemaSectionProps) {
   const setSelectedSchema = useSchemaStore(state => state.setSelectedSchema);
   const defaultSchema = useSchemaStore(state => state.defaultSchema);
   const [open, setOpen] = useState(false);
@@ -35,7 +38,7 @@ export default function NewSchemaSection({ renderSVG }: NewSchemaSectionProps) {
         {' '}
         Create Schema
       </Button>
-      <SchemaFormDialog open={open} setOpen={setOpen} title="New Schema" />
+      <SchemaFormDialog open={open} setOpen={setOpen} title="New Schema" project={project} />
     </div>
   );
 }

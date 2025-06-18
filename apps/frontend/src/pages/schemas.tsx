@@ -63,14 +63,14 @@ function SchemaPageImplementation({ project }: SchemaPageImplementationProps) {
           {' '}
           - Schemas
         </TypographyH2>
-        {hasSchemas && <NewSchemaSection renderSVG={false} />}
+        {hasSchemas && <NewSchemaSection renderSVG={false} project={project} />}
       </div>
 
       {!isLoading
         ? (
             <>
-              {!hasSchemas && <NewSchemaSection renderSVG={true} />}
-              {hasSchemas && <ListSchemasSection />}
+              {!hasSchemas && <NewSchemaSection renderSVG={true} project={project} />}
+              {hasSchemas && <ListSchemasSection project={project} />}
 
             </>
           )

@@ -2,8 +2,10 @@ import type { SchemaDefinition } from '@shared/lib/types';
 
 import db from '@backend/db/client';
 import { mockData as mockDataSchema } from '@backend/db/schema';
+import { faker } from '@faker-js/faker';
 import { validateData } from '@shared/validators/schemaValidator';
 import { eq } from 'drizzle-orm';
+import RandExp from 'randexp';
 
 import { getSchemaById } from './schemaService';
 
@@ -223,4 +225,144 @@ export async function updateMockData(
     .where(eq(mockDataSchema.schemaId, schema.id));
 
   return { status: 200, json: validation.data };
+}
+
+export async function deleteMockDataEntry(schemaId: number) {
+  try {
+    await db.delete(mockDataSchema).where(eq(mockDataSchema.schemaId, schemaId));
+    return { status: 200, json: { message: 'Mock data entry deleted' } };
+  }
+  catch (err) {
+    console.error('DB error:', err);
+    return { status: 400, json: { message: 'Schemas not found.' } };
+  }
+}
+
+/**
+ * Generates a single mock record based on the schema definition using faker,
+ * considering schemaDefinition validation pattern (e.g., minLength, maxLength, pattern, min, max).
+ */
+function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, unknown> {
+  const record: Record<string, unknown> = {};
+  for (const field of schemaDefinition) {
+    if (field.primary)
+      continue;
+
+    // Handle string fields with pattern, minLength, maxLength
+    if (field.type === 'string') {
+      let value = faker.lorem.words(2);
+
+      if (field.validation?.pattern) {
+        // Try to generate a value matching the pattern (simple patterns only)
+        // For complex patterns, consider using a library like randexp
+        try {
+          value = new RandExp(field.validation.pattern).gen();
+        }
+        catch {
+          // fallback to lorem
+          value = faker.lorem.words(2);
+        }
+      }
+
+      if (field.validation?.minLength || field.validation?.maxLength) {
+        const min = field.validation?.minLength ?? 1;
+        const max = field.validation?.maxLength ?? min + 10;
+        if (value.length < min) {
+          value = value.padEnd(min, 'a');
+        }
+        if (value.length > max) {
+          value = value.slice(0, max);
+        }
+      }
+
+      record[field.name] = value;
+      continue;
+    }
+
+    // Handle number fields with min/max
+    if (field.type === 'number') {
+      const min = typeof field.validation?.min === 'number' ? field.validation?.min : 0;
+      const max = typeof field.validation?.max === 'number' ? field.validation?.max : min + 100;
+      record[field.name] = faker.number.int({ min, max });
+      continue;
+    }
+
+    // Handle boolean
+    if (field.type === 'boolean') {
+      record[field.name] = faker.datatype.boolean();
+      continue;
+    }
+
+    // Handle date
+    if (field.type === 'date') {
+      record[field.name] = faker.date.recent().toISOString();
+      continue;
+    }
+
+    // Handle email
+    if (field.type === 'email') {
+      record[field.name] = faker.internet.email().toLowerCase();
+      continue;
+    }
+
+    // Handle url
+    if (field.type === 'url') {
+      record[field.name] = faker.internet.url().toLowerCase();
+      continue;
+    }
+
+    // Handle uuid
+    if (field.type === 'uuid') {
+      record[field.name] = faker.string.uuid();
+      continue;
+    }
+
+    // Handle array
+    if (field.type === 'array') {
+      record[field.name] = [];
+      continue;
+    }
+
+    // Handle object
+    if (field.type === 'object') {
+      record[field.name] = [];
+      continue;
+    }
+
+    // Default fallback
+    record[field.name] = null;
+  }
+  return record;
+}
+
+/**
+ * Creates an array of 10 mock data items using faker.js based on the schema definition.
+ */
+export async function createMockDataArray(
+  schemaId: number,
+) {
+  // Fetch schema and validate existence
+  const schemaObj = await getSchemaById(schemaId);
+  if (schemaObj.status > 200 || 'message' in schemaObj.json) {
+    return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
+  }
+  const schema = schemaObj.json;
+  const schemaDefinition = schema.fields as SchemaDefinition;
+
+  const primaryField = schemaDefinition.find(field => field.primary);
+
+  const newData: Record<string, unknown>[] = [];
+  for (let i = 0; i < 10; i++) {
+    const record = generateMockRecord(schemaDefinition);
+    if (primaryField) {
+      record[primaryField.name] = generatePrimaryKeyValue(schemaDefinition, [...newData]);
+    }
+    newData.push(record);
+  }
+
+  await db
+    .insert(mockDataSchema)
+    .values({ schemaId: schema.id, data: newData });
+
+  return { status: 200, json: newData };
 }
