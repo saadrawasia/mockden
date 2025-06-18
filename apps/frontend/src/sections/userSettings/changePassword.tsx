@@ -1,5 +1,7 @@
-import PasswordStrengthIndicator from '@frontend/components/passwordStrength/passwordStrengthIndicator';
+import { useUser } from '@clerk/clerk-react';
 import { Button } from '@frontend/components/ui/button';
+import { useUpdateUserPasswordMutation } from '@frontend/hooks/useUsers';
+import { cn } from '@frontend/lib/utils';
 import { useForm } from '@tanstack/react-form';
 import { Eye, EyeClosed, Loader2Icon } from 'lucide-react';
 import { useState } from 'react';
@@ -16,6 +18,8 @@ import { Label } from '../../components/ui/label';
 export default function ChangePasswordSection() {
   const [errorMessage, setErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const updatePasswordMutation = useUpdateUserPasswordMutation();
+  const { user } = useUser();
 
   const form = useForm({
     defaultValues: {
@@ -24,29 +28,32 @@ export default function ChangePasswordSection() {
       confirmPassword: '',
     },
     onSubmit: async ({ value }) => {
+      if (!user?.passwordEnabled) {
+        return;
+      }
       // Do something with form data
+      if (value.newPassword !== value.confirmPassword) {
+        setErrorMessage('New Password and Confirm Password do not match');
+        return;
+      }
       setErrorMessage('');
-      // const schema = JSON.stringify(JSON.parse(value.fields), null, 4); // prettify json
-      // const res = await fetch('http://localhost:4000/schemas', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name: value.name, schema }),
-      // });
-      // const json: Schema | Message = await res.json();
-      // if ('message' in json) {
-      //   setErrorMessage(json.message);
-      // }
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log(value);
-          resolve();
-        }, 1500);
-      });
+      const mutate = await updatePasswordMutation.mutateAsync(
+        {
+          oldPassword: value.oldPassword,
+          newPassword: value.newPassword,
+        },
+      );
+      if (mutate.message !== 'Password updated.') {
+        setErrorMessage(mutate.message);
+      }
+      else {
+        form.reset();
+      }
     },
   });
 
   return (
-    <Card>
+    <Card className={cn({ 'opacity-50': !user?.passwordEnabled })}>
       <CardHeader>
         <TypographyH5>Change Password</TypographyH5>
       </CardHeader>
@@ -63,6 +70,14 @@ export default function ChangePasswordSection() {
             {/* A type-safe field component */}
             <form.Field
               name="oldPassword"
+              validators={{
+                onChange: ({ value }) => {
+                  if (value.length < 1) {
+                    return 'Old Password cannot be empty';
+                  }
+                  return undefined;
+                },
+              }}
               children={(field) => {
                 return (
                   <>
@@ -79,6 +94,7 @@ export default function ChangePasswordSection() {
                           field.state.meta.isTouched
                           && !field.state.meta.isValid
                         }
+                        disabled={!user?.passwordEnabled}
                       />
                     </div>
                     <ErrorInfo field={field} />
@@ -92,6 +108,14 @@ export default function ChangePasswordSection() {
             {/* A type-safe field component */}
             <form.Field
               name="newPassword"
+              validators={{
+                onChange: ({ value }) => {
+                  if (value.length < 8) {
+                    return 'Password should be atleast 8 characters.';
+                  }
+                  return undefined;
+                },
+              }}
               children={(field) => {
                 return (
                   <>
@@ -108,6 +132,7 @@ export default function ChangePasswordSection() {
                           field.state.meta.isTouched
                           && !field.state.meta.isValid
                         }
+                        disabled={!user?.passwordEnabled}
                         endIcon={
                           showPassword
                             ? (
@@ -120,10 +145,6 @@ export default function ChangePasswordSection() {
                       />
                     </div>
                     <ErrorInfo field={field} />
-                    <PasswordStrengthIndicator
-                      password={field.state.value}
-                      isVisible={field.state.meta.isTouched}
-                    />
                   </>
                 );
               }}
@@ -136,6 +157,9 @@ export default function ChangePasswordSection() {
               name="confirmPassword"
               validators={{
                 onChange: ({ value }) => {
+                  if (value.length < 1) {
+                    return 'Confirm Password cannot be empty';
+                  }
                   if (value !== form.getFieldValue('newPassword')) {
                     return 'New Password and Confirm Password do not match.';
                   }
@@ -158,6 +182,7 @@ export default function ChangePasswordSection() {
                           field.state.meta.isTouched
                           && !field.state.meta.isValid
                         }
+                        disabled={!user?.passwordEnabled}
                       />
                     </div>
                     <ErrorInfo field={field} />
@@ -175,7 +200,7 @@ export default function ChangePasswordSection() {
           <form.Subscribe
             selector={state => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, isSubmitting]) => (
-              <Button type="submit" disabled={!canSubmit} className="self-end">
+              <Button type="submit" disabled={!canSubmit || !user?.passwordEnabled} className="self-end">
                 {isSubmitting && <Loader2Icon className="animate-spin" />}
                 Save
               </Button>

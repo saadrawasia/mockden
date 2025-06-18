@@ -1,6 +1,9 @@
+import { useClerk, useUser } from '@clerk/clerk-react';
 import { Button } from '@frontend/components/ui/button';
+import { useDeleteUserMutation } from '@frontend/hooks/useUsers';
 import { useForm } from '@tanstack/react-form';
 import { Loader2Icon } from 'lucide-react';
+import { toast } from 'sonner';
 
 import {
   TypographyH5,
@@ -10,29 +13,26 @@ import { Card, CardContent, CardHeader } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 
 export default function DeleteAccountSection() {
-  const deleteKey = '@mockden/api-key';
+  const { user } = useUser();
+  const clerk = useClerk();
+  const deleteKey = `@mockden/delete-${user?.lastName}`;
+  const deleteUserMutation = useDeleteUserMutation();
   const form = useForm({
     defaultValues: {
       deleteText: '',
     },
-    onSubmit: async ({ value }) => {
-      // Do something with form data
-      // const schema = JSON.stringify(JSON.parse(value.fields), null, 4); // prettify json
-      // const res = await fetch('http://localhost:4000/schemas', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name: value.name, schema }),
-      // });
-      // const json: Schema | Message = await res.json();
-      // if ('message' in json) {
-      //   setErrorMessage(json.message);
-      // }
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log(value);
-          resolve();
-        }, 1500);
+    onSubmit: async () => {
+      const mutate = await deleteUserMutation.mutateAsync({
+        id: user!.id,
       });
+
+      if (mutate.message !== 'User deleted.') {
+        toast.error('Something went wrong!', {
+          description: 'Could not delete user.',
+        });
+        return;
+      }
+      clerk.signOut();
     },
   });
 
