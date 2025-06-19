@@ -107,8 +107,8 @@ export default function ListProjectsSection() {
                   >
                     <Button
                       type="button"
-                      variant="ghost"
-                      className="w-full justify-start"
+                      variant="link"
+                      className="w-full justify-start  hover:no-underline"
                     >
                       <Pencil />
                       {' '}
@@ -124,8 +124,8 @@ export default function ListProjectsSection() {
                   >
                     <Button
                       type="button"
-                      variant="ghost"
-                      className="hover:text-destructive w-full justify-start"
+                      variant="link"
+                      className="hover:text-destructive w-full justify-start  hover:no-underline"
                     >
                       <Trash2 className="text-destructive" />
                       {' '}

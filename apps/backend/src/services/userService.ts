@@ -17,14 +17,14 @@ type EmailAddress = {
   email_address: string;
 };
 
-type User = {
+type ClerkUser = {
   email_addresses?: EmailAddress[];
   first_name?: string;
   last_name?: string;
   id: string;
 };
 
-export async function createUser(user: User) {
+export async function createUser(user: ClerkUser) {
   return await db.insert(users).values({
     email: user.email_addresses?.[0]?.email_address || '',
     firstName: user.first_name || '',

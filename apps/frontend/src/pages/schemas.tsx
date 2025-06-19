@@ -4,8 +4,10 @@ import { Button } from '@frontend/components/ui/button';
 import { Skeleton } from '@frontend/components/ui/skeleton';
 import { useProjectsQuery } from '@frontend/hooks/useProjects';
 import { useSchemasQuery } from '@frontend/hooks/useSchemas';
+import { useUsersQuery } from '@frontend/hooks/useUsers';
 import { getProjectBySlug } from '@frontend/lib/projectHelpers';
 import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
+import { limitations } from '@shared/lib/config';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { useMemo } from 'react';
@@ -34,6 +36,8 @@ type SchemaPageImplementationProps = {
 
 function SchemaPageImplementation({ project }: SchemaPageImplementationProps) {
   const { data: schemas, isLoading } = useSchemasQuery(project.id);
+  const { data: user } = useUsersQuery();
+  const allowNewSchema = schemas.length < limitations[user.planTier].schemas;
 
   const hasSchemas = useMemo(() => schemas.length > 0, [schemas.length]);
   const navigate = useNavigate();
@@ -63,13 +67,13 @@ function SchemaPageImplementation({ project }: SchemaPageImplementationProps) {
           {' '}
           - Schemas
         </TypographyH2>
-        {hasSchemas && <NewSchemaSection renderSVG={false} project={project} />}
+        {hasSchemas && <NewSchemaSection renderSVG={false} project={project} allowNewSchema={allowNewSchema} />}
       </div>
 
       {!isLoading
         ? (
             <>
-              {!hasSchemas && <NewSchemaSection renderSVG={true} project={project} />}
+              {!hasSchemas && <NewSchemaSection renderSVG={true} project={project} allowNewSchema={allowNewSchema} />}
               {hasSchemas && <ListSchemasSection project={project} />}
 
             </>

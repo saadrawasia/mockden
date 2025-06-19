@@ -5,7 +5,7 @@ import { create } from 'zustand';
 type ProjectsStore = {
   selectedProject: Project | null;
   setSelectedProject: (project: Project | null) => void;
-  defaultProject: Partial<Project>;
+  defaultProject: Project;
 };
 
 export const useProjectStore = create<ProjectsStore>(set => ({
@@ -14,8 +14,12 @@ export const useProjectStore = create<ProjectsStore>(set => ({
     set(() => ({ selectedProject: project }));
   },
   defaultProject: {
+    id: 0,
     name: '',
     description: '',
     slug: '',
+    apiKey: '',
+    createdAt: '',
+    updatedAt: '',
   },
 }));
