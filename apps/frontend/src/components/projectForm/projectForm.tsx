@@ -131,22 +131,18 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
       setIsSaving(true);
       setErrorMessage('');
       try {
-        editProjectMutation.mutate(
+        const mutate = await editProjectMutation.mutateAsync(
           {
             id: selectedProject.id,
             project: { name: value?.name, description: value?.description },
           },
-          {
-            onSuccess: (result) => {
-              if ('message' in result) {
-                setErrorMessage(result.message);
-              }
-              else {
-                setOpen(false);
-              }
-            },
-          },
         );
+        if ('message' in mutate) {
+          setErrorMessage(mutate.message);
+        }
+        else {
+          setOpen(false);
+        }
       }
       catch {
         setErrorMessage('Network error. Please try again.');
@@ -205,6 +201,7 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
                   aria-invalid={
                     field.state.meta.isTouched && !field.state.meta.isValid
                   }
+                  autoComplete="off"
                 />
               </div>
               <ErrorInfo field={field} />

@@ -8,10 +8,12 @@ import { useState } from 'react';
 
 type NewProjectSectionProps = {
   renderSVG: boolean;
+  allowNewProject: boolean;
 };
 
 export default function NewProjectSection({
   renderSVG,
+  allowNewProject,
 }: NewProjectSectionProps) {
   const [open, setOpen] = useState(false);
   const setSelectedProject = useProjectStore(state => state.setSelectedProject);
@@ -29,9 +31,13 @@ export default function NewProjectSection({
       )}
       <Button
         onClick={() => {
+          if (!allowNewProject) {
+            return;
+          }
           setSelectedProject(defaultProject);
           setOpen(prev => !prev);
         }}
+        disabled={!allowNewProject}
       >
         <Plus />
         {' '}

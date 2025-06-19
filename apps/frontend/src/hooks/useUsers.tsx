@@ -1,8 +1,8 @@
-import type { Message } from '@shared/lib/types';
+import type { Message, User } from '@shared/lib/types';
 
 import { useAuth } from '@clerk/clerk-react';
 import config from '@frontend/lib/config';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 const API_URL = `${config.BACKEND_URL}/users`;
@@ -90,6 +90,24 @@ export function useDeleteUserMutation() {
       }
 
       return data;
+    },
+  });
+}
+
+export function useUsersQuery() {
+  const { getToken } = useAuth();
+
+  return useSuspenseQuery<User>({
+    queryKey: ['user'],
+    queryFn: async () => {
+      const token = await getToken();
+      const res = await fetch(API_URL, { headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      } });
+      const data = await res.json();
+
+      return data as User;
     },
   });
 }

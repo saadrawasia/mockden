@@ -11,9 +11,10 @@ import { useState } from 'react';
 type NewSchemaSectionProps = {
   renderSVG: boolean;
   project: Project;
+  allowNewSchema: boolean;
 };
 
-export default function NewSchemaSection({ renderSVG, project }: NewSchemaSectionProps) {
+export default function NewSchemaSection({ renderSVG, project, allowNewSchema }: NewSchemaSectionProps) {
   const setSelectedSchema = useSchemaStore(state => state.setSelectedSchema);
   const defaultSchema = useSchemaStore(state => state.defaultSchema);
   const [open, setOpen] = useState(false);
@@ -30,9 +31,13 @@ export default function NewSchemaSection({ renderSVG, project }: NewSchemaSectio
       )}
       <Button
         onClick={() => {
+          if (!allowNewSchema) {
+            return;
+          }
           setSelectedSchema(defaultSchema);
           setOpen(prev => !prev);
         }}
+        disabled={!allowNewSchema}
       >
         <Plus />
         {' '}

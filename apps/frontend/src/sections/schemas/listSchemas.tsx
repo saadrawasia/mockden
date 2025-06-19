@@ -27,10 +27,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@frontend/components/ui/dropdownMenu';
-import { useDeleteSchemaMutation, useEditSchemaMutation } from '@frontend/hooks/useSchemas';
+import {
+  useDeleteSchemaMutation,
+  useEditSchemaMutation,
+} from '@frontend/hooks/useSchemas';
 import { useSchemaStore } from '@frontend/stores/schemasStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { Copy, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from 'lucide-react';
+import {
+  Copy,
+  EllipsisVertical,
+  Loader2Icon,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 import SchemaFormDialog from '../../components/schemaForm/schemaForm';
@@ -41,7 +50,9 @@ type ListSchemasSectionProps = {
   project: Project;
 };
 
-export default function ListSchemasSection({ project }: ListSchemasSectionProps) {
+export default function ListSchemasSection({
+  project,
+}: ListSchemasSectionProps) {
   const queryClient = useQueryClient();
   const schemas = queryClient.getQueryData<Schema[]>(['schemas']) ?? [];
 
@@ -64,24 +75,30 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
     if (!selectedSchema)
       return;
     setIsDeleting(true);
-    deleteSchemasMutation.mutate({ projectId: project.id, id: selectedSchema.id }, {
-      onSuccess: (result) => {
-        if ('id' in result) {
-          setOpenAlert(false);
-        }
-        setIsDeleting(false);
+    deleteSchemasMutation.mutate(
+      { projectId: project.id, id: selectedSchema.id },
+      {
+        onSuccess: (result) => {
+          if ('id' in result) {
+            setOpenAlert(false);
+          }
+          setIsDeleting(false);
+        },
       },
-    });
+    );
   }, [selectedSchema, deleteSchemasMutation, project]);
 
   const handleIsActive = (schema: Schema) => {
-    editSchemaMutation.mutate(
-      {
-        id: schema.id,
-        projectId: project.id,
-        schema: { name: schema.name, fields: schema.fields, fakeData: schema.fakeData, isActive: !schema.isActive },
+    editSchemaMutation.mutate({
+      id: schema.id,
+      projectId: project.id,
+      schema: {
+        name: schema.name,
+        fields: schema.fields,
+        fakeData: schema.fakeData,
+        isActive: !schema.isActive,
       },
-    );
+    });
   };
 
   return (
@@ -111,8 +128,8 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
                     >
                       <Button
                         type="button"
-                        variant="ghost"
-                        className="w-full justify-start"
+                        variant="link"
+                        className="w-full justify-start hover:no-underline"
                       >
                         <Pencil />
                         {' '}
@@ -128,8 +145,8 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
                     >
                       <Button
                         type="button"
-                        variant="ghost"
-                        className="hover:text-destructive w-full justify-start"
+                        variant="link"
+                        className="hover:text-destructive w-full justify-start hover:no-underline"
                       >
                         <Trash2 className="text-destructive" />
                         {' '}
@@ -176,7 +193,11 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
                 </div>
 
                 <div className="flex space-x-2">
-                  <Switch id="active" checked={schema.isActive} onCheckedChange={() => handleIsActive(schema)} />
+                  <Switch
+                    id="active"
+                    checked={schema.isActive}
+                    onCheckedChange={() => handleIsActive(schema)}
+                  />
                   <Label htmlFor="active" className="text-md font-semibold">
                     Active
                   </Label>
@@ -186,7 +207,12 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
           </Card>
         );
       })}
-      <SchemaFormDialog open={openEdit} setOpen={setOpenEdit} title="Edit Schema" project={project} />
+      <SchemaFormDialog
+        open={openEdit}
+        setOpen={setOpenEdit}
+        title="Edit Schema"
+        project={project}
+      />
 
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>

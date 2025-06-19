@@ -87,3 +87,14 @@ export type ProjectBase = {
 export type Message = {
   message: string;
 };
+
+export type User = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  clerkUserId: string;
+  email: string;
+  planTier: 'free' | 'pro';
+  createdAt: string;
+  updatedAt: string;
+};

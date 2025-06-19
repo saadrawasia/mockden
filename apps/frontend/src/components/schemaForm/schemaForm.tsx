@@ -180,19 +180,16 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
       setErrorMessage('');
       setIsSaving(true);
       try {
-        createSchemaMutation.mutate(
+        const mutate = await createSchemaMutation.mutateAsync(
           { projectId: project.id, newSchema: { name: value?.name, fields: value?.fields, fakeData: value.fakeData } },
-          {
-            onSuccess: (result) => {
-              if ('message' in result) {
-                setErrorMessage(result.message);
-              }
-              else {
-                setOpen(false);
-              }
-            },
-          },
+
         );
+        if ('message' in mutate) {
+          setErrorMessage(mutate.message);
+        }
+        else {
+          setOpen(false);
+        }
       }
       catch {
         setErrorMessage('Network error. Please try again.');
@@ -211,23 +208,19 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
       setErrorMessage('');
       setIsSaving(true);
       try {
-        editSchemaMutation.mutate(
+        const mutate = await editSchemaMutation.mutateAsync(
           {
             id: selectedSchema.id,
             projectId: project.id,
             schema: { name: value?.name, fields: value?.fields, fakeData: value.fakeData },
           },
-          {
-            onSuccess: (result) => {
-              if ('message' in result) {
-                setErrorMessage(result.message);
-              }
-              else {
-                setOpen(false);
-              }
-            },
-          },
         );
+        if ('message' in mutate) {
+          setErrorMessage(mutate.message);
+        }
+        else {
+          setOpen(false);
+        }
       }
       catch {
         setErrorMessage('Network error. Please try again.');
@@ -306,6 +299,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
                     aria-invalid={
                       field.state.meta.isTouched && !field.state.meta.isValid
                     }
+                    autoComplete="off"
                   />
                 </div>
                 <ErrorInfo field={field} />
