@@ -1,6 +1,7 @@
 import { clerkMiddleware, requireAuth } from '@clerk/express';
 
 import app from './app';
+import { rateLimiter } from './middleware/rateLimiter';
 import mockDataRouter from './routes/mockData';
 import projectRouter from './routes/project';
 import schemaRouter from './routes/schema';
@@ -16,7 +17,7 @@ app.use('/users', requireAuth(), userRouter);
 app.use('/projects', requireAuth(), projectRouter);
 app.use('/projects/:projectId/schemas', requireAuth(), schemaRouter);
 
-app.use('/api', mockDataRouter);
+app.use('/api/:projectSlug/:schemaSlug', rateLimiter, mockDataRouter);
 
 app.listen(port, () =>
   console.log(`Backend running at http://localhost:${port}`));

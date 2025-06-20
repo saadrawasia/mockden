@@ -1,5 +1,7 @@
 // apps/backend/src/db/schema.ts
+import { relations } from 'drizzle-orm';
 import { serial } from 'drizzle-orm/pg-core';
+import { date } from 'drizzle-orm/pg-core';
 import { integer } from 'drizzle-orm/pg-core';
 import { boolean } from 'drizzle-orm/pg-core';
 import {
@@ -75,3 +77,32 @@ export const mockData = pgTable(
     index('idx_mock_data_jsonb').on(table.data),
   ],
 );
+
+export const apiUsage = pgTable('api_usage', {
+  id: serial('id').primaryKey(),
+  userId: integer('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  date: date('date').notNull(),
+  count: integer('count').notNull().default(0),
+  createdAt,
+  updatedAt,
+});
+
+export const userRelations = relations(users, ({ many }) => ({
+  projects: many(projects),
+  apiUsage: many(apiUsage),
+}));
+
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  user: one(users, {
+    fields: [projects.userId],
+    references: [users.id],
+  }),
+  schemas: many(schemas),
+}));
+
+export const schemaRelations = relations(schemas, ({ one }) => ({
+  project: one(projects, {
+    fields: [schemas.projectId],
+    references: [projects.id],
+  }),
+}));

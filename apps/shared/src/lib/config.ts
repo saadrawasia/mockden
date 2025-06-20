@@ -6,8 +6,8 @@ export const limitations = {
     dailyApiLimit: 100,
   },
   pro: {
-    projects: 3,
-    schemas: 999999999999999,
+    projects: 5,
+    schemas: 15,
     records: 1000,
     dailyApiLimit: 1000,
   },
