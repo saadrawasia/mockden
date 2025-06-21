@@ -41,7 +41,7 @@ export default function LandingPage() {
           Create, validate, and manage mock data with schemas. Built for
           developers who demand reliability and speed.
         </TypographyLargeP>
-        <Link to="/projects">
+        <Link to="/sign-up">
           <Button>
             Start Building
             <ArrowRight />
@@ -76,8 +76,7 @@ POST /api/myproject/schemas
   "fields": [
     {
       "name": "email",
-      "type": "string",
-      "validation": { "format": "email" }
+      "type": "email",
     },
     {
       "name": "age",
@@ -154,7 +153,7 @@ GET /api/myproject/users
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
                 <CircleCheck className="text-green-500" />
-                Upto 3 Schemas
+                Upto 3 Schemas/Project
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
                 <CircleCheck className="text-green-500" />
@@ -166,7 +165,7 @@ GET /api/myproject/users
               </TypographyP>
             </CardContent>
             <CardFooter>
-              <Link to="/projects" className="w-full">
+              <Link to="/sign-up" className="w-full">
                 <Button className="w-full">Get Started</Button>
               </Link>
             </CardFooter>
@@ -184,11 +183,11 @@ GET /api/myproject/users
               </TypographyH4>
               <TypographyP className="inline-flex gap-2">
                 <CircleCheck className="text-green-500" />
-                Upto 3 Projects
+                Upto 5 Projects
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
                 <CircleCheck className="text-green-500" />
-                Unlimited Schemas
+                Upto 15 Schemas/Project
               </TypographyP>
               <TypographyP className="inline-flex gap-2">
                 <CircleCheck className="text-green-500" />
@@ -200,9 +199,9 @@ GET /api/myproject/users
               </TypographyP>
             </CardContent>
             <CardFooter>
-              <Link to="/projects" className="w-full">
-                <Button variant="secondary" className="w-full">
-                  Get Pro
+              <Link to="/sign-up" className="w-full">
+                <Button variant="secondary" className="w-full" disabled>
+                  Coming Soon
                 </Button>
               </Link>
             </CardFooter>
@@ -219,7 +218,7 @@ GET /api/myproject/users
         <TypographyLargeP className="text-muted-foreground text-center">
           Join Mockden for your mock data needs.
         </TypographyLargeP>
-        <Link to="/projects">
+        <Link to="/sign-up">
           <Button>
             Start for Free
             <ArrowRight />

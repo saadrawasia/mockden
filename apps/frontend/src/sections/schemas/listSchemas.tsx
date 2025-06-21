@@ -41,6 +41,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 
 import SchemaFormDialog from '../../components/schemaForm/schemaForm';
 import { Label } from '../../components/ui/label';
@@ -98,6 +99,12 @@ export default function ListSchemasSection({
         fakeData: schema.fakeData,
         isActive: !schema.isActive,
       },
+    });
+  };
+
+  const copyToClipboard = (textToCopy: string) => {
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      toast('Copied to clipboard.');
     });
   };
 
@@ -159,9 +166,13 @@ export default function ListSchemasSection({
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-4">
-                <div>
-                  <TypographyP className="font-semibold">API:</TypographyP>
-                  <div className="group flex cursor-pointer gap-2">
+                <div className="flex flex-col gap-2">
+                  <TypographyP className="font-semibold">
+                    API:
+                    {' '}
+                    <span className="text-muted-foreground">(GET, POST, PUT, DELETE)</span>
+                  </TypographyP>
+                  <div className="group flex cursor-pointer gap-2" onClick={() => copyToClipboard(`https://mockden.com/api/${project.slug}/${schema.slug}`)}>
                     <TypographyP className="text-muted-foreground">
                       https://mockden.com/api/
                       {project.slug}
@@ -175,13 +186,24 @@ export default function ListSchemasSection({
                   </div>
                 </div>
 
-                <div>
+                <div className="flex flex-col gap-2">
+                  <TypographyP className="font-semibold">Body Object Example:</TypographyP>
+                  <div className="group flex cursor-pointer gap-2" onClick={() => copyToClipboard(JSON.stringify({ data: { email: 'test2@test.com', username: 'test' } }, null, 2))}>
+                    <pre>{JSON.stringify({ data: { email: 'test2@test.com', username: 'test' } }, null, 2) }</pre>
+                    <Copy
+                      className="text-muted-foreground hidden group-hover:flex md:hidden"
+                      size={20}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
                   <TypographyP className="font-semibold">
                     Custom Headers:
                   </TypographyP>
-                  <div className="group flex cursor-pointer gap-2">
+                  <div className="group flex cursor-pointer gap-2" onClick={() => copyToClipboard(`x-mockden-header: ${project.apiKey}`)}>
                     <TypographyP className="text-muted-foreground">
-                      x-mockden-key:
+                      x-mockden-header:
                       {' '}
                       {project.apiKey}
                     </TypographyP>

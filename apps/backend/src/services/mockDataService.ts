@@ -1,8 +1,9 @@
-import type { SchemaDefinition } from '@shared/lib/types';
+import type { SchemaDefinition, User } from '@shared/lib/types';
 
 import db from '@backend/db/client';
 import { mockData as mockDataSchema } from '@backend/db/schema';
 import { faker } from '@faker-js/faker';
+import { limitations } from '@shared/lib/config';
 import { validateData } from '@shared/validators/schemaValidator';
 import { eq } from 'drizzle-orm';
 import RandExp from 'randexp';
@@ -69,6 +70,7 @@ export async function getMockData<T = Record<string, unknown>[]>(
 export async function createMockData(
   schemaId: number,
   data: Record<string, unknown>,
+  planTier: User['planTier'],
 ) {
   // Fetch schema and validate existence
   const schemaObj = await getSchemaById(schemaId);
@@ -113,7 +115,7 @@ export async function createMockData(
   }
 
   // Prepare new data array (keep max 10)
-  const newData = [...existingData, validation.data].slice(-10);
+  const newData = [...existingData, validation.data].slice(-limitations[planTier].records);
 
   if (existingData.length > 0) {
     await db

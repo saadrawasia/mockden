@@ -1,7 +1,7 @@
 import type { Project } from '@shared/lib/types';
 
 import db from '@backend/db/client';
-import { projects } from '@backend/db/schema';
+import { projects, schemas } from '@backend/db/schema';
 import { slugify } from '@backend/utils/helpers';
 import { validateProject } from '@shared/validators/projectValidator';
 import { and, eq } from 'drizzle-orm';
@@ -97,4 +97,22 @@ export async function editProject({ id, name, description, userId }: EditProject
     .returning();
 
   return { status: 200, json: updatedProject[0] };
+}
+
+type getProjectWithUserAndSchemasProps = {
+  projectHeader: string;
+  projectSlug: string;
+  schemaSlug: string;
+};
+
+export async function getProjectWithUserAndSchemas({ projectHeader, projectSlug, schemaSlug }: getProjectWithUserAndSchemasProps) {
+  return await db.query.projects.findFirst({
+    where: and(eq(projects.apiKey, projectHeader), eq(projects.slug, projectSlug)),
+    with: {
+      user: true,
+      schemas: {
+        where: and(eq(schemas.slug, schemaSlug), eq(schemas.isActive, true)),
+      },
+    },
+  });
 }

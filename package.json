@@ -8,7 +8,7 @@
     "lint:fix": "eslint . --fix",
     "prepare": "husky",
     "db:generate:dev": "drizzle-kit generate --config=drizzle-dev.config.ts",
-    "db:migrate:dev": "drizzle-kit push --config=drizzle-dev.config.ts",
+    "db:migrate:dev": "drizzle-kit migrate --config=drizzle-dev.config.ts",
     "db:seed": "npx tsx --env-file=.env.development apps/backend/src/db/seed.ts",
     "backend:dev": "nx run @mockden/backend:serve & ngrok http 3000"
   },

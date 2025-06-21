@@ -6,12 +6,13 @@ import {
 } from '@backend/controllers/mockDataController';
 import express from 'express';
 
-const mockDataRouter = express.Router();
+const mockDataRouter = express.Router({ mergeParams: true });
 
-mockDataRouter.get('/:schemaId', getMockDataRequest);
-mockDataRouter.post('/:schemaId', createMockDataRequest);
-mockDataRouter.delete('/:schemaId/:primaryKeyValue', deleteMockDataRequest);
-mockDataRouter.put('/:schemaId/:primaryKeyValue', updateMockDataRequest);
-mockDataRouter.patch('/:schemaId/:primaryKeyValue', updateMockDataRequest);
+mockDataRouter.get('/', getMockDataRequest);
+mockDataRouter.get('/:primaryKeyValue', getMockDataRequest);
+mockDataRouter.post('/', createMockDataRequest);
+mockDataRouter.delete('/:primaryKeyValue', deleteMockDataRequest);
+mockDataRouter.put('/:primaryKeyValue', updateMockDataRequest);
+mockDataRouter.patch('/:primaryKeyValue', updateMockDataRequest);
 
 export default mockDataRouter;
