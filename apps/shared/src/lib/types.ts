@@ -1,3 +1,5 @@
+import type { Request as ExpressRequest } from 'express';
+
 // Type definitions
 type FieldType = 'string' | 'number' | 'boolean' | 'array' | 'object' | 'email' | 'url' | 'uuid' | 'date';
 
@@ -50,8 +52,8 @@ export type Schema = {
   fakeData: boolean;
   slug: string;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   projectId: number;
 };
 
@@ -75,8 +77,8 @@ export type Project = {
   description: string;
   slug: string;
   apiKey: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type ProjectBase = {
@@ -95,6 +97,12 @@ export type User = {
   clerkUserId: string;
   email: string;
   planTier: 'free' | 'pro';
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type RequestWithProject = ExpressRequest & {
+  project?: Project;
+  user?: User;
+  schema?: Schema;
 };

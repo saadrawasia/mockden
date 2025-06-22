@@ -1,4 +1,5 @@
-import type { NextFunction, Request, Response } from 'express';
+import type { RequestWithProject } from '@shared/lib/types';
+import type { NextFunction, Response } from 'express';
 
 import db from '@backend/db/client';
 import { apiUsage } from '@backend/db/schema';
@@ -6,9 +7,9 @@ import { getProjectWithUserAndSchemas } from '@backend/services/projectService';
 import { limitations } from '@shared/lib/config';
 import { and, eq } from 'drizzle-orm';
 
-// import { apiUsage } from '../db/schema';
+;
 
-export async function rateLimiter(req: Request, res: Response, next: NextFunction) {
+export async function rateLimiter(req: RequestWithProject, res: Response, next: NextFunction) {
   const projectHeader = req.headers['x-mockden-header'] as string;
   if (!projectHeader)
     return res.status(401).send('Unauthorized');
@@ -20,6 +21,20 @@ export async function rateLimiter(req: Request, res: Response, next: NextFunctio
   if (!project || project.schemas.length === 0) {
     return res.status(404).json({ message: 'Project or schema not found.' });
   }
+
+  const planTier = (project.user.planTier === 'pro' || project.user.planTier === 'free')
+    ? project.user.planTier
+    : 'free';
+
+  req.project = project;
+  req.user = {
+    ...project.user,
+    planTier,
+  };
+  req.schema = {
+    ...project.schemas[0],
+    fields: JSON.stringify(project.schemas[0].fields),
+  };
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -36,10 +51,6 @@ export async function rateLimiter(req: Request, res: Response, next: NextFunctio
 
     return next();
   }
-
-  const planTier = (project.user.planTier === 'pro' || project.user.planTier === 'free')
-    ? project.user.planTier
-    : 'free';
 
   if (record.count >= limitations[planTier].dailyApiLimit) {
     return res.status(429).json({ message: `API limit (${limitations[planTier].dailyApiLimit}/day) exceeded.` });

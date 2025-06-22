@@ -1,91 +1,105 @@
-import type { Request, Response } from 'express';
+import type { RequestWithProject } from '@shared/lib/types';
+import type { Response } from 'express';
 
 import {
   createMockData,
   deleteMockData,
   getMockData,
+  getMockDataByPrimaryKey,
   updateMockData,
 } from '@backend/services/mockDataService';
-import { getProjectWithUserAndSchemas } from '@backend/services/projectService';
 
-export async function getMockDataRequest(req: Request, res: Response) {
-  const projectHeader = req.headers['x-mockden-header'] as string;
-  const { projectSlug, schemaSlug } = req.params;
-
-  const project = await getProjectWithUserAndSchemas({ projectHeader, projectSlug, schemaSlug });
-
-  if (project?.schemas.length === 0 || project?.schemas[0].id === undefined) {
-    return res.status(404).json({ message: 'Project or schema not found.' });
-  }
-
-  const mockData = await getMockData(project.schemas[0].id);
-  return res.status(mockData.status).json(mockData.json);
+function handleMissingSchema(res: Response) {
+  return res.status(404).json({ message: 'Project or schema not found.' });
 }
 
-export async function createMockDataRequest(req: Request, res: Response) {
+function handleMissingData(res: Response) {
+  return res.status(400).json({ message: 'Data is missing.' });
+}
+
+function handleServerError(res: Response, e: unknown) {
+  console.error('error', (e as Error).message);
+  return res.status(500).json({ message: 'Something went wrong.' });
+}
+
+export async function getMockDataRequest(req: RequestWithProject, res: Response) {
+  const { schema } = req;
+  if (!schema || schema.id === undefined)
+    return handleMissingSchema(res);
+
   try {
-    const projectHeader = req.headers['x-mockden-header'] as string;
-    const { projectSlug, schemaSlug } = req.params;
-
-    const project = await getProjectWithUserAndSchemas({ projectHeader, projectSlug, schemaSlug });
-
-    if (project?.schemas.length === 0 || project?.schemas[0].id === undefined) {
-      return res.status(404).json({ message: 'Project or schema not found.' });
-    }
-    const { data } = req.body;
-    if (!data) {
-      return res.status(400).json('Data is missing.');
-    }
-    const planTier: 'free' | 'pro' = project.user.planTier === 'pro' ? 'pro' : 'free';
-    const mockData = await createMockData(project.schemas[0].id, data, planTier);
+    const mockData = await getMockData(schema.id);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {
-    console.log('error', (e as Error).message);
-    return res.status(400).json('Something went wrong');
+    return handleServerError(res, e);
   }
 }
 
-export async function updateMockDataRequest(req: Request, res: Response) {
+export async function createMockDataRequest(req: RequestWithProject, res: Response) {
+  const { user, schema } = req;
+  if (!schema || schema.id === undefined)
+    return handleMissingSchema(res);
+
+  const { data } = req.body;
+  if (!data)
+    return handleMissingData(res);
+
   try {
-    const projectHeader = req.headers['x-mockden-header'] as string;
-    const { projectSlug, schemaSlug } = req.params;
-
-    const project = await getProjectWithUserAndSchemas({ projectHeader, projectSlug, schemaSlug });
-
-    if (project?.schemas.length === 0 || project?.schemas[0].id === undefined) {
-      return res.status(404).json({ message: 'Project or schema not found.' });
-    }
-    const { primaryKeyValue } = req.params;
-    const { data } = req.body;
-    if (!data) {
-      return res.status(400).json('Data is missing.');
-    }
-    const mockData = await updateMockData(project.schemas[0].id, primaryKeyValue, data);
+    const planTier: 'free' | 'pro' = user?.planTier === 'pro' ? 'pro' : 'free';
+    const mockData = await createMockData(schema.id, data, planTier);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {
-    console.log('error', (e as Error).message);
-    return res.status(400).json('Something went wrong');
+    return handleServerError(res, e);
   }
 }
 
-export async function deleteMockDataRequest(req: Request, res: Response) {
+export async function updateMockDataRequest(req: RequestWithProject, res: Response) {
+  const { schema } = req;
+  if (!schema || schema.id === undefined)
+    return handleMissingSchema(res);
+
+  const { primaryKeyValue } = req.params;
+  const { data } = req.body;
+  if (!data)
+    return handleMissingData(res);
+
   try {
-    const projectHeader = req.headers['x-mockden-header'] as string;
-    const { projectSlug, schemaSlug } = req.params;
-
-    const project = await getProjectWithUserAndSchemas({ projectHeader, projectSlug, schemaSlug });
-
-    if (project?.schemas.length === 0 || project?.schemas[0].id === undefined) {
-      return res.status(404).json({ message: 'Project or schema not found.' });
-    }
-    const { primaryKeyValue } = req.params;
-    const mockData = await deleteMockData(project.schemas[0].id, primaryKeyValue);
+    const mockData = await updateMockData(schema.id, primaryKeyValue, data);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {
-    console.log('error', (e as Error).message);
-    return res.status(400).json('Something went wrong');
+    return handleServerError(res, e);
+  }
+}
+
+export async function deleteMockDataRequest(req: RequestWithProject, res: Response) {
+  const { schema } = req;
+  if (!schema || schema.id === undefined)
+    return handleMissingSchema(res);
+
+  const { primaryKeyValue } = req.params;
+  try {
+    const mockData = await deleteMockData(schema.id, primaryKeyValue);
+    return res.status(mockData.status).json(mockData.json);
+  }
+  catch (e) {
+    return handleServerError(res, e);
+  }
+}
+
+export async function getMockDataByPrimaryKeyRequest(req: RequestWithProject, res: Response) {
+  const { schema } = req;
+  if (!schema || schema.id === undefined)
+    return handleMissingSchema(res);
+
+  const { primaryKeyValue } = req.params;
+  try {
+    const mockData = await getMockDataByPrimaryKey(schema.id, primaryKeyValue);
+    return res.status(mockData.status).json(mockData.json);
+  }
+  catch (e) {
+    return handleServerError(res, e);
   }
 }

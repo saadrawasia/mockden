@@ -22,4 +22,4 @@ app.use('/api/:projectSlug/:schemaSlug', rateLimiter, mockDataRouter);
 app.listen(port, () =>
   console.log(`Backend running at http://localhost:${port}`));
 
-app.listen(3000, () => console.log('Listening on port 3000'));
+// app.listen(3000, () => console.log('Listening on port 3000'));
