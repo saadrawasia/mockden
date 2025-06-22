@@ -17,7 +17,7 @@ app.use('/users', requireAuth(), userRouter);
 app.use('/projects', requireAuth(), projectRouter);
 app.use('/projects/:projectId/schemas', requireAuth(), schemaRouter);
 
-app.use('/api/:projectSlug/:schemaSlug', rateLimiter, mockDataRouter);
+app.use('/mockdata/:projectSlug/:schemaSlug', rateLimiter, mockDataRouter);
 
 app.listen(port, () =>
   console.log(`Backend running at http://localhost:${port}`));

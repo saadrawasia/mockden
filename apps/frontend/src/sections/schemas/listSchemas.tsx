@@ -31,6 +31,7 @@ import {
   useDeleteSchemaMutation,
   useEditSchemaMutation,
 } from '@frontend/hooks/useSchemas';
+import config from '@frontend/lib/config';
 import { useSchemaStore } from '@frontend/stores/schemasStore';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -172,9 +173,10 @@ export default function ListSchemasSection({
                     {' '}
                     <span className="text-muted-foreground">(GET, POST, PUT, DELETE)</span>
                   </TypographyP>
-                  <div className="group flex cursor-pointer gap-2" onClick={() => copyToClipboard(`https://mockden.com/api/${project.slug}/${schema.slug}`)}>
+                  <div className="group flex cursor-pointer gap-2" onClick={() => copyToClipboard(`${config.BACKEND_URL}/mockdata/${project.slug}/${schema.slug}`)}>
                     <TypographyP className="text-muted-foreground">
-                      https://mockden.com/api/
+                      {config.BACKEND_URL}
+                      /mockdata
                       {project.slug}
                       /
                       {schema.slug}
