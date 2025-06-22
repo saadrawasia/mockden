@@ -10,7 +10,11 @@
     "db:generate:dev": "drizzle-kit generate --config=drizzle-dev.config.ts",
     "db:migrate:dev": "drizzle-kit migrate --config=drizzle-dev.config.ts",
     "db:seed": "npx tsx --env-file=.env.development apps/backend/src/db/seed.ts",
-    "backend:dev": "nx run @mockden/backend:serve & ngrok http 3000"
+    "backend:dev": "nx run @mockden/backend:serve & ngrok http 3000",
+    "robots:prod": "cp apps/frontend/public/robots.production.txt apps/frontend/public/robots.txt",
+    "robots:dev": "cp apps/frontend/public/robots.development.txt apps/frontend/public/robots.txt",
+    "prebuild": "npm run robots:prod",
+    "predev": "npm run robots:dev"
   },
   "dependencies": {
     "@clerk/backend": "^2.1.0",
