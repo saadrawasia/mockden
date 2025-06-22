@@ -60,7 +60,7 @@ export async function getMockData<T = Record<string, unknown>[]>(
   }
   catch (err) {
     console.error('DB error:', err);
-    return { status: 400, json: [] as T };
+    return { status: 500, json: [] as T }; // Internal server error for DB issues
   }
 }
 
@@ -75,7 +75,7 @@ export async function createMockData(
   // Fetch schema and validate existence
   const schemaObj = await getSchemaById(schemaId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
-    return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
+    return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }
   const schema = schemaObj.json;
   const schemaDefinition = schema.fields as SchemaDefinition;
@@ -109,7 +109,7 @@ export async function createMockData(
       err => `${err.field}: ${err.message}`,
     );
     return {
-      status: 400,
+      status: 422,
       json: { message: `Validation failed: ${errorMessages.join(', ')}` },
     };
   }
@@ -129,7 +129,7 @@ export async function createMockData(
       .values({ schemaId: schema.id, data: newData });
   }
 
-  return { status: 200, json: validation.data };
+  return { status: 201, json: validation.data };
 }
 
 /**
@@ -142,7 +142,7 @@ export async function deleteMockData(
   // Fetch schema
   const schemaObj = await getSchemaById(schemaId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
-    return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
+    return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }
 
   const schema = schemaObj.json;
@@ -156,7 +156,7 @@ export async function deleteMockData(
   );
   if (dataIndex < 0) {
     return {
-      status: 400,
+      status: 404,
       json: {
         message: `No data found for ${primaryField} with value of ${primaryKeyValue}`,
       },
@@ -184,7 +184,7 @@ export async function updateMockData(
   // Fetch schema
   const schemaObj = await getSchemaById(schemaId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
-    return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
+    return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }
 
   const schema = schemaObj.json;
@@ -198,7 +198,7 @@ export async function updateMockData(
   );
   if (dataIndex < 0) {
     return {
-      status: 400,
+      status: 404,
       json: {
         message: `No data found for ${primaryField} with value of ${primaryKeyValue}`,
       },
@@ -214,7 +214,7 @@ export async function updateMockData(
       err => `${err.field}: ${err.message}`,
     );
     return {
-      status: 400,
+      status: 422,
       json: { message: `Validation failed: ${errorMessages.join(', ')}` },
     };
   }
@@ -236,7 +236,7 @@ export async function deleteMockDataEntry(schemaId: number) {
   }
   catch (err) {
     console.error('DB error:', err);
-    return { status: 400, json: { message: 'Schemas not found.' } };
+    return { status: 500, json: { message: 'Schemas not found.' } };
   }
 }
 
@@ -346,7 +346,7 @@ export async function createMockDataArray(
   // Fetch schema and validate existence
   const schemaObj = await getSchemaById(schemaId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
-    return { status: 400, json: { message: `Schema '${schemaId}' not found` } };
+    return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }
   const schema = schemaObj.json;
   const schemaDefinition = schema.fields as SchemaDefinition;
@@ -366,5 +366,33 @@ export async function createMockDataArray(
     .insert(mockDataSchema)
     .values({ schemaId: schema.id, data: newData });
 
-  return { status: 200, json: newData };
+  return { status: 201, json: newData };
+}
+
+export async function getMockDataByPrimaryKey(schemaId: number, primaryKeyValue: string) {
+  const schemaObj = await getSchemaById(schemaId);
+  if (schemaObj.status > 200 || 'message' in schemaObj.json) {
+    return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
+  }
+
+  const schema = schemaObj.json;
+  const schemaDefinition = schema.fields as SchemaDefinition;
+  const primaryField = schemaDefinition.find(field => field.primary)!.name;
+  const mockData
+    = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
+
+  const data = mockData.find(
+    (item: Record<string, unknown>) => typeof item[primaryField] === 'number' ? item[primaryField].toString() === primaryKeyValue : item[primaryField] === primaryKeyValue,
+  );
+
+  if (!data) {
+    return {
+      status: 404,
+      json: {
+        message: `No data found for ${primaryField} with value of ${primaryKeyValue}`,
+      },
+    };
+  }
+
+  return { status: 200, json: data };
 }
