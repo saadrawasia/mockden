@@ -37,8 +37,8 @@ export async function getMockDataRequest(req: RequestWithProject, res: Response)
 }
 
 export async function createMockDataRequest(req: RequestWithProject, res: Response) {
-  const { user, schema } = req;
-  if (!schema || schema.id === undefined)
+  const { user, schema, project } = req;
+  if (!schema || schema.id === undefined || !project || project.id === undefined)
     return handleMissingSchema(res);
 
   const { data } = req.body;
@@ -47,7 +47,7 @@ export async function createMockDataRequest(req: RequestWithProject, res: Respon
 
   try {
     const planTier: 'free' | 'pro' = user?.planTier === 'pro' ? 'pro' : 'free';
-    const mockData = await createMockData(schema.id, data, planTier);
+    const mockData = await createMockData(schema.id, data, planTier, project.id);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {
@@ -56,8 +56,8 @@ export async function createMockDataRequest(req: RequestWithProject, res: Respon
 }
 
 export async function updateMockDataRequest(req: RequestWithProject, res: Response) {
-  const { schema } = req;
-  if (!schema || schema.id === undefined)
+  const { schema, project } = req;
+  if (!schema || schema.id === undefined || !project || project.id === undefined)
     return handleMissingSchema(res);
 
   const { primaryKeyValue } = req.params;
@@ -66,7 +66,7 @@ export async function updateMockDataRequest(req: RequestWithProject, res: Respon
     return handleMissingData(res);
 
   try {
-    const mockData = await updateMockData(schema.id, primaryKeyValue, data);
+    const mockData = await updateMockData(schema.id, primaryKeyValue, data, project.id);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {
@@ -75,13 +75,13 @@ export async function updateMockDataRequest(req: RequestWithProject, res: Respon
 }
 
 export async function deleteMockDataRequest(req: RequestWithProject, res: Response) {
-  const { schema } = req;
-  if (!schema || schema.id === undefined)
+  const { schema, project } = req;
+  if (!schema || schema.id === undefined || !project || project.id === undefined)
     return handleMissingSchema(res);
 
   const { primaryKeyValue } = req.params;
   try {
-    const mockData = await deleteMockData(schema.id, primaryKeyValue);
+    const mockData = await deleteMockData(schema.id, primaryKeyValue, project.id);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {
@@ -90,13 +90,13 @@ export async function deleteMockDataRequest(req: RequestWithProject, res: Respon
 }
 
 export async function getMockDataByPrimaryKeyRequest(req: RequestWithProject, res: Response) {
-  const { schema } = req;
-  if (!schema || schema.id === undefined)
+  const { schema, project } = req;
+  if (!schema || schema.id === undefined || !project || project.id === undefined)
     return handleMissingSchema(res);
 
   const { primaryKeyValue } = req.params;
   try {
-    const mockData = await getMockDataByPrimaryKey(schema.id, primaryKeyValue);
+    const mockData = await getMockDataByPrimaryKey(schema.id, primaryKeyValue, project.id);
     return res.status(mockData.status).json(mockData.json);
   }
   catch (e) {

@@ -23,7 +23,7 @@ export async function createProject({ name, description, userId }: CreateProject
     return { status: 400, json: { message: project.error } };
 
   const existingProject = await db.query.projects.findFirst({
-    where: fields => eq(fields.name, name),
+    where: fields => and(eq(fields.name, name), eq(fields.userId, userId)),
   });
   if (existingProject) {
     return {

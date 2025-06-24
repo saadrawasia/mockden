@@ -71,9 +71,10 @@ export async function createMockData(
   schemaId: number,
   data: Record<string, unknown>,
   planTier: User['planTier'],
+  projectId: number,
 ) {
   // Fetch schema and validate existence
-  const schemaObj = await getSchemaById(schemaId);
+  const schemaObj = await getSchemaById(schemaId, projectId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
     return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }
@@ -98,7 +99,7 @@ export async function createMockData(
         data[primaryField.name] === eData[primaryField.name],
     );
     if (dataIndex > -1) {
-      return updateMockData(schemaId, data[primaryField.name] as string, data);
+      return updateMockData(schemaId, data[primaryField.name] as string, data, projectId);
     }
   }
 
@@ -138,9 +139,10 @@ export async function createMockData(
 export async function deleteMockData(
   schemaId: number,
   primaryKeyValue: string,
+  projectId: number,
 ) {
   // Fetch schema
-  const schemaObj = await getSchemaById(schemaId);
+  const schemaObj = await getSchemaById(schemaId, projectId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
     return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }
@@ -180,9 +182,10 @@ export async function updateMockData(
   schemaId: number,
   primaryKeyValue: string,
   data: Record<string, unknown>,
+  projectId: number,
 ) {
   // Fetch schema
-  const schemaObj = await getSchemaById(schemaId);
+  const schemaObj = await getSchemaById(schemaId, projectId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
     return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }
@@ -342,9 +345,10 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
  */
 export async function createMockDataArray(
   schemaId: number,
+  projectId: number,
 ) {
   // Fetch schema and validate existence
-  const schemaObj = await getSchemaById(schemaId);
+  const schemaObj = await getSchemaById(schemaId, projectId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
     return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }
@@ -369,8 +373,8 @@ export async function createMockDataArray(
   return { status: 201, json: newData };
 }
 
-export async function getMockDataByPrimaryKey(schemaId: number, primaryKeyValue: string) {
-  const schemaObj = await getSchemaById(schemaId);
+export async function getMockDataByPrimaryKey(schemaId: number, primaryKeyValue: string, projectId: number) {
+  const schemaObj = await getSchemaById(schemaId, projectId);
   if (schemaObj.status > 200 || 'message' in schemaObj.json) {
     return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
   }

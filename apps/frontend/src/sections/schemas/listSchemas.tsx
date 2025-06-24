@@ -176,7 +176,7 @@ export default function ListSchemasSection({
                   <div className="group flex cursor-pointer gap-2" onClick={() => copyToClipboard(`${config.BACKEND_URL}/mockdata/${project.slug}/${schema.slug}`)}>
                     <TypographyP className="text-muted-foreground">
                       {config.BACKEND_URL}
-                      /mockdata
+                      /mockdata/
                       {project.slug}
                       /
                       {schema.slug}

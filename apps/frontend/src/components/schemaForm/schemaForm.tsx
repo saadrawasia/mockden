@@ -266,7 +266,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className="mx-auto flex max-w-xs flex-col gap-4 md:max-w-md lg:max-w-xl"
+      className="mx-auto flex max-w-xs flex-col gap-4 md:max-w-md lg:max-w-xl overflow-y-auto max-h-[80vh]"
     >
       <div className="flex flex-col gap-2">
         {/* A type-safe field component */}

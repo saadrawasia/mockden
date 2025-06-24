@@ -18,7 +18,7 @@ export async function createSchemaRequest(req: Request, res: Response) {
     const { name, fields, fakeData, isActive } = req.body;
     const { projectId } = req.params;
     const project = await getProjectById(Number.parseInt(projectId), user.id);
-    if (!project) {
+    if (!project || 'message' in project.json) {
       return res.status(404).json({ message: 'Project Not Found.' }); ;
     }
     const newSchema = await createSchema({ name, fields, projectId: Number.parseInt(projectId), fakeData, isActive });
@@ -36,7 +36,7 @@ export async function editSchemaRequest(req: Request, res: Response) {
     const { name, fields, fakeData, isActive } = req.body;
     const { projectId, id } = req.params;
     const project = await getProjectById(Number.parseInt(projectId), user.id);
-    if (!project) {
+    if (!project || 'message' in project.json) {
       return res.status(404).json({ message: 'Project Not Found.' }); ;
     }
     const updatedSchema = await editSchema({ id: Number.parseInt(id), name, fields, projectId: Number.parseInt(projectId), fakeData, isActive });
@@ -53,10 +53,10 @@ export async function getAllSchemasRequest(req: Request, res: Response) {
     return res.status(401).json({ message: 'Unauthorized Request' }); ;
   const { projectId } = req.params;
   const project = await getProjectById(Number.parseInt(projectId), user.id);
-  if (!project) {
+  if (!project || 'message' in project.json) {
     return res.status(404).json({ message: 'Project Not Found.' }); ;
   }
-  const schemas = await getAllSchemas();
+  const schemas = await getAllSchemas(project.json.id);
   return res.status(schemas.status).json(schemas.json);
 }
 
@@ -66,10 +66,10 @@ export async function getSchemaByIdRequest(req: Request, res: Response) {
     return res.status(401).json({ message: 'Unauthorized Request' }); ;
   const { projectId, id } = req.params;
   const project = await getProjectById(Number.parseInt(projectId), user.id);
-  if (!project) {
+  if (!project || 'message' in project.json) {
     return res.status(404).json({ message: 'Project Not Found.' }); ;
   }
-  const schemas = await getSchemaById(Number.parseInt(id));
+  const schemas = await getSchemaById(Number.parseInt(id), project.json.id);
   return res.status(schemas.status).json(schemas.json);
 }
 
@@ -79,7 +79,7 @@ export async function deleteSchemaRequest(req: Request, res: Response) {
     return res.status(401).json({ message: 'Unauthorized Request' }); ;
   const { projectId, id } = req.params;
   const project = await getProjectById(Number.parseInt(projectId), user.id);
-  if (!project) {
+  if (!project || 'message' in project.json) {
     return res.status(404).json({ message: 'Project Not Found.' }); ;
   }
   const schemas = await deleteSchema(Number.parseInt(id));

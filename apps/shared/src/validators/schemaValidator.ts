@@ -58,7 +58,7 @@ const SchemaDefinitionSchema = z
   .refine((fields): fields is FieldDefinition[] => {
     // Ensure exactly one primary key
     const primaryField = fields.filter(f => f.primary)[0];
-    return ['string', 'number'].includes(primaryField.type);
+    return ['string', 'number'].includes(primaryField?.type || '');
   }, 'Primary key field must be type of string or number')
   .refine((fields): fields is FieldDefinition[] => {
     // Validate that minLength <= maxLength
@@ -90,12 +90,9 @@ export function validateSchemaDefinition(
   }
   catch (error) {
     if (error instanceof z.ZodError) {
-      const errorMessages = error.errors.map(
-        err => `${err.path.join('.')}: ${err.message}`,
-      );
-
-      return { error: `Invalid: ${errorMessages.join(', ')}` };
+      return { error: `Invalid: ${error.errors[0].message}` };
     }
+    console.log(error);
     return { error: (error as Error).message };
   }
 }

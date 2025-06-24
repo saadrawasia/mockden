@@ -21,7 +21,7 @@ export async function createSchema({ name, fields, projectId, fakeData, isActive
     return { status: 400, json: { message: 'Missing schema name.' } };
 
   const existingSchema = await db.query.schemas.findFirst({
-    where: fields => eq(fields.name, name),
+    where: fields => and(eq(fields.name, name), eq(fields.projectId, projectId)),
   });
   if (existingSchema) {
     return {
@@ -41,16 +41,16 @@ export async function createSchema({ name, fields, projectId, fakeData, isActive
     .returning();
 
   if (fakeData) {
-    await createMockDataArray(newSchema[0].id);
+    await createMockDataArray(newSchema[0].id, projectId);
   }
 
   return { status: 201, json: newSchema[0] };
 }
 
-export async function getSchemaById(id: number) {
+export async function getSchemaById(id: number, projectId: number) {
   try {
     const getSchema = await db.query.schemas.findFirst({
-      where: fields => eq(fields.id, id),
+      where: fields => and(eq(fields.id, id), eq(fields.projectId, projectId)),
     });
     if (!getSchema) {
       return { status: 400, json: { message: 'Schema not found.' } };
@@ -64,9 +64,9 @@ export async function getSchemaById(id: number) {
   }
 }
 
-export async function getAllSchemas() {
+export async function getAllSchemas(projectId: number) {
   try {
-    const getSchemas = await db.select().from(schemas);
+    const getSchemas = await db.select().from(schemas).where(eq(schemas.projectId, projectId)); ;
     return { status: 200, json: getSchemas };
   }
   catch (err) {
@@ -101,8 +101,7 @@ export async function editSchema({ id, name, fields, projectId, fakeData, isActi
 
   const mappedFields = Array.isArray(fields) ? fields : JSON.parse(fields);
 
-  const schema = await getSchemaById(id);
-
+  const schema = await getSchemaById(id, projectId);
   const validate = validateSchemaDefinition(mappedFields);
   if ('error' in validate) {
     return { status: 400, json: { message: validate.error } };
@@ -120,7 +119,7 @@ export async function editSchema({ id, name, fields, projectId, fakeData, isActi
     await deleteMockDataEntry(id);
 
     if (fakeData) {
-      await createMockDataArray(id);
+      await createMockDataArray(id, projectId);
     }
   }
 
