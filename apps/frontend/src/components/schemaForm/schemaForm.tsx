@@ -90,7 +90,7 @@ export default function SchemaFormDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={handleOpen}>
-        <DialogContent className="w-full sm:max-w-6xl">
+        <DialogContent className="w-full sm:max-w-6xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription className="sr-only">
@@ -266,7 +266,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
         e.stopPropagation();
         form.handleSubmit();
       }}
-      className="mx-auto flex max-w-xs flex-col gap-4 md:max-w-md lg:max-w-xl overflow-y-auto max-h-[80vh]"
+      className="mx-auto flex max-w-xs flex-col gap-4 md:max-w-md lg:max-w-xl"
     >
       <div className="flex flex-col gap-2">
         {/* A type-safe field component */}
