@@ -14,10 +14,10 @@ const FieldSchema = z.object({
   name: z
     .string()
     .min(1, 'Field name is required')
-    .regex(/^[a-z_]\w*$/i, 'Field name must be a valid identifier'),
+    .regex(/^[a-z]*$/i, 'Field name must contain only lowercase letters'),
   type: z.enum(['string', 'number', 'boolean', 'array', 'object', 'date', 'url', 'uuid', 'email'], {
     errorMap: () => ({
-      message: 'Type must be one of: string, number, boolean, array, object',
+      message: 'Type must be one of: string, number, boolean, array, object, date, url, uuid or email',
     }),
   }),
   primary: z.boolean().default(false).optional(),

@@ -8,4 +8,5 @@ export const Route = createFileRoute('/projects/')({
       <ProjectsPage />
     </RequireAuth>
   ),
+  pendingComponent: () => <div>Loading...</div>,
 });
