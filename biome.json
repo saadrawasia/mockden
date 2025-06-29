@@ -1,0 +1,54 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": [
+			".nx",
+			".tanstack",
+			"tmp",
+			"node_modules",
+			"./apps/**/dist",
+			"./apps/**/.tanstack",
+			"./apps/**/node_modules",
+			"./apps/**/migrations"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineWidth":100,
+		"lineEnding":"lf"
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"nursery":{
+				"useSortedClasses":{
+					"level":"error",
+					"fix":"safe",
+					"options":{
+						"attributes": ["className"],
+						"functions": ["cn", "clsx", "twMerge"]
+					}
+				}
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"semicolons":"always",
+			"arrowParentheses":"asNeeded",
+			"trailingCommas":"es5"
+		}
+	}
+}
