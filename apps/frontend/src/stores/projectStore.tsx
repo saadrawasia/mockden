@@ -1,6 +1,6 @@
-import type { Project } from "@shared/lib/types";
+import type { Project } from '@shared/lib/types';
 
-import { create } from "zustand";
+import { create } from 'zustand';
 
 type ProjectsStore = {
 	selectedProject: Project | null;
@@ -15,11 +15,11 @@ export const useProjectStore = create<ProjectsStore>(set => ({
 	},
 	defaultProject: {
 		id: 0,
-		name: "",
-		description: "",
-		slug: "",
-		apiKey: "",
-		createdAt: "",
-		updatedAt: "",
+		name: '',
+		description: '',
+		slug: '',
+		apiKey: '',
+		createdAt: '',
+		updatedAt: '',
 	},
 }));

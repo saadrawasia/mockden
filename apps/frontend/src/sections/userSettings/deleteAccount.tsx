@@ -1,13 +1,13 @@
-import { useClerk, useUser } from "@clerk/clerk-react";
-import { Button } from "@frontend/components/ui/button";
-import { useDeleteUserMutation } from "@frontend/hooks/useUsers";
-import { useForm } from "@tanstack/react-form";
-import { Loader2Icon } from "lucide-react";
-import { toast } from "sonner";
+import { useClerk, useUser } from '@clerk/clerk-react';
+import { Button } from '@frontend/components/ui/button';
+import { useDeleteUserMutation } from '@frontend/hooks/useUsers';
+import { useForm } from '@tanstack/react-form';
+import { Loader2Icon } from 'lucide-react';
+import { toast } from 'sonner';
 
-import { TypographyH5, TypographyP } from "../../components/typography/typography";
-import { Card, CardContent, CardHeader } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
+import { TypographyH5, TypographyP } from '../../components/typography/typography';
+import { Card, CardContent, CardHeader } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
 
 export default function DeleteAccountSection() {
 	const { user } = useUser();
@@ -16,16 +16,16 @@ export default function DeleteAccountSection() {
 	const deleteUserMutation = useDeleteUserMutation();
 	const form = useForm({
 		defaultValues: {
-			deleteText: "",
+			deleteText: '',
 		},
 		onSubmit: async () => {
 			const mutate = await deleteUserMutation.mutateAsync({
 				id: user!.id,
 			});
 
-			if (mutate.message !== "User deleted.") {
-				toast.error("Something went wrong!", {
-					description: "Could not delete user.",
+			if (mutate.message !== 'User deleted.') {
+				toast.error('Something went wrong!', {
+					description: 'Could not delete user.',
 				});
 				return;
 			}
@@ -44,7 +44,7 @@ export default function DeleteAccountSection() {
 					Projects, Schemas and Records.
 				</TypographyP>
 				<TypographyP className="text-muted-foreground">
-					To confirm, please type <span className="font-semibold text-foreground">{deleteKey}</span>{" "}
+					To confirm, please type <span className="font-semibold text-foreground">{deleteKey}</span>{' '}
 					in the box below and click the button.
 				</TypographyP>
 				<form

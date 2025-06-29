@@ -1,30 +1,30 @@
-import type { Project, SchemaBase } from "@shared/lib/types";
+import type { Project, SchemaBase } from '@shared/lib/types';
 
-import { useMediaQuery } from "@frontend/hooks/useMediaQuery";
-import { useCreateSchemaMutation, useEditSchemaMutation } from "@frontend/hooks/useSchemas";
-import { useSchemaStore } from "@frontend/stores/schemasStore";
-import { DialogDescription } from "@radix-ui/react-dialog";
-import { SchemaZod, validateSchemaDefinition } from "@shared/validators/schemaValidator";
-import { useForm } from "@tanstack/react-form";
-import { Loader2Icon } from "lucide-react";
-import { useCallback, useState } from "react";
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/ace";
-import "ace-builds/src-noconflict/mode-json";
-import "ace-builds/src-noconflict/theme-tomorrow";
-import "ace-builds/src-noconflict/ext-language_tools";
+import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
+import { useCreateSchemaMutation, useEditSchemaMutation } from '@frontend/hooks/useSchemas';
+import { useSchemaStore } from '@frontend/stores/schemasStore';
+import { DialogDescription } from '@radix-ui/react-dialog';
+import { SchemaZod, validateSchemaDefinition } from '@shared/validators/schemaValidator';
+import { useForm } from '@tanstack/react-form';
+import { Loader2Icon } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/ace';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-tomorrow';
+import 'ace-builds/src-noconflict/ext-language_tools';
 
-import { cn } from "../../lib/utils";
-import { TypographyCaption } from "../typography/typography";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "../ui/drawer";
-import { ErrorInfo } from "../ui/errorInfo";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { ScrollArea } from "../ui/scrollArea";
-import { Separator } from "../ui/separator";
+import { cn } from '../../lib/utils';
+import { TypographyCaption } from '../typography/typography';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '../ui/drawer';
+import { ErrorInfo } from '../ui/errorInfo';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { ScrollArea } from '../ui/scrollArea';
+import { Separator } from '../ui/separator';
 
 type SchemaFormDialogProps = {
 	title: string;
@@ -34,8 +34,8 @@ type SchemaFormDialogProps = {
 };
 
 export default function SchemaFormDialog({ title, open, setOpen, project }: SchemaFormDialogProps) {
-	const isDesktop = useMediaQuery("(min-width: 768px)");
-	const requestType = title.includes("Edit") ? "edit" : "create";
+	const isDesktop = useMediaQuery('(min-width: 768px)');
+	const requestType = title.includes('Edit') ? 'edit' : 'create';
 
 	const handleOpen = useCallback((open = false) => setOpen(open), [setOpen]);
 
@@ -94,8 +94,8 @@ export default function SchemaFormDialog({ title, open, setOpen, project }: Sche
 							<Label>Example:</Label>
 							<div
 								className={cn(
-									"flex w-full min-w-0 rounded-md border border-input bg-white text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30",
-									"focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50"
+									'flex w-full min-w-0 rounded-md border border-input bg-white text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30',
+									'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50'
 								)}
 							>
 								<AceEditor
@@ -147,36 +147,36 @@ export default function SchemaFormDialog({ title, open, setOpen, project }: Sche
 
 type SchemaFormProps = {
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-	requestType: "edit" | "create";
+	requestType: 'edit' | 'create';
 	project: Project;
 };
 
 function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 	const selectedSchema = useSchemaStore(state => state.selectedSchema);
 
-	const isDesktop = useMediaQuery("(min-width: 768px)");
+	const isDesktop = useMediaQuery('(min-width: 768px)');
 
-	const [errorMessage, setErrorMessage] = useState("");
+	const [errorMessage, setErrorMessage] = useState('');
 	const [isSaving, setIsSaving] = useState(false);
 	const createSchemaMutation = useCreateSchemaMutation();
 	const editSchemaMutation = useEditSchemaMutation();
 
 	const createSchema = useCallback(
 		async (value: SchemaBase) => {
-			setErrorMessage("");
+			setErrorMessage('');
 			setIsSaving(true);
 			try {
 				const mutate = await createSchemaMutation.mutateAsync({
 					projectId: project.id,
 					newSchema: { name: value?.name, fields: value?.fields, fakeData: value.fakeData },
 				});
-				if ("message" in mutate) {
+				if ('message' in mutate) {
 					setErrorMessage(mutate.message);
 				} else {
 					setOpen(false);
 				}
 			} catch {
-				setErrorMessage("Network error. Please try again.");
+				setErrorMessage('Network error. Please try again.');
 			} finally {
 				setIsSaving(false);
 			}
@@ -187,7 +187,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 	const editSchema = useCallback(
 		async (value: SchemaBase) => {
 			if (!selectedSchema) return;
-			setErrorMessage("");
+			setErrorMessage('');
 			setIsSaving(true);
 			try {
 				const mutate = await editSchemaMutation.mutateAsync({
@@ -195,13 +195,13 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 					projectId: project.id,
 					schema: { name: value?.name, fields: value?.fields, fakeData: value.fakeData },
 				});
-				if ("message" in mutate) {
+				if ('message' in mutate) {
 					setErrorMessage(mutate.message);
 				} else {
 					setOpen(false);
 				}
 			} catch {
-				setErrorMessage("Network error. Please try again.");
+				setErrorMessage('Network error. Please try again.');
 			} finally {
 				setIsSaving(false);
 			}
@@ -217,7 +217,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 				: selectedSchema?.fields,
 		},
 		onSubmit: async ({ value }) => {
-			if (requestType === "create") {
+			if (requestType === 'create') {
 				await createSchema(value as SchemaBase);
 			} else {
 				await editSchema(value as SchemaBase);
@@ -230,11 +230,11 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 		try {
 			schema = JSON.parse(value);
 		} catch {
-			return "Invalid Scheme JSON";
+			return 'Invalid Scheme JSON';
 		}
 
 		const validate = validateSchemaDefinition(schema);
-		if ("error" in validate) {
+		if ('error' in validate) {
 			return validate.error;
 		}
 	};
@@ -290,18 +290,18 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 				<form.Field
 					name="fields"
 					validators={{
-						onChange: ({ value }) => validateSchema(value ?? ""),
-						onBlur: ({ value }) => validateSchema(value ?? ""),
+						onChange: ({ value }) => validateSchema(value ?? ''),
+						onBlur: ({ value }) => validateSchema(value ?? ''),
 					}}
 					children={field => (
 						<>
 							<Label>Schema</Label>
 							<div
 								className={cn(
-									"flex w-full min-w-0 rounded-md border border-input bg-white text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30",
-									"focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
+									'flex w-full min-w-0 rounded-md border border-input bg-white text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30',
+									'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
 									{
-										"border-destructive ring-destructive/20 dark:ring-destructive/40":
+										'border-destructive ring-destructive/20 dark:ring-destructive/40':
 											field.state.meta.isTouched && !field.state.meta.isValid,
 									}
 								)}
@@ -319,7 +319,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 									onBlur={field.handleBlur}
 									onChange={value => field.handleChange(value)}
 									width="100%"
-									height={isDesktop ? "500px" : "250px"}
+									height={isDesktop ? '500px' : '250px'}
 									setOptions={{
 										enableBasicAutocompletion: false,
 										enableLiveAutocompletion: false,
@@ -378,7 +378,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 				<TypographyCaption className="text-destructive">{errorMessage}</TypographyCaption>
 			)}
 
-			{requestType === "edit" && (
+			{requestType === 'edit' && (
 				<TypographyCaption className="text-muted-foreground italic">
 					* Editing the schema with remove all the previous records.
 				</TypographyCaption>

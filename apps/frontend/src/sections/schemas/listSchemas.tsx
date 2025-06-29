@@ -1,6 +1,6 @@
-import type { Project, Schema } from "@shared/lib/types";
+import type { Project, Schema } from '@shared/lib/types';
 
-import { TypographyH5, TypographyP } from "@frontend/components/typography/typography";
+import { TypographyH5, TypographyP } from '@frontend/components/typography/typography';
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -9,26 +9,26 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from "@frontend/components/ui/alertDialog";
-import { Button } from "@frontend/components/ui/button";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@frontend/components/ui/card";
+} from '@frontend/components/ui/alertDialog';
+import { Button } from '@frontend/components/ui/button';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@frontend/components/ui/card';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from "@frontend/components/ui/dropdownMenu";
-import { useDeleteSchemaMutation, useEditSchemaMutation } from "@frontend/hooks/useSchemas";
-import config from "@frontend/lib/config";
-import { useSchemaStore } from "@frontend/stores/schemasStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { Copy, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from "lucide-react";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
+} from '@frontend/components/ui/dropdownMenu';
+import { useDeleteSchemaMutation, useEditSchemaMutation } from '@frontend/hooks/useSchemas';
+import config from '@frontend/lib/config';
+import { useSchemaStore } from '@frontend/stores/schemasStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { Copy, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 
-import SchemaFormDialog from "../../components/schemaForm/schemaForm";
-import { Label } from "../../components/ui/label";
-import { Switch } from "../../components/ui/switch";
+import SchemaFormDialog from '../../components/schemaForm/schemaForm';
+import { Label } from '../../components/ui/label';
+import { Switch } from '../../components/ui/switch';
 
 type ListSchemasSectionProps = {
 	project: Project;
@@ -36,7 +36,7 @@ type ListSchemasSectionProps = {
 
 export default function ListSchemasSection({ project }: ListSchemasSectionProps) {
 	const queryClient = useQueryClient();
-	const schemas = queryClient.getQueryData<Schema[]>(["schemas"]) ?? [];
+	const schemas = queryClient.getQueryData<Schema[]>(['schemas']) ?? [];
 
 	const { selectedSchema, setSelectedSchema } = useSchemaStore();
 	const deleteSchemasMutation = useDeleteSchemaMutation();
@@ -60,7 +60,7 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
 			{ projectId: project.id, id: selectedSchema.id },
 			{
 				onSuccess: result => {
-					if ("id" in result) {
+					if ('id' in result) {
 						setOpenAlert(false);
 					}
 					setIsDeleting(false);
@@ -84,7 +84,7 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
 
 	const copyToClipboard = (textToCopy: string) => {
 		navigator.clipboard.writeText(textToCopy).then(() => {
-			toast("Copied to clipboard.");
+			toast('Copied to clipboard.');
 		});
 	};
 
@@ -171,7 +171,7 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
 											copyToClipboard(
 												JSON.stringify(
 													{
-														data: { email: "test2@test.com", username: "test" },
+														data: { email: 'test2@test.com', username: 'test' },
 													},
 													null,
 													2
@@ -181,7 +181,7 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
 									>
 										<pre>
 											{JSON.stringify(
-												{ data: { email: "test2@test.com", username: "test" } },
+												{ data: { email: 'test2@test.com', username: 'test' } },
 												null,
 												2
 											)}

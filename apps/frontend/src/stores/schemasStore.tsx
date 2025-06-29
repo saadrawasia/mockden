@@ -1,6 +1,6 @@
-import type { Schema } from "@shared/lib/types";
+import type { Schema } from '@shared/lib/types';
 
-import { create } from "zustand";
+import { create } from 'zustand';
 
 type SchemasStore = {
 	selectedSchema: Schema | null;
@@ -14,12 +14,12 @@ export const useSchemaStore = create<SchemasStore>(set => ({
 		set(() => ({ selectedSchema: schema }));
 	},
 	defaultSchema: {
-		id: "",
-		name: "",
-		fields: "",
+		id: '',
+		name: '',
+		fields: '',
 		fakeData: false,
-		slug: "",
-		status: "active",
-		created_at: "",
+		slug: '',
+		status: 'active',
+		created_at: '',
 	},
 }));

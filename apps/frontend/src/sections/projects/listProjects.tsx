@@ -1,7 +1,7 @@
-import type { Project } from "@shared/lib/types";
+import type { Project } from '@shared/lib/types';
 
-import ProjectFormDialog from "@frontend/components/projectForm/projectForm";
-import { TypographyH5, TypographyP } from "@frontend/components/typography/typography";
+import ProjectFormDialog from '@frontend/components/projectForm/projectForm';
+import { TypographyH5, TypographyP } from '@frontend/components/typography/typography';
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -10,8 +10,8 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from "@frontend/components/ui/alertDialog";
-import { Button } from "@frontend/components/ui/button";
+} from '@frontend/components/ui/alertDialog';
+import { Button } from '@frontend/components/ui/button';
 import {
 	Card,
 	CardAction,
@@ -19,23 +19,23 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@frontend/components/ui/card";
+} from '@frontend/components/ui/card';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from "@frontend/components/ui/dropdownMenu";
-import { useDeleteProjectMutation } from "@frontend/hooks/useProjects";
-import { useProjectStore } from "@frontend/stores/projectStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { ArrowRight, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from "lucide-react";
-import { useCallback, useState } from "react";
+} from '@frontend/components/ui/dropdownMenu';
+import { useDeleteProjectMutation } from '@frontend/hooks/useProjects';
+import { useProjectStore } from '@frontend/stores/projectStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import { ArrowRight, EllipsisVertical, Loader2Icon, Pencil, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 export default function ListProjectsSection() {
 	const queryClient = useQueryClient();
-	const projects = queryClient.getQueryData<Project[]>(["projects"]) ?? [];
+	const projects = queryClient.getQueryData<Project[]>(['projects']) ?? [];
 
 	const { selectedProject, setSelectedProject } = useProjectStore();
 
@@ -57,7 +57,7 @@ export default function ListProjectsSection() {
 	const handleClick = useCallback(
 		(projectSlug: string) => {
 			navigate({
-				to: "/projects/$projectSlug/schemas",
+				to: '/projects/$projectSlug/schemas',
 				params: { projectSlug },
 			});
 		},
@@ -69,7 +69,7 @@ export default function ListProjectsSection() {
 		setIsDeleting(true);
 		deleteProjectMutation.mutate(selectedProject.id, {
 			onSuccess: result => {
-				if ("id" in result) {
+				if ('id' in result) {
 					setOpenAlert(false);
 				}
 				setIsDeleting(false);

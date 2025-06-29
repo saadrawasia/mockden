@@ -1,6 +1,6 @@
-import Logo64 from "@frontend/assets/mockden64.png";
+import Logo64 from '@frontend/assets/mockden64.png';
 
-import { TypographyH5 } from "../typography/typography";
+import { TypographyH5 } from '../typography/typography';
 
 type LogoProps = {
 	withText?: boolean;

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 import type {
 	FieldDefinition,
@@ -7,14 +7,14 @@ import type {
 	ValidationError,
 	ValidationResult,
 	ZodError,
-} from "../lib/types";
+} from '../lib/types';
 
 const fieldTypeEnum = z.enum(
-	["string", "number", "boolean", "array", "object", "date", "url", "uuid", "email"],
+	['string', 'number', 'boolean', 'array', 'object', 'date', 'url', 'uuid', 'email'],
 	{
 		errorMap: () => ({
 			message:
-				"Type must be one of: string, number, boolean, array, object, date, url, uuid or email",
+				'Type must be one of: string, number, boolean, array, object, date, url, uuid or email',
 		}),
 	}
 );
@@ -25,8 +25,8 @@ export type FieldType = z.infer<typeof fieldTypeEnum>;
 const FieldSchema = z.object({
 	name: z
 		.string()
-		.min(1, "Field name is required")
-		.regex(/^[a-z]*$/i, "Field name must contain only lowercase letters"),
+		.min(1, 'Field name is required')
+		.regex(/^[a-z]*$/i, 'Field name must contain only lowercase letters'),
 	type: fieldTypeEnum,
 	items: z
 		.object({
@@ -38,29 +38,29 @@ const FieldSchema = z.object({
 			val => {
 				if (!val || !val.enum) return true;
 				switch (val.type) {
-					case "string":
-					case "url":
-					case "uuid":
-					case "email":
-						return val.enum.every((v: unknown) => typeof v === "string");
-					case "number":
-						return val.enum.every((v: unknown) => typeof v === "number");
-					case "boolean":
-						return val.enum.every((v: unknown) => typeof v === "boolean");
-					case "date":
-						return val.enum.every((v: unknown) => typeof v === "string" || v instanceof Date);
-					case "array":
+					case 'string':
+					case 'url':
+					case 'uuid':
+					case 'email':
+						return val.enum.every((v: unknown) => typeof v === 'string');
+					case 'number':
+						return val.enum.every((v: unknown) => typeof v === 'number');
+					case 'boolean':
+						return val.enum.every((v: unknown) => typeof v === 'boolean');
+					case 'date':
+						return val.enum.every((v: unknown) => typeof v === 'string' || v instanceof Date);
+					case 'array':
 						return val.enum.every((v: unknown) => Array.isArray(v));
-					case "object":
+					case 'object':
 						return val.enum.every(
-							(v: unknown) => typeof v === "object" && !Array.isArray(v) && v !== null
+							(v: unknown) => typeof v === 'object' && !Array.isArray(v) && v !== null
 						);
 					default:
 						return true;
 				}
 			},
 			{
-				message: "Enum values must match the type of items.type",
+				message: 'Enum values must match the type of items.type',
 			}
 		),
 	fields: z.array(z.lazy((): z.ZodType<FieldDefinition> => FieldSchema)).optional(), // Only required for type: 'object'
@@ -88,22 +88,22 @@ const FieldSchema = z.object({
 // Zod Schema for complete Schema Definition
 const SchemaDefinitionSchema = z
 	.array(FieldSchema)
-	.min(1, "Schema must have at least one field")
+	.min(1, 'Schema must have at least one field')
 	.refine((fields): fields is FieldDefinition[] => {
 		// Check for duplicate field names
 		const names = fields.map(f => f.name);
 		return new Set(names).size === names.length;
-	}, "Duplicate field names are not allowed")
+	}, 'Duplicate field names are not allowed')
 	.refine((fields): fields is FieldDefinition[] => {
 		// Ensure exactly one primary key
 		const primaryFields = fields.filter(f => f.primary);
 		return primaryFields.length === 1;
-	}, "Schema must have exactly one primary key field")
+	}, 'Schema must have exactly one primary key field')
 	.refine((fields): fields is FieldDefinition[] => {
 		// Ensure exactly one primary key
 		const primaryField = fields.filter(f => f.primary)[0];
-		return ["string", "number", "uuid"].includes(primaryField?.type || "");
-	}, "Primary key field must be type of string, number or uuid")
+		return ['string', 'number', 'uuid'].includes(primaryField?.type || '');
+	}, 'Primary key field must be type of string, number or uuid')
 	.refine((fields): fields is FieldDefinition[] => {
 		// Validate that minLength <= maxLength
 		return fields.every(field => {
@@ -113,7 +113,7 @@ const SchemaDefinitionSchema = z
 			}
 			return true;
 		});
-	}, "minLength must be less than or equal to maxLength")
+	}, 'minLength must be less than or equal to maxLength')
 	.refine((fields): fields is FieldDefinition[] => {
 		// Validate that min <= max for numbers
 		return fields.every(field => {
@@ -123,7 +123,7 @@ const SchemaDefinitionSchema = z
 			}
 			return true;
 		});
-	}, "min must be less than or equal to max") satisfies z.ZodType<SchemaDefinition>;
+	}, 'min must be less than or equal to max') satisfies z.ZodType<SchemaDefinition>;
 
 // Validate schema definition using Zod
 export function validateSchemaDefinition(fields: unknown): SchemaDefinition | ZodError {
@@ -158,7 +158,7 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 
 	// Base type schema
 	switch (field.type) {
-		case "string": {
+		case 'string': {
 			let stringSchema: z.ZodString = z.string();
 
 			// Apply string validations
@@ -192,7 +192,7 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 			break;
 		}
 
-		case "number": {
+		case 'number': {
 			let numberSchema: z.ZodNumber = z.number();
 
 			// Apply number validations
@@ -211,13 +211,13 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 			break;
 		}
 
-		case "boolean":
+		case 'boolean':
 			schema = z.boolean();
 			break;
 
-		case "array": {
+		case 'array': {
 			let itemSchema: z.ZodTypeAny = z.any();
-			if ("items" in field && field.items) {
+			if ('items' in field && field.items) {
 				// Recursively build the schema for the array items
 				itemSchema = createFieldZodSchema({
 					...field.items,
@@ -228,7 +228,7 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 				// If enum is present, restrict allowed enum
 				if (field.items.enum) {
 					itemSchema = itemSchema.refine(val => field.items!.enum!.includes(val), {
-						message: `Value must be one of: ${field.items.enum.join(", ")}`,
+						message: `Value must be one of: ${field.items.enum.join(', ')}`,
 					});
 				}
 			}
@@ -257,27 +257,27 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 			break;
 		}
 
-		case "object":
-			if ("fields" in field && Array.isArray(field.fields)) {
+		case 'object':
+			if ('fields' in field && Array.isArray(field.fields)) {
 				schema = createDynamicZodSchema(field.fields);
 			} else {
 				schema = z.object({}).passthrough(); // fallback: allow any object
 			}
 			break;
 
-		case "date":
+		case 'date':
 			schema = z.date();
 			break;
 
-		case "email":
+		case 'email':
 			schema = z.string().email();
 			break;
 
-		case "url":
+		case 'url':
 			schema = z.string().url();
 			break;
 
-		case "uuid":
+		case 'uuid':
 			schema = z.string().uuid();
 			break;
 
@@ -321,7 +321,7 @@ export function validateData<T = Record<string, unknown>>(
 	} catch (error) {
 		if (error instanceof z.ZodError) {
 			const errors: ValidationError[] = error.errors.map(err => ({
-				field: err.path.join("."),
+				field: err.path.join('.'),
 				message: err.message,
 				code: err.code,
 			}));
@@ -338,9 +338,9 @@ export function validateData<T = Record<string, unknown>>(
 			data: null,
 			errors: [
 				{
-					field: "unknown",
-					message: error instanceof Error ? error.message : "Unknown error occurred",
-					code: "unknown",
+					field: 'unknown',
+					message: error instanceof Error ? error.message : 'Unknown error occurred',
+					code: 'unknown',
 				},
 			],
 		};
@@ -350,8 +350,8 @@ export function validateData<T = Record<string, unknown>>(
 export const SchemaZod = z.object({
 	name: z
 		.string()
-		.min(1, "Name is required")
-		.max(25, "Name cannot be more than 25 characters")
-		.regex(/^[A-Z][A-Z0-9 ]*$/i, "Name must be a valid e.g Project, Project 1"),
+		.min(1, 'Name is required')
+		.max(25, 'Name cannot be more than 25 characters')
+		.regex(/^[A-Z][A-Z0-9 ]*$/i, 'Name must be a valid e.g Project, Project 1'),
 	fakeData: z.boolean(),
-}) satisfies z.ZodType<Pick<SchemaBase, "name" | "fakeData">>;
+}) satisfies z.ZodType<Pick<SchemaBase, 'name' | 'fakeData'>>;

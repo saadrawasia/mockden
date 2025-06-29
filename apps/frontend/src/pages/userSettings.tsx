@@ -1,9 +1,9 @@
-import ChangePasswordSection from "@frontend/sections/userSettings/changePassword";
-import DeleteAccountSection from "@frontend/sections/userSettings/deleteAccount";
-import UserDetailsSection from "@frontend/sections/userSettings/userDetails";
+import ChangePasswordSection from '@frontend/sections/userSettings/changePassword';
+import DeleteAccountSection from '@frontend/sections/userSettings/deleteAccount';
+import UserDetailsSection from '@frontend/sections/userSettings/userDetails';
 
-import { TypographyH2 } from "../components/typography/typography";
-import PageShell from "../pageShell";
+import { TypographyH2 } from '../components/typography/typography';
+import PageShell from '../pageShell';
 
 export default function UserSettingsPage() {
 	return (

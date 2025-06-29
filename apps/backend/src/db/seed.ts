@@ -1,12 +1,12 @@
-import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { randomUUID } from 'node:crypto';
+import { eq } from 'drizzle-orm';
 
-import db from "./client";
-import { projects, users } from "./schema";
+import db from './client';
+import { projects, users } from './schema';
 
 async function seed() {
-	const email = "admin@example.com";
-	const projectSlug = "admin-project";
+	const email = 'admin@example.com';
+	const projectSlug = 'admin-project';
 
 	// 1. Check if user exists
 	let [user] = await db.select().from(users).where(eq(users.email, email));
@@ -17,17 +17,17 @@ async function seed() {
 			.insert(users)
 			.values({
 				email,
-				planTier: "pro",
+				planTier: 'pro',
 				clerkUserId: randomUUID(),
-				firstName: "",
-				lastName: "",
+				firstName: '',
+				lastName: '',
 			})
 			.returning();
 
 		user = newUser;
-		console.log("✅ Created user:", user.email);
+		console.log('✅ Created user:', user.email);
 	} else {
-		console.log("ℹ️ User already exists:", user.email);
+		console.log('ℹ️ User already exists:', user.email);
 	}
 
 	// 3. Check if project exists for the user
@@ -36,17 +36,17 @@ async function seed() {
 	if (!existingProject) {
 		await db.insert(projects).values({
 			userId: user.id,
-			name: "Admin Project",
+			name: 'Admin Project',
 			slug: projectSlug,
-			description: "This is a default project for the admin user.",
+			description: 'This is a default project for the admin user.',
 		});
-		console.log("✅ Created project:", projectSlug);
+		console.log('✅ Created project:', projectSlug);
 	} else {
-		console.log("ℹ️ Project already exists:", projectSlug);
+		console.log('ℹ️ Project already exists:', projectSlug);
 	}
 }
 
 seed().catch(e => {
-	console.error("❌ Error seeding database:", e);
+	console.error('❌ Error seeding database:', e);
 	process.exit(1);
 });

@@ -1,14 +1,14 @@
-import type { SchemaDefinition, User } from "@shared/lib/types";
+import type { SchemaDefinition, User } from '@shared/lib/types';
 
-import db from "@backend/db/client";
-import { mockData as mockDataSchema } from "@backend/db/schema";
-import { faker } from "@faker-js/faker";
-import { limitations } from "@shared/lib/config";
-import { validateData } from "@shared/validators/schemaValidator";
-import { eq } from "drizzle-orm";
-import RandExp from "randexp";
+import db from '@backend/db/client';
+import { mockData as mockDataSchema } from '@backend/db/schema';
+import { faker } from '@faker-js/faker';
+import { limitations } from '@shared/lib/config';
+import { validateData } from '@shared/validators/schemaValidator';
+import { eq } from 'drizzle-orm';
+import RandExp from 'randexp';
 
-import { getSchemaById } from "./schemaService";
+import { getSchemaById } from './schemaService';
 
 /**
  * Generates a primary key value based on schema definition and existing data.
@@ -20,25 +20,25 @@ function generatePrimaryKeyValue(
 	const primaryField = schema.find(field => field.primary);
 	if (!primaryField) return;
 
-	if (primaryField.type === "string") {
-		if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+	if (primaryField.type === 'string') {
+		if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
 			return crypto.randomUUID();
 		}
 		return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 	}
 
-	if (primaryField.type === "number") {
+	if (primaryField.type === 'number') {
 		let maxId = 0;
 		for (const item of existingData) {
 			const value = (item as Record<string, unknown>)[primaryField.name];
-			if (typeof value === "number" && value > maxId) {
+			if (typeof value === 'number' && value > maxId) {
 				maxId = value;
 			}
 		}
 		return maxId + 1;
 	}
 
-	throw new Error("Primary key must be string or number type");
+	throw new Error('Primary key must be string or number type');
 }
 
 /**
@@ -54,7 +54,7 @@ export async function getMockData<T = Record<string, unknown>[]>(
 		const data = mockData ? (mockData.data as T) : ([] as T);
 		return { status: 200, json: data };
 	} catch (err) {
-		console.error("DB error:", err);
+		console.error('DB error:', err);
 		return { status: 500, json: [] as T }; // Internal server error for DB issues
 	}
 }
@@ -65,12 +65,12 @@ export async function getMockData<T = Record<string, unknown>[]>(
 export async function createMockData(
 	schemaId: number,
 	data: Record<string, unknown>,
-	planTier: User["planTier"],
+	planTier: User['planTier'],
 	projectId: number
 ) {
 	// Fetch schema and validate existence
 	const schemaObj = await getSchemaById(schemaId, projectId);
-	if (schemaObj.status > 200 || "message" in schemaObj.json) {
+	if (schemaObj.status > 200 || 'message' in schemaObj.json) {
 		return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
 	}
 	const schema = schemaObj.json;
@@ -99,7 +99,7 @@ export async function createMockData(
 		const errorMessages = validation.errors.map(err => `${err.field}: ${err.message}`);
 		return {
 			status: 422,
-			json: { message: `Validation failed: ${errorMessages.join(", ")}` },
+			json: { message: `Validation failed: ${errorMessages.join(', ')}` },
 		};
 	}
 
@@ -124,7 +124,7 @@ export async function createMockData(
 export async function deleteMockData(schemaId: number, primaryKeyValue: string, projectId: number) {
 	// Fetch schema
 	const schemaObj = await getSchemaById(schemaId, projectId);
-	if (schemaObj.status > 200 || "message" in schemaObj.json) {
+	if (schemaObj.status > 200 || 'message' in schemaObj.json) {
 		return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
 	}
 
@@ -152,7 +152,7 @@ export async function deleteMockData(schemaId: number, primaryKeyValue: string, 
 		.set({ data: mockData })
 		.where(eq(mockDataSchema.schemaId, schema.id));
 
-	return { status: 200, json: { message: "Data deleted" } };
+	return { status: 200, json: { message: 'Data deleted' } };
 }
 
 /**
@@ -166,7 +166,7 @@ export async function updateMockData(
 ) {
 	// Fetch schema
 	const schemaObj = await getSchemaById(schemaId, projectId);
-	if (schemaObj.status > 200 || "message" in schemaObj.json) {
+	if (schemaObj.status > 200 || 'message' in schemaObj.json) {
 		return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
 	}
 
@@ -195,7 +195,7 @@ export async function updateMockData(
 		const errorMessages = validation.errors.map(err => `${err.field}: ${err.message}`);
 		return {
 			status: 422,
-			json: { message: `Validation failed: ${errorMessages.join(", ")}` },
+			json: { message: `Validation failed: ${errorMessages.join(', ')}` },
 		};
 	}
 
@@ -212,10 +212,10 @@ export async function updateMockData(
 export async function deleteMockDataEntry(schemaId: number) {
 	try {
 		await db.delete(mockDataSchema).where(eq(mockDataSchema.schemaId, schemaId));
-		return { status: 200, json: { message: "Mock data entry deleted" } };
+		return { status: 200, json: { message: 'Mock data entry deleted' } };
 	} catch (err) {
-		console.error("DB error:", err);
-		return { status: 500, json: { message: "Schemas not found." } };
+		console.error('DB error:', err);
+		return { status: 500, json: { message: 'Schemas not found.' } };
 	}
 }
 
@@ -229,7 +229,7 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
 		if (field.primary) continue;
 
 		// Handle string fields with pattern, minLength, maxLength
-		if (field.type === "string") {
+		if (field.type === 'string') {
 			let value = faker.lorem.words(2);
 
 			if (field.validation?.pattern) {
@@ -247,7 +247,7 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
 				const min = field.validation?.minLength ?? 1;
 				const max = field.validation?.maxLength ?? min + 10;
 				if (value.length < min) {
-					value = value.padEnd(min, "a");
+					value = value.padEnd(min, 'a');
 				}
 				if (value.length > max) {
 					value = value.slice(0, max);
@@ -259,45 +259,45 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
 		}
 
 		// Handle number fields with min/max
-		if (field.type === "number") {
-			const min = typeof field.validation?.min === "number" ? field.validation?.min : 0;
-			const max = typeof field.validation?.max === "number" ? field.validation?.max : min + 100;
+		if (field.type === 'number') {
+			const min = typeof field.validation?.min === 'number' ? field.validation?.min : 0;
+			const max = typeof field.validation?.max === 'number' ? field.validation?.max : min + 100;
 			record[field.name] = faker.number.int({ min, max });
 			continue;
 		}
 
 		// Handle boolean
-		if (field.type === "boolean") {
+		if (field.type === 'boolean') {
 			record[field.name] = faker.datatype.boolean();
 			continue;
 		}
 
 		// Handle date
-		if (field.type === "date") {
+		if (field.type === 'date') {
 			record[field.name] = faker.date.recent().toISOString();
 			continue;
 		}
 
 		// Handle email
-		if (field.type === "email") {
+		if (field.type === 'email') {
 			record[field.name] = faker.internet.email().toLowerCase();
 			continue;
 		}
 
 		// Handle url
-		if (field.type === "url") {
+		if (field.type === 'url') {
 			record[field.name] = faker.internet.url().toLowerCase();
 			continue;
 		}
 
 		// Handle uuid
-		if (field.type === "uuid") {
+		if (field.type === 'uuid') {
 			record[field.name] = faker.string.uuid();
 			continue;
 		}
 
 		// Handle array
-		if (field.type === "array") {
+		if (field.type === 'array') {
 			if (field.items?.enum) {
 				const random = Math.floor(Math.random() * field.items.enum.length);
 				record[field.name] = [field.items.enum[random]];
@@ -308,7 +308,7 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
 		}
 
 		// Handle object
-		if (field.type === "object") {
+		if (field.type === 'object') {
 			if (Array.isArray(field.fields)) {
 				// Recursively generate mock data for each field in the object
 				const obj: Record<string, unknown> = {};
@@ -336,7 +336,7 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
 export async function createMockDataArray(schemaId: number, projectId: number) {
 	// Fetch schema and validate existence
 	const schemaObj = await getSchemaById(schemaId, projectId);
-	if (schemaObj.status > 200 || "message" in schemaObj.json) {
+	if (schemaObj.status > 200 || 'message' in schemaObj.json) {
 		return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
 	}
 	const schema = schemaObj.json;
@@ -364,7 +364,7 @@ export async function getMockDataByPrimaryKey(
 	projectId: number
 ) {
 	const schemaObj = await getSchemaById(schemaId, projectId);
-	if (schemaObj.status > 200 || "message" in schemaObj.json) {
+	if (schemaObj.status > 200 || 'message' in schemaObj.json) {
 		return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
 	}
 
@@ -374,7 +374,7 @@ export async function getMockDataByPrimaryKey(
 	const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
 
 	const data = mockData.find((item: Record<string, unknown>) =>
-		typeof item[primaryField] === "number"
+		typeof item[primaryField] === 'number'
 			? item[primaryField].toString() === primaryKeyValue
 			: item[primaryField] === primaryKeyValue
 	);

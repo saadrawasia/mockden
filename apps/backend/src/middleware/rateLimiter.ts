@@ -1,28 +1,28 @@
-import type { RequestWithProject } from "@shared/lib/types";
-import type { NextFunction, Response } from "express";
+import type { RequestWithProject } from '@shared/lib/types';
+import type { NextFunction, Response } from 'express';
 
-import db from "@backend/db/client";
-import { apiUsage } from "@backend/db/schema";
-import { getProjectWithUserAndSchemas } from "@backend/services/projectService";
-import { limitations } from "@shared/lib/config";
-import { and, eq } from "drizzle-orm";
+import db from '@backend/db/client';
+import { apiUsage } from '@backend/db/schema';
+import { getProjectWithUserAndSchemas } from '@backend/services/projectService';
+import { limitations } from '@shared/lib/config';
+import { and, eq } from 'drizzle-orm';
 
 export async function rateLimiter(req: RequestWithProject, res: Response, next: NextFunction) {
-	const projectHeader = req.headers["x-mockden-header"] as string;
-	if (!projectHeader) return res.status(401).send("Unauthorized");
+	const projectHeader = req.headers['x-mockden-header'] as string;
+	if (!projectHeader) return res.status(401).send('Unauthorized');
 
 	const { projectSlug, schemaSlug } = req.params;
 
 	const project = await getProjectWithUserAndSchemas({ projectHeader, projectSlug, schemaSlug });
 
 	if (!project || project.schemas.length === 0) {
-		return res.status(404).json({ message: "Project or schema not found." });
+		return res.status(404).json({ message: 'Project or schema not found.' });
 	}
 
 	const planTier =
-		project.user.planTier === "pro" || project.user.planTier === "free"
+		project.user.planTier === 'pro' || project.user.planTier === 'free'
 			? project.user.planTier
-			: "free";
+			: 'free';
 
 	req.project = project;
 	req.user = {
@@ -34,7 +34,7 @@ export async function rateLimiter(req: RequestWithProject, res: Response, next: 
 		fields: JSON.stringify(project.schemas[0].fields),
 	};
 
-	const today = new Date().toISOString().split("T")[0];
+	const today = new Date().toISOString().split('T')[0];
 
 	const [record] = await db
 		.select()

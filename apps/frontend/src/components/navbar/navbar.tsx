@@ -1,21 +1,21 @@
-import { SignOutButton, SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { SignOutButton, SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
+import { Link, useNavigate } from '@tanstack/react-router';
 
-import Logo from "../logo/logo";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
+import Logo from '../logo/logo';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Button } from '../ui/button';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from "../ui/dropdownMenu";
-import { Separator } from "../ui/separator";
+} from '../ui/dropdownMenu';
+import { Separator } from '../ui/separator';
 
 export default function Navbar() {
 	const navigate = useNavigate();
 	const { user } = useUser();
-	const userInitials = `${user?.firstName?.[0].toUpperCase() ?? ""}${user?.lastName?.[0].toUpperCase() ?? ""}`;
+	const userInitials = `${user?.firstName?.[0].toUpperCase() ?? ''}${user?.lastName?.[0].toUpperCase() ?? ''}`;
 
 	return (
 		<nav className="flex justify-between">
@@ -26,7 +26,7 @@ export default function Navbar() {
 					<Button
 						onClick={() =>
 							navigate({
-								to: "/sign-in",
+								to: '/sign-in',
 							})
 						}
 					>
@@ -36,7 +36,7 @@ export default function Navbar() {
 						variant="outline"
 						onClick={() =>
 							navigate({
-								to: "/sign-up",
+								to: '/sign-up',
 							})
 						}
 					>

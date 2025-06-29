@@ -1,5 +1,5 @@
-import type { RequestWithProject } from "@shared/lib/types";
-import type { Response } from "express";
+import type { RequestWithProject } from '@shared/lib/types';
+import type { Response } from 'express';
 
 import {
 	createMockData,
@@ -7,19 +7,19 @@ import {
 	getMockData,
 	getMockDataByPrimaryKey,
 	updateMockData,
-} from "@backend/services/mockDataService";
+} from '@backend/services/mockDataService';
 
 function handleMissingSchema(res: Response) {
-	return res.status(404).json({ message: "Project or schema not found." });
+	return res.status(404).json({ message: 'Project or schema not found.' });
 }
 
 function handleMissingData(res: Response) {
-	return res.status(400).json({ message: "Data is missing." });
+	return res.status(400).json({ message: 'Data is missing.' });
 }
 
 function handleServerError(res: Response, e: unknown) {
-	console.error("error", (e as Error).message);
-	return res.status(500).json({ message: "Something went wrong." });
+	console.error('error', (e as Error).message);
+	return res.status(500).json({ message: 'Something went wrong.' });
 }
 
 export async function getMockDataRequest(req: RequestWithProject, res: Response) {
@@ -43,7 +43,7 @@ export async function createMockDataRequest(req: RequestWithProject, res: Respon
 	if (!data) return handleMissingData(res);
 
 	try {
-		const planTier: "free" | "pro" = user?.planTier === "pro" ? "pro" : "free";
+		const planTier: 'free' | 'pro' = user?.planTier === 'pro' ? 'pro' : 'free';
 		const mockData = await createMockData(schema.id, data, planTier, project.id);
 		return res.status(mockData.status).json(mockData.json);
 	} catch (e) {

@@ -1,6 +1,6 @@
-import type { Request as ExpressRequest } from "express";
+import type { Request as ExpressRequest } from 'express';
 
-import type { FieldType } from "../validators/schemaValidator";
+import type { FieldType } from '../validators/schemaValidator';
 
 type ValidationRules = {
 	// String validations
@@ -97,7 +97,7 @@ export type User = {
 	lastName: string;
 	clerkUserId: string;
 	email: string;
-	planTier: "free" | "pro";
+	planTier: 'free' | 'pro';
 	createdAt: Date;
 	updatedAt: Date;
 };

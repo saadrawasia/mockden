@@ -1,28 +1,28 @@
-import { useUser } from "@clerk/clerk-react";
-import { Button } from "@frontend/components/ui/button";
-import { useUpdateUserPasswordMutation } from "@frontend/hooks/useUsers";
-import { cn } from "@frontend/lib/utils";
-import { useForm } from "@tanstack/react-form";
-import { Eye, EyeClosed, Loader2Icon } from "lucide-react";
-import { useState } from "react";
+import { useUser } from '@clerk/clerk-react';
+import { Button } from '@frontend/components/ui/button';
+import { useUpdateUserPasswordMutation } from '@frontend/hooks/useUsers';
+import { cn } from '@frontend/lib/utils';
+import { useForm } from '@tanstack/react-form';
+import { Eye, EyeClosed, Loader2Icon } from 'lucide-react';
+import { useState } from 'react';
 
-import { TypographyCaption, TypographyH5 } from "../../components/typography/typography";
-import { Card, CardContent, CardHeader } from "../../components/ui/card";
-import { ErrorInfo } from "../../components/ui/errorInfo";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
+import { TypographyCaption, TypographyH5 } from '../../components/typography/typography';
+import { Card, CardContent, CardHeader } from '../../components/ui/card';
+import { ErrorInfo } from '../../components/ui/errorInfo';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 
 export default function ChangePasswordSection() {
-	const [errorMessage, setErrorMessage] = useState("");
+	const [errorMessage, setErrorMessage] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const updatePasswordMutation = useUpdateUserPasswordMutation();
 	const { user } = useUser();
 
 	const form = useForm({
 		defaultValues: {
-			oldPassword: "",
-			newPassword: "",
-			confirmPassword: "",
+			oldPassword: '',
+			newPassword: '',
+			confirmPassword: '',
 		},
 		onSubmit: async ({ value }) => {
 			if (!user?.passwordEnabled) {
@@ -30,15 +30,15 @@ export default function ChangePasswordSection() {
 			}
 			// Do something with form data
 			if (value.newPassword !== value.confirmPassword) {
-				setErrorMessage("New Password and Confirm Password do not match");
+				setErrorMessage('New Password and Confirm Password do not match');
 				return;
 			}
-			setErrorMessage("");
+			setErrorMessage('');
 			const mutate = await updatePasswordMutation.mutateAsync({
 				oldPassword: value.oldPassword,
 				newPassword: value.newPassword,
 			});
-			if (mutate.message !== "Password updated.") {
+			if (mutate.message !== 'Password updated.') {
 				setErrorMessage(mutate.message);
 			} else {
 				form.reset();
@@ -47,7 +47,7 @@ export default function ChangePasswordSection() {
 	});
 
 	return (
-		<Card className={cn({ "opacity-50": !user?.passwordEnabled })}>
+		<Card className={cn({ 'opacity-50': !user?.passwordEnabled })}>
 			<CardHeader>
 				<TypographyH5>Change Password</TypographyH5>
 			</CardHeader>
@@ -67,7 +67,7 @@ export default function ChangePasswordSection() {
 							validators={{
 								onChange: ({ value }) => {
 									if (value.length < 1) {
-										return "Old Password cannot be empty";
+										return 'Old Password cannot be empty';
 									}
 									return undefined;
 								},
@@ -102,7 +102,7 @@ export default function ChangePasswordSection() {
 							validators={{
 								onChange: ({ value }) => {
 									if (value.length < 8) {
-										return "Password should be atleast 8 characters.";
+										return 'Password should be atleast 8 characters.';
 									}
 									return undefined;
 								},
@@ -113,7 +113,7 @@ export default function ChangePasswordSection() {
 										<div className="grid w-full items-center gap-3">
 											<Label htmlFor={field.name}>New Password</Label>
 											<Input
-												type={showPassword ? "text" : "password"}
+												type={showPassword ? 'text' : 'password'}
 												id={field.name}
 												placeholder="New Password"
 												name={field.name}
@@ -144,10 +144,10 @@ export default function ChangePasswordSection() {
 							validators={{
 								onChange: ({ value }) => {
 									if (value.length < 1) {
-										return "Confirm Password cannot be empty";
+										return 'Confirm Password cannot be empty';
 									}
-									if (value !== form.getFieldValue("newPassword")) {
-										return "New Password and Confirm Password do not match.";
+									if (value !== form.getFieldValue('newPassword')) {
+										return 'New Password and Confirm Password do not match.';
 									}
 									return undefined;
 								},

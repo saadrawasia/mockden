@@ -1,12 +1,12 @@
-import type { Project } from "@shared/lib/types";
+import type { Project } from '@shared/lib/types';
 
-import schemaSVG from "@frontend/assets/server.svg";
-import SchemaFormDialog from "@frontend/components/schemaForm/schemaForm";
-import { Button } from "@frontend/components/ui/button";
-import { cn } from "@frontend/lib/utils";
-import { useSchemaStore } from "@frontend/stores/schemasStore";
-import { Plus } from "lucide-react";
-import { useState } from "react";
+import schemaSVG from '@frontend/assets/server.svg';
+import SchemaFormDialog from '@frontend/components/schemaForm/schemaForm';
+import { Button } from '@frontend/components/ui/button';
+import { cn } from '@frontend/lib/utils';
+import { useSchemaStore } from '@frontend/stores/schemasStore';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
 
 type NewSchemaSectionProps = {
 	renderSVG: boolean;
@@ -25,8 +25,8 @@ export default function NewSchemaSection({
 
 	return (
 		<div
-			className={cn("flex flex-col items-center justify-center gap-8 text-center", {
-				"flex-auto": renderSVG,
+			className={cn('flex flex-col items-center justify-center gap-8 text-center', {
+				'flex-auto': renderSVG,
 			})}
 		>
 			{renderSVG && <img src={schemaSVG} alt="create-project" className="sm:w-md" />}

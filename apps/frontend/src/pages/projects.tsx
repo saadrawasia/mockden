@@ -1,12 +1,12 @@
-import { TypographyH2 } from "@frontend/components/typography/typography";
-import { Skeleton } from "@frontend/components/ui/skeleton";
-import { useProjectsQuery } from "@frontend/hooks/useProjects";
-import { useUsersQuery } from "@frontend/hooks/useUsers";
-import PageShell from "@frontend/pageShell";
-import ListProjectsSection from "@frontend/sections/projects/listProjects";
-import NewProjectSection from "@frontend/sections/projects/newProject";
-import { limitations } from "@shared/lib/config";
-import { useMemo } from "react";
+import { TypographyH2 } from '@frontend/components/typography/typography';
+import { Skeleton } from '@frontend/components/ui/skeleton';
+import { useProjectsQuery } from '@frontend/hooks/useProjects';
+import { useUsersQuery } from '@frontend/hooks/useUsers';
+import PageShell from '@frontend/pageShell';
+import ListProjectsSection from '@frontend/sections/projects/listProjects';
+import NewProjectSection from '@frontend/sections/projects/newProject';
+import { limitations } from '@shared/lib/config';
+import { useMemo } from 'react';
 
 export default function ProjectsPage() {
 	const { data: projects, isLoading } = useProjectsQuery();

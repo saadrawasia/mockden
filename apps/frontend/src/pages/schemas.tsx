@@ -1,22 +1,22 @@
-import type { Project } from "@shared/lib/types";
+import type { Project } from '@shared/lib/types';
 
-import { Button } from "@frontend/components/ui/button";
-import { Skeleton } from "@frontend/components/ui/skeleton";
-import { useProjectsQuery } from "@frontend/hooks/useProjects";
-import { useSchemasQuery } from "@frontend/hooks/useSchemas";
-import { useUsersQuery } from "@frontend/hooks/useUsers";
-import { getProjectBySlug } from "@frontend/lib/projectHelpers";
-import { Route } from "@frontend/routes/projects/$projectSlug/schemas";
-import { limitations } from "@shared/lib/config";
-import { useNavigate } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
-import { useMemo } from "react";
+import { Button } from '@frontend/components/ui/button';
+import { Skeleton } from '@frontend/components/ui/skeleton';
+import { useProjectsQuery } from '@frontend/hooks/useProjects';
+import { useSchemasQuery } from '@frontend/hooks/useSchemas';
+import { useUsersQuery } from '@frontend/hooks/useUsers';
+import { getProjectBySlug } from '@frontend/lib/projectHelpers';
+import { Route } from '@frontend/routes/projects/$projectSlug/schemas';
+import { limitations } from '@shared/lib/config';
+import { useNavigate } from '@tanstack/react-router';
+import { ArrowLeft } from 'lucide-react';
+import { useMemo } from 'react';
 
-import { TypographyH2, TypographyP } from "../components/typography/typography";
-import PageShell from "../pageShell";
-import ListSchemasSection from "../sections/schemas/listSchemas";
-import NewSchemaSection from "../sections/schemas/newSchema";
-import PageNotFound from "./pageNotFound";
+import { TypographyH2, TypographyP } from '../components/typography/typography';
+import PageShell from '../pageShell';
+import ListSchemasSection from '../sections/schemas/listSchemas';
+import NewSchemaSection from '../sections/schemas/newSchema';
+import PageNotFound from './pageNotFound';
 
 export default function SchemasPage() {
 	const { projectSlug } = Route.useLoaderData();
@@ -55,7 +55,7 @@ function SchemaPageImplementation({ project }: SchemaPageImplementationProps) {
 				className="justify-start hover:no-underline"
 				onClick={() =>
 					navigate({
-						to: "/projects",
+						to: '/projects',
 					})
 				}
 			>

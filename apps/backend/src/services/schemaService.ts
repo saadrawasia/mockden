@@ -1,19 +1,19 @@
-import type { Project, Schema } from "@shared/lib/types";
+import type { Project, Schema } from '@shared/lib/types';
 
-import db from "@backend/db/client";
-import { schemas } from "@backend/db/schema";
-import { slugify } from "@backend/utils/helpers";
-import { validateSchemaDefinition } from "@shared/validators/schemaValidator";
-import { and, eq } from "drizzle-orm";
+import db from '@backend/db/client';
+import { schemas } from '@backend/db/schema';
+import { slugify } from '@backend/utils/helpers';
+import { validateSchemaDefinition } from '@shared/validators/schemaValidator';
+import { and, eq } from 'drizzle-orm';
 
-import { createMockDataArray, deleteMockDataEntry } from "./mockDataService";
+import { createMockDataArray, deleteMockDataEntry } from './mockDataService';
 
 type CreateSchemaProps = {
-	projectId: Project["id"];
-	name: Schema["name"];
-	fields: Schema["fields"];
-	fakeData: Schema["fakeData"];
-	isActive?: Schema["isActive"];
+	projectId: Project['id'];
+	name: Schema['name'];
+	fields: Schema['fields'];
+	fakeData: Schema['fakeData'];
+	isActive?: Schema['isActive'];
 };
 
 export async function createSchema({
@@ -23,7 +23,7 @@ export async function createSchema({
 	fakeData,
 	isActive = true,
 }: CreateSchemaProps) {
-	if (!name) return { status: 400, json: { message: "Missing schema name." } };
+	if (!name) return { status: 400, json: { message: 'Missing schema name.' } };
 
 	const existingSchema = await db.query.schemas.findFirst({
 		where: fields => and(eq(fields.name, name), eq(fields.projectId, projectId)),
@@ -31,12 +31,12 @@ export async function createSchema({
 	if (existingSchema) {
 		return {
 			status: 400,
-			json: { message: "Schema with this name already exist." },
+			json: { message: 'Schema with this name already exist.' },
 		};
 	}
 
 	const validate = validateSchemaDefinition(JSON.parse(fields));
-	if ("error" in validate) {
+	if ('error' in validate) {
 		return { status: 400, json: { message: validate.error } };
 	}
 
@@ -65,13 +65,13 @@ export async function getSchemaById(id: number, projectId: number) {
 			where: fields => and(eq(fields.id, id), eq(fields.projectId, projectId)),
 		});
 		if (!getSchema) {
-			return { status: 400, json: { message: "Schema not found." } };
+			return { status: 400, json: { message: 'Schema not found.' } };
 		}
 
 		return { status: 200, json: getSchema };
 	} catch (err) {
-		console.error("DB error:", err);
-		return { status: 400, json: { message: "Schema not found." } };
+		console.error('DB error:', err);
+		return { status: 400, json: { message: 'Schema not found.' } };
 	}
 }
 
@@ -80,28 +80,28 @@ export async function getAllSchemas(projectId: number) {
 		const getSchemas = await db.select().from(schemas).where(eq(schemas.projectId, projectId));
 		return { status: 200, json: getSchemas };
 	} catch (err) {
-		console.error("DB error:", err);
-		return { status: 400, json: { message: "Schemas not found." } };
+		console.error('DB error:', err);
+		return { status: 400, json: { message: 'Schemas not found.' } };
 	}
 }
 
 export async function deleteSchema(id: number) {
 	try {
 		await db.delete(schemas).where(eq(schemas.id, id));
-		return { status: 200, json: { message: "Schema deleted" } };
+		return { status: 200, json: { message: 'Schema deleted' } };
 	} catch (err) {
-		console.error("DB error:", err);
-		return { status: 400, json: { message: "Schemas not found." } };
+		console.error('DB error:', err);
+		return { status: 400, json: { message: 'Schemas not found.' } };
 	}
 }
 
 type EditSchemaProps = {
-	id: Schema["id"];
-	projectId: Project["id"];
-	name: Schema["name"];
-	fields: Schema["fields"];
-	fakeData: Schema["fakeData"];
-	isActive?: Schema["isActive"];
+	id: Schema['id'];
+	projectId: Project['id'];
+	name: Schema['name'];
+	fields: Schema['fields'];
+	fakeData: Schema['fakeData'];
+	isActive?: Schema['isActive'];
 };
 
 export async function editSchema({
@@ -112,13 +112,13 @@ export async function editSchema({
 	fakeData,
 	isActive,
 }: EditSchemaProps) {
-	if (!name) return { status: 400, json: { message: "Missing schema name." } };
+	if (!name) return { status: 400, json: { message: 'Missing schema name.' } };
 
 	const mappedFields = Array.isArray(fields) ? fields : JSON.parse(fields);
 
 	const schema = await getSchemaById(id, projectId);
 	const validate = validateSchemaDefinition(mappedFields);
-	if ("error" in validate) {
+	if ('error' in validate) {
 		return { status: 400, json: { message: validate.error } };
 	}
 
@@ -128,7 +128,7 @@ export async function editSchema({
 		.where(and(eq(schemas.id, id), eq(schemas.projectId, projectId)))
 		.returning();
 
-	if (!("message" in schema.json)) {
+	if (!('message' in schema.json)) {
 		// && JSON.stringify(schema.json.fields) !== JSON.stringify(mappedFields)) {
 		await deleteMockDataEntry(id);
 

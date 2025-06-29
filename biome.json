@@ -25,7 +25,8 @@
 		"enabled": true,
 		"indentStyle": "tab",
 		"lineWidth": 100,
-		"lineEnding": "lf"
+		"lineEnding": "lf",
+		"indentWidth": 2
 	},
 	"organizeImports": {
 		"enabled": true
@@ -64,7 +65,7 @@
 	},
 	"javascript": {
 		"formatter": {
-			"quoteStyle": "double",
+			"quoteStyle": "single",
 			"semicolons": "always",
 			"arrowParentheses": "asNeeded",
 			"trailingCommas": "es5"

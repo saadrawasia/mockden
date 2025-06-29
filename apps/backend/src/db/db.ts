@@ -1,19 +1,19 @@
-import sqlite3 from "sqlite3";
+import sqlite3 from 'sqlite3';
 
 sqlite3.verbose();
 
-const DB_PATH = "./apps/backend/src/db/mockden.db";
+const DB_PATH = './apps/backend/src/db/mockden.db';
 
 const db = new sqlite3.Database(DB_PATH, err => {
 	if (err) {
-		console.error("❌ Failed to connect to the database:", err.message);
+		console.error('❌ Failed to connect to the database:', err.message);
 	} else {
 		console.log(`✅ Connected to SQLite database at ${DB_PATH}`);
 	}
 });
 
 // Enable foreign key support
-db.run("PRAGMA foreign_keys = ON;");
+db.run('PRAGMA foreign_keys = ON;');
 
 // Create tables
 db.serialize(() => {

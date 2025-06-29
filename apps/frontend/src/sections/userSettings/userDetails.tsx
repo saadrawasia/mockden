@@ -1,35 +1,35 @@
-import { useUser } from "@clerk/clerk-react";
-import { Button } from "@frontend/components/ui/button";
-import { useEditUserMutation } from "@frontend/hooks/useUsers";
-import { UserDetailsZod } from "@shared/validators/userValidator";
-import { useForm } from "@tanstack/react-form";
-import { Loader2Icon } from "lucide-react";
-import { useState } from "react";
+import { useUser } from '@clerk/clerk-react';
+import { Button } from '@frontend/components/ui/button';
+import { useEditUserMutation } from '@frontend/hooks/useUsers';
+import { UserDetailsZod } from '@shared/validators/userValidator';
+import { useForm } from '@tanstack/react-form';
+import { Loader2Icon } from 'lucide-react';
+import { useState } from 'react';
 
-import { TypographyCaption, TypographyH5 } from "../../components/typography/typography";
-import { Card, CardContent, CardHeader } from "../../components/ui/card";
-import { ErrorInfo } from "../../components/ui/errorInfo";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
+import { TypographyCaption, TypographyH5 } from '../../components/typography/typography';
+import { Card, CardContent, CardHeader } from '../../components/ui/card';
+import { ErrorInfo } from '../../components/ui/errorInfo';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 
 export default function UserDetailsSection() {
-	const [errorMessage, setErrorMessage] = useState("");
+	const [errorMessage, setErrorMessage] = useState('');
 	const { user } = useUser();
 	const editUserMutation = useEditUserMutation();
 
 	const form = useForm({
 		defaultValues: {
-			firstName: user?.firstName ?? "",
-			lastName: user?.lastName ?? "",
+			firstName: user?.firstName ?? '',
+			lastName: user?.lastName ?? '',
 		},
 		onSubmit: async ({ value }) => {
 			// Do something with form data
-			setErrorMessage("");
+			setErrorMessage('');
 			const mutate = await editUserMutation.mutateAsync({
 				firstName: value.firstName,
 				lastName: value.lastName,
 			});
-			if (mutate.message !== "User updated.") {
+			if (mutate.message !== 'User updated.') {
 				setErrorMessage(mutate.message);
 			}
 		},

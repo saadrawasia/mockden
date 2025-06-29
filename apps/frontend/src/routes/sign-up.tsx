@@ -1,11 +1,11 @@
 /* eslint-disable unicorn/filename-case */
-import { SignUp } from "@clerk/clerk-react";
-import { TypographyP } from "@frontend/components/typography/typography";
-import { Button } from "@frontend/components/ui/button";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { SignUp } from '@clerk/clerk-react';
+import { TypographyP } from '@frontend/components/typography/typography';
+import { Button } from '@frontend/components/ui/button';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { ArrowLeft } from 'lucide-react';
 
-export const Route = createFileRoute("/sign-up")({
+export const Route = createFileRoute('/sign-up')({
 	component: RouteComponent,
 });
 
@@ -27,7 +27,7 @@ function RouteComponent() {
 						className="hover:no-underline"
 						onClick={() =>
 							navigate({
-								to: "/",
+								to: '/',
 							})
 						}
 					>

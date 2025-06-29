@@ -1,21 +1,21 @@
-import type { ProjectBase } from "@shared/lib/types";
+import type { ProjectBase } from '@shared/lib/types';
 
-import { useMediaQuery } from "@frontend/hooks/useMediaQuery";
-import { useCreateProjectMutation, useEditProjectMutation } from "@frontend/hooks/useProjects";
-import { useProjectStore } from "@frontend/stores/projectStore";
-import { ProjectZod } from "@shared/validators/projectValidator";
-import { useForm } from "@tanstack/react-form";
-import { Loader2Icon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
+import { useCreateProjectMutation, useEditProjectMutation } from '@frontend/hooks/useProjects';
+import { useProjectStore } from '@frontend/stores/projectStore';
+import { ProjectZod } from '@shared/validators/projectValidator';
+import { useForm } from '@tanstack/react-form';
+import { Loader2Icon } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
-import { TypographyCaption } from "../typography/typography";
-import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "../ui/drawer";
-import { ErrorInfo } from "../ui/errorInfo";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+import { TypographyCaption } from '../typography/typography';
+import { Button } from '../ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '../ui/drawer';
+import { ErrorInfo } from '../ui/errorInfo';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 
 type ProjectFormDialogProps = {
 	title: string;
@@ -24,8 +24,8 @@ type ProjectFormDialogProps = {
 };
 
 export default function ProjectFormDialog({ title, open, setOpen }: ProjectFormDialogProps) {
-	const isDesktop = useMediaQuery("(min-width: 768px)");
-	const requestType = title.includes("Edit") ? "edit" : "create";
+	const isDesktop = useMediaQuery('(min-width: 768px)');
+	const requestType = title.includes('Edit') ? 'edit' : 'create';
 
 	const handleOpen = useCallback((open = false) => setOpen(open), [setOpen]);
 
@@ -58,12 +58,12 @@ export default function ProjectFormDialog({ title, open, setOpen }: ProjectFormD
 
 type ProjectFormProps = {
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-	requestType: "edit" | "create";
+	requestType: 'edit' | 'create';
 };
 
 function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
 	const { selectedProject } = useProjectStore();
-	const [errorMessage, setErrorMessage] = useState("");
+	const [errorMessage, setErrorMessage] = useState('');
 	const [isSaving, setIsSaving] = useState(false);
 	const createProjectMutation = useCreateProjectMutation();
 	const editProjectMutation = useEditProjectMutation();
@@ -71,13 +71,13 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
 	const createProject = useCallback(
 		async (value: ProjectBase) => {
 			setIsSaving(true);
-			setErrorMessage("");
+			setErrorMessage('');
 			try {
 				createProjectMutation.mutate(
 					{ name: value?.name, description: value?.description },
 					{
 						onSuccess: result => {
-							if ("message" in result) {
+							if ('message' in result) {
 								setErrorMessage(result.message);
 							} else {
 								setOpen(false);
@@ -86,7 +86,7 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
 					}
 				);
 			} catch {
-				setErrorMessage("Network error. Please try again.");
+				setErrorMessage('Network error. Please try again.');
 			} finally {
 				setIsSaving(false);
 			}
@@ -98,19 +98,19 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
 		async (value: ProjectBase) => {
 			if (!selectedProject) return;
 			setIsSaving(true);
-			setErrorMessage("");
+			setErrorMessage('');
 			try {
 				const mutate = await editProjectMutation.mutateAsync({
 					id: selectedProject.id,
 					project: { name: value?.name, description: value?.description },
 				});
-				if ("message" in mutate) {
+				if ('message' in mutate) {
 					setErrorMessage(mutate.message);
 				} else {
 					setOpen(false);
 				}
 			} catch {
-				setErrorMessage("Network error. Please try again.");
+				setErrorMessage('Network error. Please try again.');
 			} finally {
 				setIsSaving(false);
 			}
@@ -121,7 +121,7 @@ function ProjectForm({ setOpen, requestType }: ProjectFormProps) {
 	const form = useForm({
 		defaultValues: selectedProject,
 		onSubmit: async ({ value }) => {
-			if (requestType === "create") {
+			if (requestType === 'create') {
 				await createProject(value as ProjectBase);
 			} else {
 				await editProject(value as ProjectBase);

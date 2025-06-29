@@ -1,5 +1,5 @@
-import Navbar from "./components/navbar/navbar";
-import { Toaster } from "./components/ui/sonner";
+import Navbar from './components/navbar/navbar';
+import { Toaster } from './components/ui/sonner';
 
 type PageShellProps = {
 	children: React.ReactNode;
@@ -14,8 +14,8 @@ export default function PageShell({ children }: PageShellProps) {
 				position="top-center"
 				toastOptions={{
 					classNames: {
-						description: "!text-neutral-900",
-						error: "!bg-red-400 !border-red-600 !border-2",
+						description: '!text-neutral-900',
+						error: '!bg-red-400 !border-red-600 !border-2',
 					},
 					duration: 2000,
 				}}

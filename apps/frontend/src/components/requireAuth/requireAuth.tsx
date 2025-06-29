@@ -1,5 +1,5 @@
-import { useUser } from "@clerk/clerk-react";
-import { Navigate } from "@tanstack/react-router";
+import { useUser } from '@clerk/clerk-react';
+import { Navigate } from '@tanstack/react-router';
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {
 	const { isSignedIn, isLoaded } = useUser();

@@ -6,8 +6,8 @@ import {
 	TypographyH5,
 	TypographyLargeP,
 	TypographyP,
-} from "@frontend/components/typography/typography";
-import { Button } from "@frontend/components/ui/button";
+} from '@frontend/components/typography/typography';
+import { Button } from '@frontend/components/ui/button';
 import {
 	Card,
 	CardContent,
@@ -15,11 +15,11 @@ import {
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@frontend/components/ui/card";
-import { Separator } from "@frontend/components/ui/separator";
-import PageShell from "@frontend/pageShell";
-import { Link } from "@tanstack/react-router";
-import { ArrowRight, Braces, CircleCheck, Cog, Database } from "lucide-react";
+} from '@frontend/components/ui/card';
+import { Separator } from '@frontend/components/ui/separator';
+import PageShell from '@frontend/pageShell';
+import { Link } from '@tanstack/react-router';
+import { ArrowRight, Braces, CircleCheck, Cog, Database } from 'lucide-react';
 
 export default function LandingPage() {
 	return (
