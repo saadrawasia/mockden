@@ -1,6 +1,7 @@
 {
-	// Disable the default formatter, use eslint instead
-	// "prettier.enable": true,
+	// Use Biome as the default formatter
+	"editor.defaultFormatter": "biomejs.biome",
+
 	"editor.formatOnSave": true,
 
 	// Auto fix
@@ -10,5 +11,27 @@
 
 	"files.associations": {
 		"*.css": "tailwindcss"
+	},
+
+	// Optional: only enable format on save for specific languages
+	"[javascript]": {
+		"editor.formatOnSave": true
+	},
+	"[typescript]": {
+		"editor.formatOnSave": true
+	},
+	"[javascriptreact]": {
+		"editor.formatOnSave": true
+	},
+	"[typescriptreact]": {
+		"editor.formatOnSave": true
+	},
+	"[json]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.formatOnSave": true
+	},
+	"[jsonc]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.formatOnSave": true
 	}
 }

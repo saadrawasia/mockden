@@ -1,4 +1,4 @@
-name: Lint
+name: Biome
 
 on:
   pull_request:
@@ -16,4 +16,4 @@ jobs:
         with:
           node-version: 22.x
       - run: npm i
-      - run: npm run lint
+      - run: npm run biome
