@@ -15,14 +15,17 @@
 			"./apps/**/dist",
 			"./apps/**/.tanstack",
 			"./apps/**/node_modules",
-			"./apps/**/migrations"
+			"./apps/**/migrations",
+			"**/migrations/*",
+			"**/migrations/**/*",
+			"**/routeTree.gen.ts"
 		]
 	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
-		"lineWidth":100,
-		"lineEnding":"lf"
+		"lineWidth": 100,
+		"lineEnding": "lf"
 	},
 	"organizeImports": {
 		"enabled": true
@@ -31,11 +34,27 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true,
-			"nursery":{
-				"useSortedClasses":{
-					"level":"error",
-					"fix":"safe",
-					"options":{
+			"style": {
+				"noNonNullAssertion": "off",
+				"noUselessElse": {
+					"level": "error",
+					"fix": "safe"
+				}
+			},
+			"correctness": {
+				"noChildrenProp": "off"
+			},
+			"a11y": {
+				"useKeyWithClickEvents": "off"
+			},
+			"suspicious": {
+				"noConfusingVoidType": "off"
+			},
+			"nursery": {
+				"useSortedClasses": {
+					"level": "error",
+					"fix": "safe",
+					"options": {
 						"attributes": ["className"],
 						"functions": ["cn", "clsx", "twMerge"]
 					}
@@ -46,9 +65,9 @@
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double",
-			"semicolons":"always",
-			"arrowParentheses":"asNeeded",
-			"trailingCommas":"es5"
+			"semicolons": "always",
+			"arrowParentheses": "asNeeded",
+			"trailingCommas": "es5"
 		}
 	}
 }

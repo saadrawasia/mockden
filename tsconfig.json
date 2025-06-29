@@ -1,16 +1,16 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
-  "references": [
-    {
-      "path": "./apps/frontend"
-    },
-    {
-      "path": "./apps/backend"
-    },
-    {
-      "path": "./apps/shared"
-    }
-  ],
-  "files": []
+	"extends": "./tsconfig.base.json",
+	"compileOnSave": false,
+	"references": [
+		{
+			"path": "./apps/frontend"
+		},
+		{
+			"path": "./apps/backend"
+		},
+		{
+			"path": "./apps/shared"
+		}
+	],
+	"files": []
 }

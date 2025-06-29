@@ -1,25 +1,25 @@
 {
-  "name": "@mockden/shared",
-  "version": "0.0.1",
-  "private": true,
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "development": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    }
-  },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "nx": {
-    "name": "shared"
-  },
-  "dependencies": {
-    "@radix-ui/react-slot": "^1.2.3",
-    "tslib": "^2.3.0",
-    "zod": "^3.25.28"
-  }
+	"name": "@mockden/shared",
+	"version": "0.0.1",
+	"private": true,
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"development": "./src/index.ts",
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"nx": {
+		"name": "shared"
+	},
+	"dependencies": {
+		"@radix-ui/react-slot": "^1.2.3",
+		"tslib": "^2.3.0",
+		"zod": "^3.25.28"
+	}
 }
