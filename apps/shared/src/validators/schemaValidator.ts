@@ -9,17 +9,68 @@ import type {
   ZodError,
 } from '../lib/types';
 
+const fieldTypeEnum = z.enum([
+  'string',
+  'number',
+  'boolean',
+  'array',
+  'object',
+  'date',
+  'url',
+  'uuid',
+  'email',
+], {
+  errorMap: () => ({
+    message: 'Type must be one of: string, number, boolean, array, object, date, url, uuid or email',
+  }),
+});
+
+export type FieldType = z.infer<typeof fieldTypeEnum>;
+
 // Zod Schema for Field Definition
 const FieldSchema = z.object({
   name: z
     .string()
     .min(1, 'Field name is required')
     .regex(/^[a-z]*$/i, 'Field name must contain only lowercase letters'),
-  type: z.enum(['string', 'number', 'boolean', 'array', 'object', 'date', 'url', 'uuid', 'email'], {
-    errorMap: () => ({
-      message: 'Type must be one of: string, number, boolean, array, object, date, url, uuid or email',
-    }),
-  }),
+  type: fieldTypeEnum,
+  items: z
+    .object({
+      type: fieldTypeEnum,
+      enum: z.array(z.unknown()).optional(),
+    })
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || !val.enum)
+          return true;
+        switch (val.type) {
+          case 'string':
+          case 'url':
+          case 'uuid':
+          case 'email':
+            return val.enum.every((v: unknown) => typeof v === 'string');
+          case 'number':
+            return val.enum.every((v: unknown) => typeof v === 'number');
+          case 'boolean':
+            return val.enum.every((v: unknown) => typeof v === 'boolean');
+          case 'date':
+            return val.enum.every((v: unknown) => typeof v === 'string' || v instanceof Date);
+          case 'array':
+            return val.enum.every((v: unknown) => Array.isArray(v));
+          case 'object':
+            return val.enum.every((v: unknown) => typeof v === 'object' && !Array.isArray(v) && v !== null);
+          default:
+            return true;
+        }
+      },
+      {
+        message: 'Enum values must match the type of items.type',
+      },
+    ),
+  fields: z
+    .array(z.lazy((): z.ZodType<FieldDefinition> => FieldSchema))
+    .optional(), // Only required for type: 'object'
   primary: z.boolean().default(false).optional(),
   nullable: z.boolean().default(false).optional(),
   validation: z
@@ -58,8 +109,8 @@ const SchemaDefinitionSchema = z
   .refine((fields): fields is FieldDefinition[] => {
     // Ensure exactly one primary key
     const primaryField = fields.filter(f => f.primary)[0];
-    return ['string', 'number'].includes(primaryField?.type || '');
-  }, 'Primary key field must be type of string or number')
+    return ['string', 'number', 'uuid'].includes(primaryField?.type || '');
+  }, 'Primary key field must be type of string, number or uuid')
   .refine((fields): fields is FieldDefinition[] => {
     // Validate that minLength <= maxLength
     return fields.every((field) => {
@@ -187,7 +238,27 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
       break;
 
     case 'array': {
-      let arraySchema: z.ZodArray<z.ZodAny> = z.array(z.any());
+      let itemSchema: z.ZodTypeAny = z.any();
+      if ('items' in field && field.items) {
+        // Recursively build the schema for the array items
+        itemSchema = createFieldZodSchema({
+          ...field.items,
+          // If you want to support enum validation for arrays of primitives:
+          validation: undefined, // Let enum be handled below
+        } as FieldDefinition);
+
+        // If enum is present, restrict allowed enum
+        if (field.items.enum) {
+          itemSchema = itemSchema.refine(
+            val => field.items!.enum!.includes(val),
+            {
+              message: `Value must be one of: ${field.items.enum.join(', ')}`,
+            },
+          );
+        }
+      }
+
+      let arraySchema: z.ZodArray<z.ZodTypeAny> = z.array(itemSchema);
 
       // Apply array validations
       if (field.validation) {
@@ -212,7 +283,12 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
     }
 
     case 'object':
-      schema = z.object({}).passthrough(); // Allow any object structure
+      if ('fields' in field && Array.isArray(field.fields)) {
+        schema = createDynamicZodSchema(field.fields);
+      }
+      else {
+        schema = z.object({}).passthrough(); // fallback: allow any object
+      }
       break;
 
     case 'date':
@@ -233,7 +309,7 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 
     default:
       // This should never happen due to Zod validation, but TypeScript doesn't know that
-      throw new Error(`Unsupported field type: ${field.type satisfies never}`);
+      throw new Error(`Unsupported field type: ${(field as FieldDefinition).type}`);
   }
 
   // Handle nullable fields

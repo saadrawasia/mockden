@@ -1,7 +1,6 @@
 import type { Request as ExpressRequest } from 'express';
 
-// Type definitions
-type FieldType = 'string' | 'number' | 'boolean' | 'array' | 'object' | 'email' | 'url' | 'uuid' | 'date';
+import type { FieldType } from '../validators/schemaValidator';
 
 type ValidationRules = {
   // String validations
@@ -21,6 +20,8 @@ type ValidationRules = {
 export type FieldDefinition = {
   name: string;
   type: FieldType;
+  items?: { type: FieldType; enum?: unknown[] };
+  fields?: FieldDefinition[];
   primary?: boolean;
   nullable?: boolean;
   validation?: ValidationRules;

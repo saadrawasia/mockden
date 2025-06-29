@@ -312,6 +312,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
         <form.Field
           name="fields"
           validators={{
+            onChange: ({ value }) => validateSchema(value ?? ''),
             onBlur: ({ value }) => validateSchema(value ?? ''),
           }}
           children={field => (

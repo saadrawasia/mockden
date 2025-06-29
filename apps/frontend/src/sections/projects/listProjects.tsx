@@ -125,7 +125,7 @@ export default function ListProjectsSection() {
                     <Button
                       type="button"
                       variant="link"
-                      className="hover:text-destructive w-full justify-start  hover:no-underline"
+                      className="text-destructive w-full justify-start  hover:no-underline"
                     >
                       <Trash2 className="text-destructive" />
                       {' '}

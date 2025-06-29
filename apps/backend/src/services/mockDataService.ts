@@ -324,13 +324,31 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
 
     // Handle array
     if (field.type === 'array') {
-      record[field.name] = [];
+      if (field.items?.enum) {
+        const random = Math.floor(Math.random() * field.items.enum.length);
+        record[field.name] = [field.items.enum[random]];
+      }
+      else {
+        record[field.name] = [];
+      }
       continue;
     }
 
     // Handle object
     if (field.type === 'object') {
-      record[field.name] = [];
+      if (Array.isArray(field.fields)) {
+        // Recursively generate mock data for each field in the object
+        const obj: Record<string, unknown> = {};
+        for (const subField of field.fields) {
+          // We call generateMockRecord with a single-field schema to get the value
+          const subRecord = generateMockRecord([subField]);
+          obj[subField.name] = subRecord[subField.name];
+        }
+        record[field.name] = obj;
+      }
+      else {
+        record[field.name] = {};
+      }
       continue;
     }
 

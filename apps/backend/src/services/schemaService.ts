@@ -115,7 +115,7 @@ export async function editSchema({ id, name, fields, projectId, fakeData, isActi
     )
     .returning();
 
-  if (!('message' in schema.json) && JSON.stringify(schema.json.fields) !== JSON.stringify(mappedFields)) {
+  if (!('message' in schema.json)) { // && JSON.stringify(schema.json.fields) !== JSON.stringify(mappedFields)) {
     await deleteMockDataEntry(id);
 
     if (fakeData) {
