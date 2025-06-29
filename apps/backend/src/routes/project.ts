@@ -1,4 +1,10 @@
-import { createProjectRequest, deleteProjectRequest, editProjectRequest, getAllProjectsRequest, getProjectByIdRequest } from '@backend/controllers/projectController';
+import {
+	createProjectRequest,
+	deleteProjectRequest,
+	editProjectRequest,
+	getAllProjectsRequest,
+	getProjectByIdRequest,
+} from '@backend/controllers/projectController';
 import express from 'express';
 
 const projectRouter = express.Router();

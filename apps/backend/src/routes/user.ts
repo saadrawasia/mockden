@@ -1,4 +1,9 @@
-import { deleteUserRequest, editUserRequest, getUserRequest, updatePasswordRequest } from '@backend/controllers/userController';
+import {
+	deleteUserRequest,
+	editUserRequest,
+	getUserRequest,
+	updatePasswordRequest,
+} from '@backend/controllers/userController';
 import express from 'express';
 
 const userRouter = express.Router({ mergeParams: true });

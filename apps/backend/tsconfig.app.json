@@ -1,26 +1,26 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "types": ["node"],
-    "outDir": "dist"
-  },
-  "references": [
-    {
-      "path": "../shared/tsconfig.lib.json"
-    }
-  ],
-  "include": ["src/**/*.ts", "../../apps/shared/src/**/*"],
-  "exclude": [
-    "out-tsc",
-    "dist",
-    "jest.config.ts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "eslint.config.js",
-    "eslint.config.cjs",
-    "eslint.config.mjs"
-  ]
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"types": ["node"],
+		"outDir": "dist"
+	},
+	"references": [
+		{
+			"path": "../shared/tsconfig.lib.json"
+		}
+	],
+	"include": ["src/**/*.ts", "../../apps/shared/src/**/*"],
+	"exclude": [
+		"out-tsc",
+		"dist",
+		"jest.config.ts",
+		"src/**/*.spec.ts",
+		"src/**/*.test.ts",
+		"eslint.config.js",
+		"eslint.config.cjs",
+		"eslint.config.mjs"
+	]
 }

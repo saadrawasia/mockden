@@ -1,15 +1,15 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
-    "baseUrl": ".",
-    "rootDir": "src",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "types": ["node"],
-    "emitDeclarationOnly": false,
-    "outDir": "dist"
-  },
-  "references": [],
-  "include": ["src/**/*.ts"]
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+		"baseUrl": ".",
+		"rootDir": "src",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"types": ["node"],
+		"emitDeclarationOnly": false,
+		"outDir": "dist"
+	},
+	"references": [],
+	"include": ["src/**/*.ts"]
 }

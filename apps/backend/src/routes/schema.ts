@@ -1,9 +1,9 @@
 import {
-  createSchemaRequest,
-  deleteSchemaRequest,
-  editSchemaRequest,
-  getAllSchemasRequest,
-  getSchemaByIdRequest,
+	createSchemaRequest,
+	deleteSchemaRequest,
+	editSchemaRequest,
+	getAllSchemasRequest,
+	getSchemaByIdRequest,
 } from '@backend/controllers/schemaController';
 import express from 'express';
 

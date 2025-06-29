@@ -1,32 +1,32 @@
 {
-  "compilerOptions": {
-    "composite": true,
-    "target": "es2022",
-    "lib": ["es2022"],
-    "baseUrl": ".",
-    "rootDir": ".",
-    "customConditions": ["development"],
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "paths": {
-      "@backend/*": ["apps/backend/src/*"],
-      "@frontend/*": ["apps/frontend/src/*"],
-      "@shared/*": ["apps/shared/src/*"],
-      "@/*": ["./*"]
-    },
-    "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "importHelpers": true,
-    "noEmitOnError": true,
-    "isolatedModules": true,
-    "skipLibCheck": true
-  },
-  "ts-node": {
-    "require": ["tsconfig-paths/register"]
-  }
+	"compilerOptions": {
+		"composite": true,
+		"target": "es2022",
+		"lib": ["es2022"],
+		"baseUrl": ".",
+		"rootDir": ".",
+		"customConditions": ["development"],
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"paths": {
+			"@backend/*": ["apps/backend/src/*"],
+			"@frontend/*": ["apps/frontend/src/*"],
+			"@shared/*": ["apps/shared/src/*"],
+			"@/*": ["./*"]
+		},
+		"strict": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"declarationMap": true,
+		"emitDeclarationOnly": true,
+		"importHelpers": true,
+		"noEmitOnError": true,
+		"isolatedModules": true,
+		"skipLibCheck": true
+	},
+	"ts-node": {
+		"require": ["tsconfig-paths/register"]
+	}
 }

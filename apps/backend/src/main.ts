@@ -19,7 +19,6 @@ app.use('/projects/:projectId/schemas', requireAuth(), schemaRouter);
 
 app.use('/mockdata/:projectSlug/:schemaSlug', rateLimiter, mockDataRouter);
 
-app.listen(port, () =>
-  console.log(`Backend running at http://localhost:${port}`));
+app.listen(port, () => console.log(`Backend running at http://localhost:${port}`));
 
 // app.listen(3000, () => console.log('Listening on port 3000'));

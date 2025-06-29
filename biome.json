@@ -1,0 +1,74 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": [
+			".nx",
+			".tanstack",
+			"tmp",
+			"node_modules",
+			"./apps/**/dist",
+			"./apps/**/.tanstack",
+			"./apps/**/node_modules",
+			"./apps/**/migrations",
+			"**/migrations/*",
+			"**/migrations/**/*",
+			"**/routeTree.gen.ts"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineWidth": 100,
+		"lineEnding": "lf",
+		"indentWidth": 2
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": {
+				"noNonNullAssertion": "off",
+				"noUselessElse": {
+					"level": "error",
+					"fix": "safe"
+				}
+			},
+			"correctness": {
+				"noChildrenProp": "off"
+			},
+			"a11y": {
+				"useKeyWithClickEvents": "off"
+			},
+			"suspicious": {
+				"noConfusingVoidType": "off"
+			},
+			"nursery": {
+				"useSortedClasses": {
+					"level": "error",
+					"fix": "safe",
+					"options": {
+						"attributes": ["className"],
+						"functions": ["cn", "clsx", "twMerge"]
+					}
+				}
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"semicolons": "always",
+			"arrowParentheses": "asNeeded",
+			"trailingCommas": "es5"
+		}
+	}
+}

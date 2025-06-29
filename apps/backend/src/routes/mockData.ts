@@ -1,9 +1,9 @@
 import {
-  createMockDataRequest,
-  deleteMockDataRequest,
-  getMockDataByPrimaryKeyRequest,
-  getMockDataRequest,
-  updateMockDataRequest,
+	createMockDataRequest,
+	deleteMockDataRequest,
+	getMockDataByPrimaryKeyRequest,
+	getMockDataRequest,
+	updateMockDataRequest,
 } from '@backend/controllers/mockDataController';
 import express from 'express';
 

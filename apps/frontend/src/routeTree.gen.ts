@@ -8,162 +8,161 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as UserSettingsRouteImport } from './routes/user-settings'
-import { Route as SignUpRouteImport } from './routes/sign-up'
-import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
-import { Route as ProjectsProjectSlugSchemasRouteImport } from './routes/projects/$projectSlug/schemas'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as ProjectsProjectSlugSchemasRouteImport } from "./routes/projects/$projectSlug/schemas";
+import { Route as ProjectsIndexRouteImport } from "./routes/projects/index";
+import { Route as SignInRouteImport } from "./routes/sign-in";
+import { Route as SignUpRouteImport } from "./routes/sign-up";
+import { Route as UserSettingsRouteImport } from "./routes/user-settings";
 
 const UserSettingsRoute = UserSettingsRouteImport.update({
-  id: '/user-settings',
-  path: '/user-settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/user-settings",
+	path: "/user-settings",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const SignUpRoute = SignUpRouteImport.update({
-  id: '/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/sign-up",
+	path: "/sign-up",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const SignInRoute = SignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/sign-in",
+	path: "/sign-in",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
+	id: "/",
+	path: "/",
+	getParentRoute: () => rootRouteImport,
+} as any);
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
-  id: '/projects/',
-  path: '/projects/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsProjectSlugSchemasRoute =
-  ProjectsProjectSlugSchemasRouteImport.update({
-    id: '/projects/$projectSlug/schemas',
-    path: '/projects/$projectSlug/schemas',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+	id: "/projects/",
+	path: "/projects/",
+	getParentRoute: () => rootRouteImport,
+} as any);
+const ProjectsProjectSlugSchemasRoute = ProjectsProjectSlugSchemasRouteImport.update({
+	id: "/projects/$projectSlug/schemas",
+	path: "/projects/$projectSlug/schemas",
+	getParentRoute: () => rootRouteImport,
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/user-settings': typeof UserSettingsRoute
-  '/projects': typeof ProjectsIndexRoute
-  '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
+	"/": typeof IndexRoute;
+	"/sign-in": typeof SignInRoute;
+	"/sign-up": typeof SignUpRoute;
+	"/user-settings": typeof UserSettingsRoute;
+	"/projects": typeof ProjectsIndexRoute;
+	"/projects/$projectSlug/schemas": typeof ProjectsProjectSlugSchemasRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/user-settings': typeof UserSettingsRoute
-  '/projects': typeof ProjectsIndexRoute
-  '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
+	"/": typeof IndexRoute;
+	"/sign-in": typeof SignInRoute;
+	"/sign-up": typeof SignUpRoute;
+	"/user-settings": typeof UserSettingsRoute;
+	"/projects": typeof ProjectsIndexRoute;
+	"/projects/$projectSlug/schemas": typeof ProjectsProjectSlugSchemasRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/sign-in': typeof SignInRoute
-  '/sign-up': typeof SignUpRoute
-  '/user-settings': typeof UserSettingsRoute
-  '/projects/': typeof ProjectsIndexRoute
-  '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
+	__root__: typeof rootRouteImport;
+	"/": typeof IndexRoute;
+	"/sign-in": typeof SignInRoute;
+	"/sign-up": typeof SignUpRoute;
+	"/user-settings": typeof UserSettingsRoute;
+	"/projects/": typeof ProjectsIndexRoute;
+	"/projects/$projectSlug/schemas": typeof ProjectsProjectSlugSchemasRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/sign-in'
-    | '/sign-up'
-    | '/user-settings'
-    | '/projects'
-    | '/projects/$projectSlug/schemas'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/sign-in'
-    | '/sign-up'
-    | '/user-settings'
-    | '/projects'
-    | '/projects/$projectSlug/schemas'
-  id:
-    | '__root__'
-    | '/'
-    | '/sign-in'
-    | '/sign-up'
-    | '/user-settings'
-    | '/projects/'
-    | '/projects/$projectSlug/schemas'
-  fileRoutesById: FileRoutesById
+	fileRoutesByFullPath: FileRoutesByFullPath;
+	fullPaths:
+		| "/"
+		| "/sign-in"
+		| "/sign-up"
+		| "/user-settings"
+		| "/projects"
+		| "/projects/$projectSlug/schemas";
+	fileRoutesByTo: FileRoutesByTo;
+	to:
+		| "/"
+		| "/sign-in"
+		| "/sign-up"
+		| "/user-settings"
+		| "/projects"
+		| "/projects/$projectSlug/schemas";
+	id:
+		| "__root__"
+		| "/"
+		| "/sign-in"
+		| "/sign-up"
+		| "/user-settings"
+		| "/projects/"
+		| "/projects/$projectSlug/schemas";
+	fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  SignInRoute: typeof SignInRoute
-  SignUpRoute: typeof SignUpRoute
-  UserSettingsRoute: typeof UserSettingsRoute
-  ProjectsIndexRoute: typeof ProjectsIndexRoute
-  ProjectsProjectSlugSchemasRoute: typeof ProjectsProjectSlugSchemasRoute
+	IndexRoute: typeof IndexRoute;
+	SignInRoute: typeof SignInRoute;
+	SignUpRoute: typeof SignUpRoute;
+	UserSettingsRoute: typeof UserSettingsRoute;
+	ProjectsIndexRoute: typeof ProjectsIndexRoute;
+	ProjectsProjectSlugSchemasRoute: typeof ProjectsProjectSlugSchemasRoute;
 }
 
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/user-settings': {
-      id: '/user-settings'
-      path: '/user-settings'
-      fullPath: '/user-settings'
-      preLoaderRoute: typeof UserSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-up': {
-      id: '/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof SignUpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-in': {
-      id: '/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/': {
-      id: '/projects/'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$projectSlug/schemas': {
-      id: '/projects/$projectSlug/schemas'
-      path: '/projects/$projectSlug/schemas'
-      fullPath: '/projects/$projectSlug/schemas'
-      preLoaderRoute: typeof ProjectsProjectSlugSchemasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-  }
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/user-settings": {
+			id: "/user-settings";
+			path: "/user-settings";
+			fullPath: "/user-settings";
+			preLoaderRoute: typeof UserSettingsRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/sign-up": {
+			id: "/sign-up";
+			path: "/sign-up";
+			fullPath: "/sign-up";
+			preLoaderRoute: typeof SignUpRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/sign-in": {
+			id: "/sign-in";
+			path: "/sign-in";
+			fullPath: "/sign-in";
+			preLoaderRoute: typeof SignInRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/": {
+			id: "/";
+			path: "/";
+			fullPath: "/";
+			preLoaderRoute: typeof IndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/projects/": {
+			id: "/projects/";
+			path: "/projects";
+			fullPath: "/projects";
+			preLoaderRoute: typeof ProjectsIndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/projects/$projectSlug/schemas": {
+			id: "/projects/$projectSlug/schemas";
+			path: "/projects/$projectSlug/schemas";
+			fullPath: "/projects/$projectSlug/schemas";
+			preLoaderRoute: typeof ProjectsProjectSlugSchemasRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+	}
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  SignInRoute: SignInRoute,
-  SignUpRoute: SignUpRoute,
-  UserSettingsRoute: UserSettingsRoute,
-  ProjectsIndexRoute: ProjectsIndexRoute,
-  ProjectsProjectSlugSchemasRoute: ProjectsProjectSlugSchemasRoute,
-}
+	IndexRoute: IndexRoute,
+	SignInRoute: SignInRoute,
+	SignUpRoute: SignUpRoute,
+	UserSettingsRoute: UserSettingsRoute,
+	ProjectsIndexRoute: ProjectsIndexRoute,
+	ProjectsProjectSlugSchemasRoute: ProjectsProjectSlugSchemasRoute,
+};
 export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+	._addFileChildren(rootRouteChildren)
+	._addFileTypes<FileRouteTypes>();

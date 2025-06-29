@@ -6,36 +6,36 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 
 export const Route = createFileRoute('/sign-in')({
-  component: RouteComponent,
+	component: RouteComponent,
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
-  return (
-    <>
-      <title>Mockden - Sign Up</title>
-      <meta
-        name="description"
-        content="Create, validate, and manage mock data with schemas. Built for
+	const navigate = useNavigate();
+	return (
+		<>
+			<title>Mockden - Sign Up</title>
+			<meta
+				name="description"
+				content="Create, validate, and manage mock data with schemas. Built for
               developers who demand reliability and speed."
-      />
+			/>
 
-      <div className="mx-auto flex min-h-screen w-fit flex-col justify-center">
-        <div className="flex">
-          <Button
-            variant="link"
-            className="hover:no-underline"
-            onClick={() => navigate({
-              to: '/',
-            })}
-          >
-            <ArrowLeft />
-            {' '}
-            <TypographyP>Go Home</TypographyP>
-          </Button>
-        </div>
-        <SignIn signUpUrl="/sign-up" forceRedirectUrl="/projects" />
-      </div>
-    </>
-  );
+			<div className="mx-auto flex min-h-screen w-fit flex-col justify-center">
+				<div className="flex">
+					<Button
+						variant="link"
+						className="hover:no-underline"
+						onClick={() =>
+							navigate({
+								to: '/',
+							})
+						}
+					>
+						<ArrowLeft /> <TypographyP>Go Home</TypographyP>
+					</Button>
+				</div>
+				<SignIn signUpUrl="/sign-up" forceRedirectUrl="/projects" />
+			</div>
+		</>
+	);
 }
