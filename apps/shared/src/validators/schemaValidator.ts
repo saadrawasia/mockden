@@ -89,8 +89,8 @@ const FieldSchema = z
 				pattern: z.string().optional(), // regex pattern
 
 				// Number validations
-				min: z.number().optional(),
-				max: z.number().optional(),
+				min: z.any().optional(),
+				max: z.any().optional(),
 
 				// Array validations
 				minItems: z.number().int().min(0).optional(),
@@ -122,21 +122,48 @@ const FieldSchema = z
 		// Validation rules based on type
 		if (data.validation) {
 			const { min, max, minLength, maxLength, pattern, minItems, maxItems } = data.validation;
-
 			// min/max only for number and date
 			if ((min !== undefined || max !== undefined) && !['number', 'date'].includes(data.type)) {
 				if (min !== undefined) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `'min' validation rule is only allowed for number and date types, but field type is '${data.type}'`,
-						path: ['validation', 'min'],
+						path: ['min'],
 					});
 				}
 				if (max !== undefined) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `'max' validation rule is only allowed for number and date types, but field type is '${data.type}'`,
-						path: ['validation', 'max'],
+						path: ['max'],
+					});
+				}
+			}
+
+			if ((min !== undefined || max !== undefined) && ['number', 'date'].includes(data.type)) {
+				if (
+					typeof min !== 'undefined' &&
+					typeof min !== 'number' &&
+					typeof min !== 'string' &&
+					Number.isNaN(Date.parse(min))
+				) {
+					ctx.addIssue({
+						path: ['min'],
+						code: z.ZodIssueCode.custom,
+						message: 'min must be a number or a valid date string',
+					});
+				}
+
+				if (
+					typeof max !== 'undefined' &&
+					typeof max !== 'number' &&
+					typeof max !== 'string' &&
+					!Number.isNaN(Date.parse(max))
+				) {
+					ctx.addIssue({
+						path: ['max'],
+						code: z.ZodIssueCode.custom,
+						message: 'max must be a number or a valid date string',
 					});
 				}
 			}
@@ -150,21 +177,21 @@ const FieldSchema = z
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `'minLength' validation rule is only allowed for string type, but field type is '${data.type}'`,
-						path: ['validation', 'minLength'],
+						path: ['minLength'],
 					});
 				}
 				if (maxLength !== undefined) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `'maxLength' validation rule is only allowed for string type, but field type is '${data.type}'`,
-						path: ['validation', 'maxLength'],
+						path: ['maxLength'],
 					});
 				}
 				if (pattern !== undefined) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `'pattern' validation rule is only allowed for string type, but field type is '${data.type}'`,
-						path: ['validation', 'pattern'],
+						path: ['pattern'],
 					});
 				}
 			}
@@ -175,14 +202,14 @@ const FieldSchema = z
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `'minItems' validation rule is only allowed for array type, but field type is '${data.type}'`,
-						path: ['validation', 'minItems'],
+						path: ['minItems'],
 					});
 				}
 				if (maxItems !== undefined) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: `'maxItems' validation rule is only allowed for array type, but field type is '${data.type}'`,
-						path: ['validation', 'maxItems'],
+						path: ['maxItems'],
 					});
 				}
 			}
@@ -190,7 +217,7 @@ const FieldSchema = z
 	}) satisfies z.ZodType<FieldDefinition>;
 
 // Zod Schema for complete Schema Definition
-const SchemaDefinitionSchema = z
+export const SchemaDefinitionSchema = z
 	.array(FieldSchema)
 	.min(1, 'Schema must have at least one field')
 	.superRefine((fields, ctx) => {
@@ -265,7 +292,6 @@ export function validateSchemaDefinition(fields: unknown): SchemaDefinition | { 
 	try {
 		return SchemaDefinitionSchema.parse(fields);
 	} catch (error) {
-		console.log({ error });
 		if (error instanceof z.ZodError) {
 			return { error: `Invalid: ${error.errors[0].message}` };
 		}
@@ -335,11 +361,11 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 			if (field.validation) {
 				const val = field.validation;
 
-				if (val.min !== undefined) {
+				if (val.min !== undefined && typeof val.min === 'number') {
 					numberSchema = numberSchema.min(val.min, `${field.name} must be at least ${val.min}`);
 				}
 
-				if (val.max !== undefined) {
+				if (val.max !== undefined && typeof val.max === 'number') {
 					numberSchema = numberSchema.max(val.max, `${field.name} must be at most ${val.max}`);
 				}
 			}

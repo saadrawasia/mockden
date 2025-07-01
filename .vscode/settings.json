@@ -6,7 +6,8 @@
 
 	// Auto fix
 	"editor.codeActionsOnSave": {
-		"source.fixAll.biome": "explicit"
+		"source.fixAll.biome": "explicit",
+		"source.organizeImports": "always"
 	},
 
 	"files.associations": {

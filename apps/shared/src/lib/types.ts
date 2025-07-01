@@ -9,8 +9,8 @@ type ValidationRules = {
 	pattern?: string; // regex pattern
 
 	// Number validations
-	min?: number;
-	max?: number;
+	min?: number | string;
+	max?: number | string;
 
 	// Array validations
 	minItems?: number;

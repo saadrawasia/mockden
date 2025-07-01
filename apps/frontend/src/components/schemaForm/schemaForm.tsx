@@ -4,19 +4,10 @@ import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
 import { useCreateSchemaMutation, useEditSchemaMutation } from '@frontend/hooks/useSchemas';
 import { useSchemaStore } from '@frontend/stores/schemasStore';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import {
-	type FieldType,
-	SchemaZod,
-	validateSchemaDefinition,
-} from '@shared/validators/schemaValidator';
+import { SchemaDefinitionSchema, SchemaZod } from '@shared/validators/schemaValidator';
 import { useForm } from '@tanstack/react-form';
 import { Loader2Icon } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/ace';
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/theme-tomorrow';
-import 'ace-builds/src-noconflict/ext-language_tools';
 
 import { cn } from '../../lib/utils';
 import { TypographyCaption } from '../typography/typography';
@@ -30,6 +21,11 @@ import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scrollArea';
 import { Separator } from '../ui/separator';
 
+import {
+	exampleSchema,
+	getLineNumberForPath,
+	handleEditorDidMount,
+} from '@frontend/lib/schemaFormHelpers';
 import Editor from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 
@@ -50,42 +46,6 @@ export default function SchemaFormDialog({ title, open, setOpen, project }: Sche
 		<SchemaForm setOpen={setOpen} requestType={requestType} project={project} />
 	);
 
-	const exampleSchema = `[
-  {
-    "name": "id",
-    "type": "number",
-    "primary": true,
-    "nullable": false
-  },
-  {
-    "name": "email",
-    "type": "email",
-    "primary": false,
-    "nullable": false
-  },
-  {
-    "name": "age",
-    "type": "number",
-    "primary": false,
-    "nullable": true,
-    "validation": {
-      "min": 0,
-      "max": 150
-    }
-  },
-  {
-    "name": "username",
-    "type": "string",
-    "primary": false,
-    "nullable": false,
-    "validation": {
-      "minLength": 3,
-      "maxLength": 30,
-      "pattern": "^[a-zA-Z0-9_]+$"
-    }
-  }
-]`;
-
 	if (isDesktop) {
 		return (
 			<Dialog open={open} onOpenChange={handleOpen}>
@@ -101,34 +61,23 @@ export default function SchemaFormDialog({ title, open, setOpen, project }: Sche
 							<Label>Example:</Label>
 							<div
 								className={cn(
-									'flex w-full min-w-0 rounded-md border border-input bg-white text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30',
+									'flex h-full w-full min-w-0 rounded-md border border-input bg-white text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30',
 									'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50'
 								)}
 							>
-								<AceEditor
-									mode="json"
+								<Editor
+									height="100%"
+									defaultLanguage="json"
 									theme="tomorrow"
-									fontSize={14}
-									lineHeight={19}
-									showPrintMargin={true}
-									showGutter={true}
-									highlightActiveLine={true}
-									name="example"
 									value={exampleSchema}
-									width="100%"
-									maxLines={Number.POSITIVE_INFINITY}
-									readOnly={true}
-									setOptions={{
-										enableBasicAutocompletion: false,
-										enableLiveAutocompletion: false,
-										enableSnippets: false,
-										enableMobileMenu: false,
-										showLineNumbers: false,
-										tabSize: 2,
-										printMargin: 8,
-										useWorker: false,
+									options={{
+										minimap: { enabled: false },
+										scrollBeyondLastLine: false,
+										fontSize: 14,
+										lineNumbers: 'on',
+										roundedSelection: false,
+										readOnly: true,
 									}}
-									className="rounded-md"
 								/>
 							</div>
 						</div>
@@ -234,7 +183,15 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 		},
 	});
 
-	const validateSchema = (value: string): string | void => {
+	type SchemaError = {
+		line: number;
+		column: number;
+		message: string;
+		severity: string;
+		path?: (string | number)[];
+	};
+
+	const validateSchema = (value: string): string | void | SchemaError[] => {
 		let schema = {};
 		try {
 			schema = JSON.parse(value);
@@ -242,167 +199,70 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 			return 'Invalid Scheme JSON';
 		}
 
-		const validate = validateSchemaDefinition(schema);
-		if ('error' in validate) {
-			return validate.error;
-		}
-	};
+		let errors: SchemaError[] = [];
 
-	const handleEditorDidMount = (
-		editor: editor.IStandaloneCodeEditor,
-		monaco: typeof import('monaco-editor')
-	) => {
-		editorRef.current = editor;
-		monacoRef.current = monaco;
+		try {
+			const result = SchemaDefinitionSchema.safeParse(schema);
 
-		// Configure JSON language settings - disable built-in completions
-		monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-			validate: false, // Disable built-in validation to avoid conflicts
-			allowComments: false,
-			schemas: [],
-			enableSchemaRequest: false,
-		});
+			if (!result.success) {
+				result.error.issues.forEach(issue => {
+					let lineNumber = 1;
+					let message = issue.message;
 
-		// Disable built-in JSON completion
-		monaco.languages.json.jsonDefaults.setModeConfiguration({
-			documentFormattingEdits: true,
-			documentRangeFormattingEdits: true,
-			completionItems: false, // Disable built-in completions
-			hovers: false,
-			documentSymbols: false,
-			tokens: true,
-			colors: true,
-			foldingRanges: true,
-			diagnostics: false,
-			selectionRanges: true,
-		});
+					// Extract item index and field from path
+					if (issue.path.length >= 1) {
+						const itemIndex = issue.path[0];
+						const fieldPath = issue.path[1];
 
-		// Register completion provider for auto-suggestions with higher priority
-		monaco.languages.registerCompletionItemProvider('json', {
-			triggerCharacters: ['"', ':', ' ', '\n', '\t'],
-			provideCompletionItems: (model, position) => {
-				const textUntilPosition = model.getValueInRange({
-					startLineNumber: 1,
-					startColumn: 1,
-					endLineNumber: position.lineNumber,
-					endColumn: position.column,
+						if (typeof itemIndex === 'number') {
+							lineNumber = getLineNumberForPath(value, itemIndex, fieldPath);
+							message = `Item ${itemIndex + 1}: ${issue.message}`;
+						}
+					}
+
+					errors.push({
+						line: lineNumber,
+						column: 1,
+						message: message,
+						severity: 'error',
+						path: issue.path,
+					});
 				});
+			}
+		} catch (e) {
+			// JSON parsing error
+			errors = [
+				{
+					line: 1,
+					column: 1,
+					message: `JSON Syntax Error: ${(e as Error).message}`,
+					severity: 'error',
+				},
+			];
+		}
 
-				const lineText = model.getLineContent(position.lineNumber);
-				const wordInfo = model.getWordUntilPosition(position);
+		if (editorRef.current && monacoRef.current) {
+			const markers = errors.map(error => ({
+				startLineNumber: error.line,
+				startColumn: error.column,
+				endLineNumber: error.line,
+				endColumn: error.column + 10,
+				message: error.message,
+				severity:
+					error.severity === 'error'
+						? monacoRef.current!.MarkerSeverity.Error
+						: monacoRef.current!.MarkerSeverity.Warning,
+			}));
 
-				const suggestions: import('monaco-editor').languages.CompletionItem[] = [];
+			const model = editorRef.current.getModel();
+			if (model) {
+				monacoRef.current!.editor.setModelMarkers(model, 'zod-validation', markers);
+			}
+		}
 
-				// Get current context - check if we're in a value position after "type":
-				const isInTypeValue =
-					/["']type["']\s*:\s*["']?[^"']*$/.test(textUntilPosition) ||
-					/["']type["']\s*:\s*$/.test(textUntilPosition);
-
-				// Check if we're inside a "type" field or right after "type":
-				if (isInTypeValue) {
-					const typeOptions: FieldType[] = [
-						'string',
-						'number',
-						'boolean',
-						'array',
-						'object',
-						'date',
-						'url',
-						'uuid',
-						'email',
-					];
-
-					typeOptions.forEach((type, index) => {
-						suggestions.push({
-							label: `"${type}"`,
-							kind: monaco.languages.CompletionItemKind.Value,
-							insertText: `"${type}"`,
-							documentation: `Field type: ${type}`,
-							sortText: `0${index.toString().padStart(2, '0')}`,
-							filterText: type,
-							range: {
-								startLineNumber: position.lineNumber,
-								endLineNumber: position.lineNumber,
-								startColumn: wordInfo.startColumn,
-								endColumn: wordInfo.endColumn,
-							},
-						});
-					});
-				}
-
-				// Check if we're in a validation context
-				const isInValidation = /["']validation["']\s*:\s*\{[^}]*$/.test(textUntilPosition);
-
-				if (isInValidation) {
-					const validationOptions = [
-						{ label: 'min', desc: 'Minimum value (number/date)' },
-						{ label: 'max', desc: 'Maximum value (number/date)' },
-						{ label: 'minLength', desc: 'Minimum length (string)' },
-						{ label: 'maxLength', desc: 'Maximum length (string)' },
-						{ label: 'pattern', desc: 'Regex pattern (string)' },
-						{ label: 'minItems', desc: 'Minimum items (array)' },
-						{ label: 'maxItems', desc: 'Maximum items (array)' },
-					];
-
-					validationOptions.forEach((option, index) => {
-						suggestions.push({
-							label: `"${option.label}"`,
-							kind: monaco.languages.CompletionItemKind.Property,
-							insertText: `"${option.label}": `,
-							documentation: option.desc,
-							sortText: `1${index.toString().padStart(2, '0')}`,
-							filterText: option.label,
-							range: {
-								startLineNumber: position.lineNumber,
-								endLineNumber: position.lineNumber,
-								startColumn: wordInfo.startColumn,
-								endColumn: wordInfo.endColumn,
-							},
-						});
-					});
-				}
-
-				// General field suggestions - show when we're in an object context
-				const isInObjectContext =
-					/\{[^}]*$/.test(textUntilPosition) ||
-					/^\s*$/.test(lineText) ||
-					/,\s*$/.test(textUntilPosition);
-
-				if (isInObjectContext && !isInValidation && !isInTypeValue) {
-					const fieldOptions = [
-						{ label: 'name', desc: 'Field name (alphabets only)' },
-						{ label: 'type', desc: 'Field type' },
-						{ label: 'primary', desc: 'Primary key (boolean)' },
-						{ label: 'nullable', desc: 'Can be null (boolean)' },
-						{ label: 'validation', desc: 'Validation rules' },
-						{ label: 'items', desc: 'Array item definition' },
-						{ label: 'fields', desc: 'Object field definitions' },
-					];
-
-					fieldOptions.forEach((option, index) => {
-						suggestions.push({
-							label: `"${option.label}"`,
-							kind: monaco.languages.CompletionItemKind.Property,
-							insertText: `"${option.label}": `,
-							documentation: option.desc,
-							sortText: `2${index.toString().padStart(2, '0')}`,
-							filterText: option.label,
-							range: {
-								startLineNumber: position.lineNumber,
-								endLineNumber: position.lineNumber,
-								startColumn: wordInfo.startColumn,
-								endColumn: wordInfo.endColumn,
-							},
-						});
-					});
-				}
-
-				return {
-					suggestions,
-					incomplete: false,
-				};
-			},
-		});
+		if (errors.length > 0) {
+			return errors[0].message;
+		}
 	};
 
 	return (
@@ -472,39 +332,15 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 									}
 								)}
 							>
-								{/* <AceEditor
-									mode="json"
-									theme="tomorrow"
-									fontSize={14}
-									lineHeight={19}
-									showPrintMargin={true}
-									showGutter={true}
-									highlightActiveLine={true}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={value => field.handleChange(value)}
-									width="100%"
-									height={isDesktop ? '500px' : '250px'}
-									setOptions={{
-										enableBasicAutocompletion: false,
-										enableLiveAutocompletion: false,
-										enableSnippets: false,
-										enableMobileMenu: false,
-										showLineNumbers: false,
-										tabSize: 2,
-										printMargin: 8,
-										useWorker: false,
-									}}
-									className="rounded-md"
-								/> */}
 								<Editor
 									height={isDesktop ? '500px' : '250px'}
 									defaultLanguage="json"
 									theme="tomorrow"
 									value={field.state.value}
 									onChange={field.handleChange}
-									onMount={handleEditorDidMount}
+									onMount={(editor, monaco) =>
+										handleEditorDidMount(editor, monaco, editorRef, monacoRef)
+									}
 									options={{
 										minimap: { enabled: false },
 										scrollBeyondLastLine: false,
