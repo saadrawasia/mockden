@@ -15,15 +15,19 @@
 
 	// Optional: only enable format on save for specific languages
 	"[javascript]": {
+		"editor.defaultFormatter": "biomejs.biome",
 		"editor.formatOnSave": true
 	},
 	"[typescript]": {
+		"editor.defaultFormatter": "biomejs.biome",
 		"editor.formatOnSave": true
 	},
 	"[javascriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome",
 		"editor.formatOnSave": true
 	},
 	"[typescriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome",
 		"editor.formatOnSave": true
 	},
 	"[json]": {

@@ -19,6 +19,7 @@
 		"@clerk/backend": "^2.1.0",
 		"@clerk/clerk-react": "^5.32.0",
 		"@clerk/express": "^1.7.0",
+		"@monaco-editor/react": "^4.7.0",
 		"@neondatabase/serverless": "^1.0.0",
 		"@tailwindcss/postcss": "^4.1.8",
 		"@tailwindcss/vite": "^4.1.8",
@@ -95,14 +96,6 @@
 	},
 	"workspaces": ["apps/*"],
 	"lint-staged": {
-		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
-			"biome check --files-ignore-unknown=true",
-			"biome check --write --no-errors-on-unmatched",
-			"biome check --write --organize-imports-enabled=false --no-errors-on-unmatched",
-			"biome check --write --unsafe --no-errors-on-unmatched",
-			"biome format --write --no-errors-on-unmatched",
-			"biome lint --write --no-errors-on-unmatched"
-		],
 		"*": ["biome check --no-errors-on-unmatched --files-ignore-unknown=true"]
 	}
 }

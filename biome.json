@@ -51,6 +51,9 @@
 			"suspicious": {
 				"noConfusingVoidType": "off"
 			},
+			"complexity": {
+				"noForEach": "off"
+			},
 			"nursery": {
 				"useSortedClasses": {
 					"level": "error",

@@ -4,10 +4,14 @@ import { useMediaQuery } from '@frontend/hooks/useMediaQuery';
 import { useCreateSchemaMutation, useEditSchemaMutation } from '@frontend/hooks/useSchemas';
 import { useSchemaStore } from '@frontend/stores/schemasStore';
 import { DialogDescription } from '@radix-ui/react-dialog';
-import { SchemaZod, validateSchemaDefinition } from '@shared/validators/schemaValidator';
+import {
+	type FieldType,
+	SchemaZod,
+	validateSchemaDefinition,
+} from '@shared/validators/schemaValidator';
 import { useForm } from '@tanstack/react-form';
 import { Loader2Icon } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/ace';
 import 'ace-builds/src-noconflict/mode-json';
@@ -25,6 +29,9 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scrollArea';
 import { Separator } from '../ui/separator';
+
+import Editor from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
 
 type SchemaFormDialogProps = {
 	title: string;
@@ -160,6 +167,8 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 	const [isSaving, setIsSaving] = useState(false);
 	const createSchemaMutation = useCreateSchemaMutation();
 	const editSchemaMutation = useEditSchemaMutation();
+	const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+	const monacoRef = useRef<typeof import('monaco-editor') | null>(null);
 
 	const createSchema = useCallback(
 		async (value: SchemaBase) => {
@@ -239,6 +248,163 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 		}
 	};
 
+	const handleEditorDidMount = (
+		editor: editor.IStandaloneCodeEditor,
+		monaco: typeof import('monaco-editor')
+	) => {
+		editorRef.current = editor;
+		monacoRef.current = monaco;
+
+		// Configure JSON language settings - disable built-in completions
+		monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+			validate: false, // Disable built-in validation to avoid conflicts
+			allowComments: false,
+			schemas: [],
+			enableSchemaRequest: false,
+		});
+
+		// Disable built-in JSON completion
+		monaco.languages.json.jsonDefaults.setModeConfiguration({
+			documentFormattingEdits: true,
+			documentRangeFormattingEdits: true,
+			completionItems: false, // Disable built-in completions
+			hovers: false,
+			documentSymbols: false,
+			tokens: true,
+			colors: true,
+			foldingRanges: true,
+			diagnostics: false,
+			selectionRanges: true,
+		});
+
+		// Register completion provider for auto-suggestions with higher priority
+		monaco.languages.registerCompletionItemProvider('json', {
+			triggerCharacters: ['"', ':', ' ', '\n', '\t'],
+			provideCompletionItems: (model, position) => {
+				const textUntilPosition = model.getValueInRange({
+					startLineNumber: 1,
+					startColumn: 1,
+					endLineNumber: position.lineNumber,
+					endColumn: position.column,
+				});
+
+				const lineText = model.getLineContent(position.lineNumber);
+				const wordInfo = model.getWordUntilPosition(position);
+
+				const suggestions: import('monaco-editor').languages.CompletionItem[] = [];
+
+				// Get current context - check if we're in a value position after "type":
+				const isInTypeValue =
+					/["']type["']\s*:\s*["']?[^"']*$/.test(textUntilPosition) ||
+					/["']type["']\s*:\s*$/.test(textUntilPosition);
+
+				// Check if we're inside a "type" field or right after "type":
+				if (isInTypeValue) {
+					const typeOptions: FieldType[] = [
+						'string',
+						'number',
+						'boolean',
+						'array',
+						'object',
+						'date',
+						'url',
+						'uuid',
+						'email',
+					];
+
+					typeOptions.forEach((type, index) => {
+						suggestions.push({
+							label: `"${type}"`,
+							kind: monaco.languages.CompletionItemKind.Value,
+							insertText: `"${type}"`,
+							documentation: `Field type: ${type}`,
+							sortText: `0${index.toString().padStart(2, '0')}`,
+							filterText: type,
+							range: {
+								startLineNumber: position.lineNumber,
+								endLineNumber: position.lineNumber,
+								startColumn: wordInfo.startColumn,
+								endColumn: wordInfo.endColumn,
+							},
+						});
+					});
+				}
+
+				// Check if we're in a validation context
+				const isInValidation = /["']validation["']\s*:\s*\{[^}]*$/.test(textUntilPosition);
+
+				if (isInValidation) {
+					const validationOptions = [
+						{ label: 'min', desc: 'Minimum value (number/date)' },
+						{ label: 'max', desc: 'Maximum value (number/date)' },
+						{ label: 'minLength', desc: 'Minimum length (string)' },
+						{ label: 'maxLength', desc: 'Maximum length (string)' },
+						{ label: 'pattern', desc: 'Regex pattern (string)' },
+						{ label: 'minItems', desc: 'Minimum items (array)' },
+						{ label: 'maxItems', desc: 'Maximum items (array)' },
+					];
+
+					validationOptions.forEach((option, index) => {
+						suggestions.push({
+							label: `"${option.label}"`,
+							kind: monaco.languages.CompletionItemKind.Property,
+							insertText: `"${option.label}": `,
+							documentation: option.desc,
+							sortText: `1${index.toString().padStart(2, '0')}`,
+							filterText: option.label,
+							range: {
+								startLineNumber: position.lineNumber,
+								endLineNumber: position.lineNumber,
+								startColumn: wordInfo.startColumn,
+								endColumn: wordInfo.endColumn,
+							},
+						});
+					});
+				}
+
+				// General field suggestions - show when we're in an object context
+				const isInObjectContext =
+					/\{[^}]*$/.test(textUntilPosition) ||
+					/^\s*$/.test(lineText) ||
+					/,\s*$/.test(textUntilPosition);
+
+				if (isInObjectContext && !isInValidation && !isInTypeValue) {
+					const fieldOptions = [
+						{ label: 'name', desc: 'Field name (alphabets only)' },
+						{ label: 'type', desc: 'Field type' },
+						{ label: 'primary', desc: 'Primary key (boolean)' },
+						{ label: 'nullable', desc: 'Can be null (boolean)' },
+						{ label: 'validation', desc: 'Validation rules' },
+						{ label: 'items', desc: 'Array item definition' },
+						{ label: 'fields', desc: 'Object field definitions' },
+					];
+
+					fieldOptions.forEach((option, index) => {
+						suggestions.push({
+							label: `"${option.label}"`,
+							kind: monaco.languages.CompletionItemKind.Property,
+							insertText: `"${option.label}": `,
+							documentation: option.desc,
+							sortText: `2${index.toString().padStart(2, '0')}`,
+							filterText: option.label,
+							range: {
+								startLineNumber: position.lineNumber,
+								endLineNumber: position.lineNumber,
+								startColumn: wordInfo.startColumn,
+								endColumn: wordInfo.endColumn,
+							},
+						});
+					});
+				}
+
+				return {
+					suggestions,
+					incomplete: false,
+				};
+			},
+		});
+	};
+
 	return (
 		<form
 			onSubmit={e => {
@@ -306,7 +472,7 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 									}
 								)}
 							>
-								<AceEditor
+								{/* <AceEditor
 									mode="json"
 									theme="tomorrow"
 									fontSize={14}
@@ -331,6 +497,48 @@ function SchemaForm({ setOpen, requestType, project }: SchemaFormProps) {
 										useWorker: false,
 									}}
 									className="rounded-md"
+								/> */}
+								<Editor
+									height={isDesktop ? '500px' : '250px'}
+									defaultLanguage="json"
+									theme="tomorrow"
+									value={field.state.value}
+									onChange={field.handleChange}
+									onMount={handleEditorDidMount}
+									options={{
+										minimap: { enabled: false },
+										scrollBeyondLastLine: false,
+										fontSize: 14,
+										lineNumbers: 'on',
+										roundedSelection: false,
+										automaticLayout: true,
+										wordWrap: 'on',
+										formatOnPaste: true,
+										formatOnType: true,
+										suggest: {
+											showKeywords: false,
+											showSnippets: false,
+											showColors: false,
+											showFiles: false,
+											showReferences: false,
+											showFolders: false,
+											showTypeParameters: false,
+											showIssues: false,
+											showUsers: false,
+											showWords: false,
+											insertMode: 'replace',
+											filterGraceful: true,
+											snippetsPreventQuickSuggestions: false,
+											localityBonus: false,
+											shareSuggestSelections: false,
+										},
+										quickSuggestions: {
+											other: true,
+											comments: false,
+											strings: true,
+										},
+										quickSuggestionsDelay: 10,
+									}}
 								/>
 							</div>
 
