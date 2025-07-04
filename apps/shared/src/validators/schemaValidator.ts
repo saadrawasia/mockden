@@ -485,37 +485,24 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 
 			const dateSchema = z
 				.string()
-				.refine(val => isValidDate(val), {
-					message: `${field.name} must be a valid date string`,
+				.superRefine((val, ctx) => {
+					if (!isValidDate(val)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `${field.name} must be a valid date string`,
+						});
+					} else if (minDate && new Date(val) < minDate) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `${field.name} must be on or after ${minDate.toISOString().slice(0, 10)}`,
+						});
+					} else if (maxDate && new Date(val) > maxDate) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `${field.name} must be on or before ${maxDate.toISOString().slice(0, 10)}`,
+						});
+					}
 				})
-				.refine(
-					val => {
-						if (minDate) {
-							return new Date(val) >= minDate;
-						}
-						return true;
-					},
-					{
-						message: minDate
-							? `${field.name} must be on or after ${minDate.toISOString().slice(0, 10)}`
-							: '',
-						path: ['min'],
-					}
-				)
-				.refine(
-					val => {
-						if (maxDate) {
-							return new Date(val) <= maxDate;
-						}
-						return true;
-					},
-					{
-						message: maxDate
-							? `${field.name} must be on or before ${maxDate.toISOString().slice(0, 10)}`
-							: '',
-						path: ['max'],
-					}
-				)
 				.transform(val => new Date(val).toISOString().slice(0, 10));
 
 			schema = dateSchema;
