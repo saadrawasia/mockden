@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { isValidDate } from '../helpers/isValidDate';
 import type {
 	FieldDefinition,
 	SchemaBase,
@@ -272,16 +273,42 @@ export const SchemaDefinitionSchema = z
 			}
 		});
 
-		// Validate that min <= max for numbers
+		// Validate that min <= max for numbers and dates
 		fields.forEach((field, index) => {
 			const val = field.validation;
 			if (val?.min !== undefined && val?.max !== undefined) {
-				if (val.min > val.max) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'min must be less than or equal to max',
-						path: [index, 'validation'],
-					});
+				if (field.type === 'number') {
+					if (typeof val.min === 'number' && typeof val.max === 'number' && val.min > val.max) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'min must be less than or equal to max',
+							path: [index, 'validation'],
+						});
+					}
+				}
+				if (field.type === 'date') {
+					const minDate = typeof val.min === 'string' ? new Date(val.min) : undefined;
+					const maxDate = typeof val.max === 'string' ? new Date(val.max) : undefined;
+					console.log(val.min, isValidDate(val.min));
+					if (minDate && !isValidDate(val.min)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'min date must be a valid date string',
+							path: [index, 'min'],
+						});
+					} else if (maxDate && !isValidDate(val.max)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'max date must be a valid date string',
+							path: [index, 'min'],
+						});
+					} else if (minDate && maxDate && minDate > maxDate) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'min date must be less than or equal to max date',
+							path: [index, 'validation'],
+						});
+					}
 				}
 			}
 		});
@@ -427,9 +454,73 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 			}
 			break;
 
-		case 'date':
-			schema = z.date();
+		case 'date': {
+			let minDate: Date | undefined;
+			let maxDate: Date | undefined;
+
+			if (field.validation) {
+				const val = field.validation;
+
+				if (val.min !== undefined) {
+					if (typeof val.min === 'string') {
+						minDate = new Date(val.min);
+						if (!isValidDate(val.min)) {
+							throw new Error(`Invalid min date string for field ${field.name}: ${val.min}`);
+						}
+					} else if (typeof val.min === 'number') {
+						minDate = new Date(val.min);
+					}
+				}
+				if (val.max !== undefined) {
+					if (typeof val.max === 'string') {
+						maxDate = new Date(val.max);
+						if (!isValidDate(val.max)) {
+							throw new Error(`Invalid max date string for field ${field.name}: ${val.max}`);
+						}
+					} else if (typeof val.max === 'number') {
+						maxDate = new Date(val.max);
+					}
+				}
+			}
+
+			const dateSchema = z
+				.string()
+				.refine(val => isValidDate(val), {
+					message: `${field.name} must be a valid date string`,
+				})
+				.refine(
+					val => {
+						if (minDate) {
+							return new Date(val) >= minDate;
+						}
+						return true;
+					},
+					{
+						message: minDate
+							? `${field.name} must be on or after ${minDate.toISOString().slice(0, 10)}`
+							: '',
+						path: ['min'],
+					}
+				)
+				.refine(
+					val => {
+						if (maxDate) {
+							return new Date(val) <= maxDate;
+						}
+						return true;
+					},
+					{
+						message: maxDate
+							? `${field.name} must be on or before ${maxDate.toISOString().slice(0, 10)}`
+							: '',
+						path: ['max'],
+					}
+				)
+				.transform(val => new Date(val).toISOString().slice(0, 10));
+
+			schema = dateSchema;
 			break;
+		}
 
 		case 'email':
 			schema = z.string().email();
