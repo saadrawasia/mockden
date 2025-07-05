@@ -11,5 +11,6 @@
 		"outDir": "dist"
 	},
 	"references": [],
-	"include": ["src/**/*.ts"]
+	"include": ["src/**/*.ts"],
+	"exclude": ["jest.config.js", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

@@ -1,0 +1,16 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"outDir": "../../dist/out-tsc",
+		"module": "es2015",
+		"moduleResolution": "bundler",
+		"types": ["jest", "node"]
+	},
+	"include": [
+		"jest.config.js",
+		"src/**/*.test.ts",
+		"src/**/*.spec.ts",
+		"src/**/*.d.ts",
+		"src/**/*.ts"
+	]
+}
