@@ -9,29 +9,70 @@ import type {
 	ValidationResult,
 } from '../lib/types';
 
-const fieldTypeEnum = z.enum(
-	['string', 'number', 'boolean', 'array', 'object', 'date', 'url', 'uuid', 'email'],
-	{
-		errorMap: () => ({
-			message:
-				'Type must be one of: string, number, boolean, array, object, date, url, uuid or email',
-		}),
+// Define supported field types with better type safety
+const FIELD_TYPES = [
+	'string',
+	'number',
+	'boolean',
+	'array',
+	'object',
+	'date',
+	'url',
+	'uuid',
+	'email',
+] as const;
+
+export type FieldType = (typeof FIELD_TYPES)[number];
+
+// More efficient field type validation
+const fieldTypeEnum = z.enum(FIELD_TYPES, {
+	errorMap: () => ({
+		message: `Type must be one of: ${FIELD_TYPES.join(', ')}`,
+	}),
+});
+
+// Type-safe validation rule constraints
+const PRIMARY_KEY_TYPES = ['string', 'number', 'uuid'] as const;
+const MIN_MAX_TYPES = ['number', 'date'] as const;
+
+type PrimaryKeyType = (typeof PRIMARY_KEY_TYPES)[number];
+type MinMaxType = (typeof MIN_MAX_TYPES)[number];
+
+// Helper function to validate enum values match their declared type
+function validateEnumValues(enumValues: unknown[], fieldType: FieldType): boolean {
+	const typeCheckers: Record<FieldType, (value: unknown) => boolean> = {
+		string: (v): v is string => typeof v === 'string',
+		url: (v): v is string => typeof v === 'string',
+		uuid: (v): v is string => typeof v === 'string',
+		email: (v): v is string => typeof v === 'string',
+		number: (v): v is number => typeof v === 'number',
+		boolean: (v): v is boolean => typeof v === 'boolean',
+		date: (v): v is string | Date => typeof v === 'string' || v instanceof Date,
+		array: (v): v is unknown[] => Array.isArray(v),
+		object: (v): v is object => typeof v === 'object' && !Array.isArray(v) && v !== null,
+	};
+
+	return enumValues.every(typeCheckers[fieldType]);
+}
+
+// Helper function to validate min/max values
+function validateMinMaxValue(value: unknown, fieldType: MinMaxType): boolean {
+	if (fieldType === 'number') {
+		return typeof value === 'number';
 	}
-);
+	if (fieldType === 'date') {
+		return (typeof value === 'string' && isValidDate(value)) || typeof value === 'number';
+	}
+	return false;
+}
 
-export type FieldType = z.infer<typeof fieldTypeEnum>;
-
-// Zod Schema for Field Definition
+// Enhanced field schema with better type safety
 const FieldSchema = z
 	.object({
 		name: z
-			.string({
-				errorMap: () => ({
-					message: 'Field name is required',
-				}),
-			})
+			.string({ errorMap: () => ({ message: 'Field name is required' }) })
 			.min(1, 'Field name is required')
-			.regex(/^[a-z]*$/i, 'Field name must contain only lowercase letters'),
+			.regex(/^[a-z]+$/i, 'Field name must contain only letters'),
 		type: fieldTypeEnum,
 		items: z
 			.object({
@@ -40,528 +81,448 @@ const FieldSchema = z
 			})
 			.optional()
 			.superRefine((val, ctx) => {
-				if (!val || !val.enum) return;
+				if (!val?.enum) return;
 
-				let isValid = true;
-				switch (val.type) {
-					case 'string':
-					case 'url':
-					case 'uuid':
-					case 'email':
-						isValid = val.enum.every((v: unknown) => typeof v === 'string');
-						break;
-					case 'number':
-						isValid = val.enum.every((v: unknown) => typeof v === 'number');
-						break;
-					case 'boolean':
-						isValid = val.enum.every((v: unknown) => typeof v === 'boolean');
-						break;
-					case 'date':
-						isValid = val.enum.every((v: unknown) => typeof v === 'string' || v instanceof Date);
-						break;
-					case 'array':
-						isValid = val.enum.every((v: unknown) => Array.isArray(v));
-						break;
-					case 'object':
-						isValid = val.enum.every(
-							(v: unknown) => typeof v === 'object' && !Array.isArray(v) && v !== null
-						);
-						break;
-					default:
-						isValid = true;
-				}
-
-				if (!isValid) {
+				if (!validateEnumValues(val.enum, val.type)) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
-						message: 'Enum values must match the type of items.type',
+						message: `Enum values must match the type '${val.type}'`,
 						path: ['enum'],
 					});
 				}
 			}),
-		fields: z.array(z.lazy((): z.ZodType<FieldDefinition> => FieldSchema)).optional(), // Only required for type: 'object'
-		primary: z.boolean().default(false).optional(),
-		nullable: z.boolean().default(false).optional(),
+		fields: z.array(z.lazy((): z.ZodType<FieldDefinition> => FieldSchema)).optional(),
+		primary: z.boolean().default(false),
+		nullable: z.boolean().default(false),
 		validation: z
 			.object({
-				// String validations
-				minLength: z.number().int().min(0).optional(),
+				minLength: z.number().int().nonnegative().optional(),
 				maxLength: z.number().int().positive().optional(),
-				pattern: z.string().optional(), // regex pattern
-
-				// Number validations
-				min: z.any().optional(),
-				max: z.any().optional(),
-
-				// Array validations
-				minItems: z.number().int().min(0).optional(),
+				pattern: z.string().optional(),
+				min: z.union([z.number(), z.string()]).optional(),
+				max: z.union([z.number(), z.string()]).optional(),
+				minItems: z.number().int().nonnegative().optional(),
 				maxItems: z.number().int().positive().optional(),
 			})
 			.optional(),
-		default: z.any().optional(),
+		default: z.unknown().optional(),
 	})
 	.superRefine((data, ctx) => {
-		// The name check is redundant since we already have .min(1) on the name field
-		// but keeping it for extra safety
-		if (!data.name || data.name.trim() === '') {
+		// Validate primary key constraints
+		if (data.primary && !PRIMARY_KEY_TYPES.includes(data.type as PrimaryKeyType)) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				message: 'Field name is required and cannot be empty',
-				path: ['name'],
-			});
-		}
-
-		// Only string, number, and uuid can be primary
-		if (data.primary && !['string', 'number', 'uuid'].includes(data.type)) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: 'Only string, number, and uuid types can be primary keys',
+				message: `Only ${PRIMARY_KEY_TYPES.join(', ')} types can be primary keys`,
 				path: ['primary'],
 			});
 		}
 
-		// Validation rules based on type
+		// Validate field-specific validation rules
 		if (data.validation) {
 			const { min, max, minLength, maxLength, pattern, minItems, maxItems } = data.validation;
-			// min/max only for number and date
-			if ((min !== undefined || max !== undefined) && !['number', 'date'].includes(data.type)) {
-				if (min !== undefined) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `'min' validation rule is only allowed for number and date types, but field type is '${data.type}'`,
-						path: ['min'],
+
+			// Min/max validation
+			if (min !== undefined || max !== undefined) {
+				if (!MIN_MAX_TYPES.includes(data.type as MinMaxType)) {
+					const invalidFields = [
+						...(min !== undefined ? ['min'] : []),
+						...(max !== undefined ? ['max'] : []),
+					];
+
+					invalidFields.forEach(field => {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `'${field}' validation is only allowed for ${MIN_MAX_TYPES.join(', ')} types`,
+							path: [field],
+						});
 					});
+				} else {
+					// Validate min/max values are appropriate for the field type
+					if (min !== undefined && !validateMinMaxValue(min, data.type as MinMaxType)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `Invalid min value for ${data.type} type`,
+							path: ['validation', 'min'],
+						});
+					}
+					if (max !== undefined && !validateMinMaxValue(max, data.type as MinMaxType)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `Invalid max value for ${data.type} type`,
+							path: ['validation', 'max'],
+						});
+					}
 				}
-				if (max !== undefined) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `'max' validation rule is only allowed for number and date types, but field type is '${data.type}'`,
-						path: ['max'],
+			}
+
+			// String validation rules
+			if (minLength !== undefined || maxLength !== undefined || pattern !== undefined) {
+				if (data.type !== 'string') {
+					const invalidFields = [
+						...(minLength !== undefined ? ['minLength'] : []),
+						...(maxLength !== undefined ? ['maxLength'] : []),
+						...(pattern !== undefined ? ['pattern'] : []),
+					];
+
+					invalidFields.forEach(field => {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `'${field}' validation is only allowed for string type`,
+							path: [field],
+						});
 					});
 				}
 			}
 
-			if ((min !== undefined || max !== undefined) && ['number', 'date'].includes(data.type)) {
-				if (
-					typeof min !== 'undefined' &&
-					typeof min !== 'number' &&
-					typeof min !== 'string' &&
-					Number.isNaN(Date.parse(min))
-				) {
-					ctx.addIssue({
-						path: ['min'],
-						code: z.ZodIssueCode.custom,
-						message: 'min must be a number or a valid date string',
-					});
-				}
+			// Array validation rules
+			if (minItems !== undefined || maxItems !== undefined) {
+				if (data.type !== 'array') {
+					const invalidFields = [
+						...(minItems !== undefined ? ['minItems'] : []),
+						...(maxItems !== undefined ? ['maxItems'] : []),
+					];
 
-				if (
-					typeof max !== 'undefined' &&
-					typeof max !== 'number' &&
-					typeof max !== 'string' &&
-					!Number.isNaN(Date.parse(max))
-				) {
-					ctx.addIssue({
-						path: ['max'],
-						code: z.ZodIssueCode.custom,
-						message: 'max must be a number or a valid date string',
-					});
-				}
-			}
-
-			// minLength/maxLength/pattern only for string
-			if (
-				(minLength !== undefined || maxLength !== undefined || pattern !== undefined) &&
-				data.type !== 'string'
-			) {
-				if (minLength !== undefined) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `'minLength' validation rule is only allowed for string type, but field type is '${data.type}'`,
-						path: ['minLength'],
-					});
-				}
-				if (maxLength !== undefined) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `'maxLength' validation rule is only allowed for string type, but field type is '${data.type}'`,
-						path: ['maxLength'],
-					});
-				}
-				if (pattern !== undefined) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `'pattern' validation rule is only allowed for string type, but field type is '${data.type}'`,
-						path: ['pattern'],
-					});
-				}
-			}
-
-			// minItems/maxItems only for array
-			if ((minItems !== undefined || maxItems !== undefined) && data.type !== 'array') {
-				if (minItems !== undefined) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `'minItems' validation rule is only allowed for array type, but field type is '${data.type}'`,
-						path: ['minItems'],
-					});
-				}
-				if (maxItems !== undefined) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: `'maxItems' validation rule is only allowed for array type, but field type is '${data.type}'`,
-						path: ['maxItems'],
+					invalidFields.forEach(field => {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: `'${field}' validation is only allowed for array type`,
+							path: [field],
+						});
 					});
 				}
 			}
 		}
 	}) satisfies z.ZodType<FieldDefinition>;
 
-// Zod Schema for complete Schema Definition
+// Enhanced schema definition validation
 export const SchemaDefinitionSchema = z
 	.array(FieldSchema)
 	.min(1, 'Schema must have at least one field')
 	.superRefine((fields, ctx) => {
 		// Check for duplicate field names
-		const names = fields.map(f => f.name);
-		const duplicates = names.filter((name, index) => names.indexOf(name) !== index);
-		if (duplicates.length > 0) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: `Duplicate field names are not allowed: ${duplicates.join(', ')}`,
-				path: [],
-			});
-		}
+		const nameMap = new Map<string, number>();
+		const duplicates = new Set<string>();
 
-		// Ensure exactly one primary key
-		const primaryFields = fields.filter(f => f.primary);
-		if (primaryFields.length === 0) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: 'Schema must have exactly one primary key field',
-				path: [],
-			});
-		} else if (primaryFields.length > 1) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: 'Schema must have exactly one primary key field',
-				path: [],
-			});
-		}
-
-		// Ensure primary key is correct type
-		const primaryField = primaryFields[0];
-		if (primaryField && !['string', 'number', 'uuid'].includes(primaryField.type)) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: 'Primary key field must be type of string, number or uuid',
-				path: [],
-			});
-		}
-
-		// Validate that minLength <= maxLength
 		fields.forEach((field, index) => {
-			const val = field.validation;
-			if (val?.minLength !== undefined && val?.maxLength !== undefined) {
-				if (val.minLength > val.maxLength) {
+			const existingIndex = nameMap.get(field.name);
+			if (existingIndex !== undefined) {
+				duplicates.add(field.name);
+			} else {
+				nameMap.set(field.name, index);
+			}
+		});
+
+		if (duplicates.size > 0) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: `Duplicate field names: ${Array.from(duplicates).join(', ')}`,
+				path: [],
+			});
+		}
+
+		// Validate primary key constraints
+		const primaryFields = fields.filter(f => f.primary);
+		if (primaryFields.length !== 1) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: 'Schema must have exactly one primary key field',
+				path: [],
+			});
+		}
+
+		// Validate field-specific constraints
+		fields.forEach((field, index) => {
+			const validation = field.validation;
+			if (!validation) return;
+
+			// String length constraints
+			if (validation.minLength !== undefined && validation.maxLength !== undefined) {
+				if (validation.minLength > validation.maxLength) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
-						message: 'minLength must be less than or equal to maxLength',
+						message: 'minLength must be ≤ maxLength',
+						path: [index, 'validation'],
+					});
+				}
+			}
+			if (validation.pattern) {
+				try {
+					new RegExp(validation.pattern);
+				} catch {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `${field.name} pattern is invalid`,
+						path: [index, 'pattern'],
+					});
+				}
+			}
+
+			// Number/date min/max constraints
+			if (validation.min !== undefined && validation.max !== undefined) {
+				if (
+					field.type === 'number' &&
+					typeof validation.min === 'number' &&
+					typeof validation.max === 'number'
+				) {
+					if (validation.min > validation.max) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'min must be ≤ max',
+							path: [index, 'validation'],
+						});
+					}
+				} else if (
+					field.type === 'date' &&
+					typeof validation.min === 'string' &&
+					typeof validation.max === 'string'
+				) {
+					if (!isValidDate(validation.min)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'min must be a valid date string',
+							path: [index, 'validation', 'min'],
+						});
+					} else if (!isValidDate(validation.max)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'max must be a valid date string',
+							path: [index, 'validation', 'max'],
+						});
+					} else if (new Date(validation.min) > new Date(validation.max)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: 'min date must be ≤ max date',
+							path: [index, 'validation'],
+						});
+					}
+				}
+			}
+
+			// Array items constraints
+			if (validation.minItems !== undefined && validation.maxItems !== undefined) {
+				if (validation.minItems > validation.maxItems) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'minItems must be ≤ maxItems',
 						path: [index, 'validation'],
 					});
 				}
 			}
 		});
-
-		// Validate that min <= max for numbers and dates
-		fields.forEach((field, index) => {
-			const val = field.validation;
-			if (val?.min !== undefined && val?.max !== undefined) {
-				if (field.type === 'number') {
-					if (typeof val.min === 'number' && typeof val.max === 'number' && val.min > val.max) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'min must be less than or equal to max',
-							path: [index, 'validation'],
-						});
-					}
-				}
-				if (field.type === 'date') {
-					const minDate = typeof val.min === 'string' ? new Date(val.min) : undefined;
-					const maxDate = typeof val.max === 'string' ? new Date(val.max) : undefined;
-					console.log(val.min, isValidDate(val.min));
-					if (minDate && !isValidDate(val.min)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'min date must be a valid date string',
-							path: [index, 'min'],
-						});
-					} else if (maxDate && !isValidDate(val.max)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'max date must be a valid date string',
-							path: [index, 'min'],
-						});
-					} else if (minDate && maxDate && minDate > maxDate) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'min date must be less than or equal to max date',
-							path: [index, 'validation'],
-						});
-					}
-				}
-			}
-		});
 	}) satisfies z.ZodType<SchemaDefinition>;
 
-// Validate schema definition using Zod
+// Enhanced schema validation with better error handling
 export function validateSchemaDefinition(fields: unknown): SchemaDefinition | { error: string } {
+	const result = SchemaDefinitionSchema.safeParse(fields);
+
+	if (!result.success) {
+		// Return the first error for simplicity, but could return all errors
+		const firstError = result.error.errors[0];
+		return { error: `Invalid schema: ${firstError.message}` };
+	}
+
+	return result.data;
+}
+
+// Type-safe field schema creation with better error handling
+function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
+	let schema: z.ZodTypeAny;
+
 	try {
-		return SchemaDefinitionSchema.parse(fields);
-	} catch (error) {
-		if (error instanceof z.ZodError) {
-			return { error: `Invalid: ${error.errors[0].message}` };
+		switch (field.type) {
+			case 'string': {
+				let stringSchema = z.string();
+
+				if (field.validation) {
+					const { minLength, maxLength, pattern } = field.validation;
+
+					if (minLength !== undefined) {
+						stringSchema = stringSchema.min(
+							minLength,
+							`${field.name} must be at least ${minLength} characters`
+						);
+					}
+					if (maxLength !== undefined) {
+						stringSchema = stringSchema.max(
+							maxLength,
+							`${field.name} must be at most ${maxLength} characters`
+						);
+					}
+					if (pattern) {
+						stringSchema = stringSchema.regex(
+							new RegExp(pattern),
+							`${field.name} pattern is invalid`
+						);
+					}
+				}
+				schema = stringSchema;
+				break;
+			}
+
+			case 'number': {
+				let numberSchema = z.number();
+
+				if (field.validation) {
+					const { min, max } = field.validation;
+
+					if (min !== undefined && typeof min === 'number') {
+						numberSchema = numberSchema.min(min, `${field.name} must be at least ${min}`);
+					}
+					if (max !== undefined && typeof max === 'number') {
+						numberSchema = numberSchema.max(max, `${field.name} must be at most ${max}`);
+					}
+				}
+				schema = numberSchema;
+				break;
+			}
+
+			case 'boolean':
+				schema = z.boolean();
+				break;
+
+			case 'array': {
+				let itemSchema: z.ZodTypeAny = z.unknown();
+
+				if (field.items) {
+					itemSchema = createFieldZodSchema({
+						name: `${field.name}_item`,
+						type: field.items.type,
+						primary: false,
+						nullable: false,
+					} as FieldDefinition);
+
+					if (field.items.enum) {
+						itemSchema = itemSchema.refine(val => field.items!.enum!.includes(val), {
+							message: `Value must be one of: ${field.items.enum.join(', ')}`,
+						});
+					}
+				}
+
+				let arraySchema = z.array(itemSchema);
+
+				if (field.validation) {
+					const { minItems, maxItems } = field.validation;
+
+					if (minItems !== undefined) {
+						arraySchema = arraySchema.min(
+							minItems,
+							`${field.name} must have at least ${minItems} items`
+						);
+					}
+					if (maxItems !== undefined) {
+						arraySchema = arraySchema.max(
+							maxItems,
+							`${field.name} must have at most ${maxItems} items`
+						);
+					}
+				}
+				schema = arraySchema;
+				break;
+			}
+
+			case 'object':
+				schema =
+					field.fields && field.fields.length > 0
+						? createDynamicZodSchema(field.fields)
+						: z.record(z.unknown()); // Use record for generic object validation
+				break;
+
+			case 'date': {
+				const { min, max } = field.validation ?? {};
+
+				const dateSchema = z
+					.string()
+					.refine(isValidDate, {
+						message: `${field.name} must be a valid date string`,
+					})
+					.refine(
+						val => min === undefined || typeof min !== 'string' || new Date(val) >= new Date(min),
+						{
+							message:
+								min !== undefined && typeof min === 'string'
+									? `${field.name} must be on or after ${min}`
+									: undefined,
+						}
+					)
+					.refine(
+						val => max === undefined || typeof max !== 'string' || new Date(val) <= new Date(max),
+						{
+							message:
+								max !== undefined && typeof max === 'string'
+									? `${field.name} must be on or before ${max}`
+									: undefined,
+						}
+					);
+
+				schema = dateSchema.transform(val => new Date(val).toISOString().slice(0, 10));
+				break;
+			}
+
+			case 'email':
+				schema = z.string().email(`${field.name} must be a valid email`);
+				break;
+
+			case 'url':
+				schema = z.string().url(`${field.name} must be a valid URL`);
+				break;
+
+			case 'uuid':
+				schema = z.string().uuid(`${field.name} must be a valid UUID`);
+				break;
+
+			default:
+				// TypeScript exhaustiveness check
+				throw new Error(`Unsupported field type: ${field.type}`);
 		}
-		console.log(error);
-		return { error: (error as Error).message };
+
+		// Apply nullable and default value transformations
+		if (field.nullable) {
+			schema = schema.nullable();
+		}
+
+		if (field.default !== undefined) {
+			schema = schema.default(field.default);
+		}
+
+		// Make non-primary nullable fields optional
+		if (!field.primary && field.nullable) {
+			schema = schema.optional();
+		}
+
+		return schema;
+	} catch (error) {
+		throw new Error(
+			`Failed to create schema for field '${field.name}': ${error instanceof Error ? error.message : String(error)}`
+		);
 	}
 }
 
-// Create dynamic Zod schema from field definitions
+// Optimized dynamic schema creation with strict validation (no extra fields allowed)
 function createDynamicZodSchema(
 	fields: SchemaDefinition
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
 	const schemaObject: Record<string, z.ZodTypeAny> = {};
 
 	for (const field of fields) {
-		const fieldSchema = createFieldZodSchema(field);
-		schemaObject[field.name] = fieldSchema;
+		schemaObject[field.name] = createFieldZodSchema(field);
 	}
 
-	return z.object(schemaObject);
+	// Use .strict() to prevent extra fields - this will throw an error if any unexpected fields are present
+	return z.object(schemaObject).strict();
 }
 
-// Create Zod schema for individual field
-function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
-	let schema: z.ZodTypeAny;
-
-	// Base type schema
-	switch (field.type) {
-		case 'string': {
-			let stringSchema: z.ZodString = z.string();
-
-			// Apply string validations
-			if (field.validation) {
-				const val = field.validation;
-
-				if (val.minLength !== undefined) {
-					stringSchema = stringSchema.min(
-						val.minLength,
-						`${field.name} must be at least ${val.minLength} characters`
-					);
-				}
-
-				if (val.maxLength !== undefined) {
-					stringSchema = stringSchema.max(
-						val.maxLength,
-						`${field.name} must be at most ${val.maxLength} characters`
-					);
-				}
-
-				if (val.pattern) {
-					try {
-						const regex = new RegExp(val.pattern);
-						stringSchema = stringSchema.regex(regex, `${field.name} format is invalid`);
-					} catch {
-						throw new Error(`Invalid regex pattern for field ${field.name}: ${val.pattern}`);
-					}
-				}
-			}
-			schema = stringSchema;
-			break;
-		}
-
-		case 'number': {
-			let numberSchema: z.ZodNumber = z.number();
-
-			// Apply number validations
-			if (field.validation) {
-				const val = field.validation;
-
-				if (val.min !== undefined && typeof val.min === 'number') {
-					numberSchema = numberSchema.min(val.min, `${field.name} must be at least ${val.min}`);
-				}
-
-				if (val.max !== undefined && typeof val.max === 'number') {
-					numberSchema = numberSchema.max(val.max, `${field.name} must be at most ${val.max}`);
-				}
-			}
-			schema = numberSchema;
-			break;
-		}
-
-		case 'boolean':
-			schema = z.boolean();
-			break;
-
-		case 'array': {
-			let itemSchema: z.ZodTypeAny = z.any();
-			if ('items' in field && field.items) {
-				// Recursively build the schema for the array items
-				itemSchema = createFieldZodSchema({
-					...field.items,
-					// If you want to support enum validation for arrays of primitives:
-					validation: undefined, // Let enum be handled below
-				} as FieldDefinition);
-
-				// If enum is present, restrict allowed enum
-				if (field.items.enum) {
-					itemSchema = itemSchema.refine(val => field.items!.enum!.includes(val), {
-						message: `Value must be one of: ${field.items.enum.join(', ')}`,
-					});
-				}
-			}
-
-			let arraySchema: z.ZodArray<z.ZodTypeAny> = z.array(itemSchema);
-
-			// Apply array validations
-			if (field.validation) {
-				const val = field.validation;
-
-				if (val.minItems !== undefined) {
-					arraySchema = arraySchema.min(
-						val.minItems,
-						`${field.name} must have at least ${val.minItems} items`
-					);
-				}
-
-				if (val.maxItems !== undefined) {
-					arraySchema = arraySchema.max(
-						val.maxItems,
-						`${field.name} must have at most ${val.maxItems} items`
-					);
-				}
-			}
-			schema = arraySchema;
-			break;
-		}
-
-		case 'object':
-			if ('fields' in field && Array.isArray(field.fields)) {
-				schema = createDynamicZodSchema(field.fields);
-			} else {
-				schema = z.object({}).passthrough(); // fallback: allow any object
-			}
-			break;
-
-		case 'date': {
-			let minDate: Date | undefined;
-			let maxDate: Date | undefined;
-
-			if (field.validation) {
-				const val = field.validation;
-
-				if (val.min !== undefined) {
-					if (typeof val.min === 'string') {
-						minDate = new Date(val.min);
-						if (!isValidDate(val.min)) {
-							throw new Error(`Invalid min date string for field ${field.name}: ${val.min}`);
-						}
-					} else if (typeof val.min === 'number') {
-						minDate = new Date(val.min);
-					}
-				}
-				if (val.max !== undefined) {
-					if (typeof val.max === 'string') {
-						maxDate = new Date(val.max);
-						if (!isValidDate(val.max)) {
-							throw new Error(`Invalid max date string for field ${field.name}: ${val.max}`);
-						}
-					} else if (typeof val.max === 'number') {
-						maxDate = new Date(val.max);
-					}
-				}
-			}
-
-			const dateSchema = z
-				.string()
-				.superRefine((val, ctx) => {
-					if (!isValidDate(val)) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: `${field.name} must be a valid date string`,
-						});
-					} else if (minDate && new Date(val) < minDate) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: `${field.name} must be on or after ${minDate.toISOString().slice(0, 10)}`,
-						});
-					} else if (maxDate && new Date(val) > maxDate) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: `${field.name} must be on or before ${maxDate.toISOString().slice(0, 10)}`,
-						});
-					}
-				})
-				.transform(val => new Date(val).toISOString().slice(0, 10));
-
-			schema = dateSchema;
-			break;
-		}
-
-		case 'email':
-			schema = z.string().email();
-			break;
-
-		case 'url':
-			schema = z.string().url();
-			break;
-
-		case 'uuid':
-			schema = z.string().uuid();
-			break;
-
-		default:
-			// This should never happen due to Zod validation, but TypeScript doesn't know that
-			throw new Error(`Unsupported field type: ${(field as FieldDefinition).type}`);
-	}
-
-	// Handle nullable fields
-	if (field.nullable) {
-		schema = schema.nullable();
-	}
-
-	// Handle default values
-	if (field.default !== undefined) {
-		schema = schema.default(field.default);
-	}
-
-	// Handle optional fields (if not primary and nullable)
-	if (!field.primary && field.nullable) {
-		schema = schema.optional();
-	}
-
-	return schema;
-}
-
-// Validate data against schema using cached Zod schema
+// Enhanced data validation with better error mapping
 export function validateData<T = Record<string, unknown>>(
 	data: unknown,
 	schemaFields: SchemaDefinition
 ): ValidationResult<T> {
 	try {
 		const zodSchema = createDynamicZodSchema(schemaFields);
-		const validatedData = zodSchema.parse(data) as T;
+		const result = zodSchema.safeParse(data);
 
-		return {
-			isValid: true,
-			data: validatedData,
-			errors: [],
-		};
-	} catch (error) {
-		if (error instanceof z.ZodError) {
-			const errors: ValidationError[] = error.errors.map(err => ({
-				field: err.path.join('.'),
+		if (!result.success) {
+			const errors: ValidationError[] = result.error.errors.map(err => ({
+				field: err.path.join('.') || 'root',
 				message: err.message,
 				code: err.code,
 			}));
@@ -574,24 +535,34 @@ export function validateData<T = Record<string, unknown>>(
 		}
 
 		return {
+			isValid: true,
+			data: result.data as T,
+			errors: [],
+		};
+	} catch (error) {
+		return {
 			isValid: false,
 			data: null,
 			errors: [
 				{
-					field: 'unknown',
-					message: error instanceof Error ? error.message : 'Unknown error occurred',
-					code: 'unknown',
+					field: 'schema',
+					message: error instanceof Error ? error.message : 'Unknown schema error',
+					code: 'schema_error',
 				},
 			],
 		};
 	}
 }
 
+// Enhanced schema base validation
 export const SchemaZod = z.object({
 	name: z
 		.string()
 		.min(1, 'Name is required')
-		.max(25, 'Name cannot be more than 25 characters')
-		.regex(/^[A-Z][A-Z0-9 ]*$/i, 'Name must be a valid e.g Project, Project 1'),
+		.max(25, 'Name cannot exceed 25 characters')
+		.regex(
+			/^[A-Z][A-Z0-9 ]*$/i,
+			'Name must start with a letter and contain only letters, numbers, and spaces'
+		),
 	fakeData: z.boolean(),
 }) satisfies z.ZodType<Pick<SchemaBase, 'name' | 'fakeData'>>;

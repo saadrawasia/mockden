@@ -7,11 +7,12 @@
 	// Auto fix
 	"editor.codeActionsOnSave": {
 		"source.fixAll.biome": "explicit",
-		"source.organizeImports": "always"
+		"source.organizeImports.biome": "always"
 	},
 
 	"files.associations": {
-		"*.css": "tailwindcss"
+		"*.css": "tailwindcss",
+		"*.test.ts": "typescript"
 	},
 
 	// Optional: only enable format on save for specific languages
