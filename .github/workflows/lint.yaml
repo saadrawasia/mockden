@@ -15,5 +15,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
-      - run: npm i
+      - run: npm i --legacy-peer-deps
       - run: npm run biome
