@@ -163,7 +163,7 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
 									</div>
 								</div>
 
-								<div className="flex flex-col gap-2">
+								{/* <div className="flex flex-col gap-2">
 									<TypographyP className="font-semibold">Body Object Example:</TypographyP>
 									<div
 										className="group flex w-fit cursor-pointer gap-2"
@@ -191,7 +191,7 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
 											size={20}
 										/>
 									</div>
-								</div>
+								</div> */}
 
 								<div className="flex flex-col gap-2">
 									<TypographyP className="font-semibold">Custom Headers:</TypographyP>

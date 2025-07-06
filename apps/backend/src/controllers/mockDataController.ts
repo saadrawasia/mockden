@@ -39,7 +39,7 @@ export async function createMockDataRequest(req: RequestWithProject, res: Respon
 	if (!schema || schema.id === undefined || !project || project.id === undefined)
 		return handleMissingSchema(res);
 
-	const { data } = req.body;
+	const data = req.body;
 	if (!data) return handleMissingData(res);
 
 	try {
@@ -57,7 +57,7 @@ export async function updateMockDataRequest(req: RequestWithProject, res: Respon
 		return handleMissingSchema(res);
 
 	const { primaryKeyValue } = req.params;
-	const { data } = req.body;
+	const data = req.body;
 	if (!data) return handleMissingData(res);
 
 	try {

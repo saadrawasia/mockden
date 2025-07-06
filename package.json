@@ -65,7 +65,7 @@
 		"@testing-library/react": "16.1.0",
 		"@types/body-parser": "^1.19.5",
 		"@types/cors": "^2.8.18",
-		"@types/jest": "^29.5.12",
+		"@types/jest": "^29.5.14",
 		"@types/node": "^20.0.0",
 		"@types/react": "19.0.0",
 		"@types/react-dom": "19.0.0",
