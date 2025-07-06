@@ -4,7 +4,7 @@
 		"tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
-		"types": ["node"],
+		"types": ["jest", "node"],
 		"outDir": "dist"
 	},
 	"references": [
