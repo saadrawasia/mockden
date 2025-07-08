@@ -214,9 +214,10 @@ export const SchemaDefinitionSchema = z
 
 		if (duplicates.size > 0) {
 			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
+				code: z.ZodIssueCode.invalid_arguments,
 				message: `Duplicate field names: ${Array.from(duplicates).join(', ')}`,
 				path: [],
+				argumentsError: new z.ZodError([]),
 			});
 		}
 
@@ -224,9 +225,10 @@ export const SchemaDefinitionSchema = z
 		const primaryFields = fields.filter(f => f.primary);
 		if (primaryFields.length !== 1) {
 			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
+				code: z.ZodIssueCode.invalid_arguments,
 				message: 'Schema must have exactly one primary key field',
 				path: [],
+				argumentsError: new z.ZodError([]),
 			});
 		}
 
@@ -239,9 +241,12 @@ export const SchemaDefinitionSchema = z
 			if (validation.minLength !== undefined && validation.maxLength !== undefined) {
 				if (validation.minLength > validation.maxLength) {
 					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
+						code: z.ZodIssueCode.too_big,
 						message: 'minLength must be ≤ maxLength',
 						path: [index, 'validation'],
+						type: 'string',
+						maximum: validation.maxLength,
+						inclusive: true,
 					});
 				}
 			}
@@ -250,9 +255,10 @@ export const SchemaDefinitionSchema = z
 					new RegExp(validation.pattern);
 				} catch {
 					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
+						code: z.ZodIssueCode.invalid_arguments,
 						message: `${field.name} pattern is invalid`,
 						path: [index, 'pattern'],
+						argumentsError: new z.ZodError([]),
 					});
 				}
 			}
@@ -266,7 +272,10 @@ export const SchemaDefinitionSchema = z
 				) {
 					if (validation.min > validation.max) {
 						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
+							code: z.ZodIssueCode.too_big,
+							type: 'number',
+							maximum: validation.max,
+							inclusive: true,
 							message: 'min must be ≤ max',
 							path: [index, 'validation'],
 						});
@@ -278,21 +287,22 @@ export const SchemaDefinitionSchema = z
 				) {
 					if (!isValidDate(validation.min)) {
 						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
+							code: z.ZodIssueCode.invalid_date,
 							message: 'min must be a valid date string',
 							path: [index, 'validation', 'min'],
 						});
 					} else if (!isValidDate(validation.max)) {
 						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
+							code: z.ZodIssueCode.invalid_date,
 							message: 'max must be a valid date string',
 							path: [index, 'validation', 'max'],
 						});
 					} else if (new Date(validation.min) > new Date(validation.max)) {
 						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
+							code: z.ZodIssueCode.invalid_arguments,
 							message: 'min date must be ≤ max date',
 							path: [index, 'validation'],
+							argumentsError: new z.ZodError([]),
 						});
 					}
 				}
@@ -302,9 +312,12 @@ export const SchemaDefinitionSchema = z
 			if (validation.minItems !== undefined && validation.maxItems !== undefined) {
 				if (validation.minItems > validation.maxItems) {
 					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
+						code: z.ZodIssueCode.too_big,
 						message: 'minItems must be ≤ maxItems',
 						path: [index, 'validation'],
+						type: 'number',
+						maximum: validation.maxItems,
+						inclusive: true,
 					});
 				}
 			}
@@ -430,29 +443,46 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 			case 'date': {
 				const { min, max } = field.validation ?? {};
 
-				const dateSchema = z
-					.string()
-					.refine(isValidDate, {
-						message: `${field.name} must be a valid date string`,
-					})
-					.refine(
-						val => min === undefined || typeof min !== 'string' || new Date(val) >= new Date(min),
-						{
-							message:
-								min !== undefined && typeof min === 'string'
-									? `${field.name} must be on or after ${min}`
-									: undefined,
-						}
-					)
-					.refine(
-						val => max === undefined || typeof max !== 'string' || new Date(val) <= new Date(max),
-						{
-							message:
-								max !== undefined && typeof max === 'string'
-									? `${field.name} must be on or before ${max}`
-									: undefined,
-						}
-					);
+				const dateSchema = z.string().superRefine((val, ctx) => {
+					// Check valid date string
+					if (!isValidDate(val)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.invalid_date,
+							message: `${field.name} must be a valid date string`,
+							path: [],
+							fatal: true, // abort further checks if invalid date
+						});
+						return;
+					}
+
+					// Check min
+					if (min !== undefined && typeof min === 'string' && new Date(val) < new Date(min)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_small,
+							message: `${field.name} must be on or after ${min}`,
+							path: [],
+							fatal: true, // abort further checks if min fails
+							minimum: 0,
+							inclusive: true,
+							type: 'string',
+						});
+						return;
+					}
+
+					// Check max
+					if (max !== undefined && typeof max === 'string' && new Date(val) > new Date(max)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_big,
+							message: `${field.name} must be on or before ${max}`,
+							path: [],
+							fatal: true,
+							maximum: 0,
+							inclusive: true,
+							type: 'string',
+						});
+						return;
+					}
+				});
 
 				schema = dateSchema.transform(val => new Date(val).toISOString().slice(0, 10));
 				break;

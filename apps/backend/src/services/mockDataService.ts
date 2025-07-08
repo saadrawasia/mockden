@@ -8,6 +8,7 @@ import { validateData } from '@shared/validators/schemaValidator';
 import { eq } from 'drizzle-orm';
 import RandExp from 'randexp';
 
+import { InternalServerError, NotFoundError, ValidationError } from '../utils/errors';
 import { getSchemaById } from './schemaService';
 
 /**
@@ -45,17 +46,37 @@ function generatePrimaryKeyValue(
  * Gets mock data for a schema.
  */
 export async function getMockData<T = Record<string, unknown>[]>(
-	schemaId: number
-): Promise<{ status: number; json: T }> {
+	schemaId: number,
+	options?: { sort?: string; order?: 'asc' | 'desc' }
+): Promise<T> {
 	try {
 		const mockData = await db.query.mockData.findFirst({
 			where: fields => eq(fields.schemaId, schemaId),
 		});
-		const data = mockData ? (mockData.data as T) : ([] as T);
-		return { status: 200, json: data };
+
+		let data: Record<string, unknown>[] = mockData
+			? (mockData.data as Record<string, unknown>[])
+			: [];
+
+		// Sorting
+		if (options?.sort) {
+			data = data.sort((a, b) => {
+				const aValue = a[options.sort!];
+				const bValue = b[options.sort!];
+				if (aValue === undefined || aValue === null) return 1;
+				if (bValue === undefined || bValue === null) return -1;
+				if (aValue === bValue) return 0;
+				if (options.order === 'desc') {
+					return aValue < bValue ? 1 : -1;
+				}
+				return aValue > bValue ? 1 : -1;
+			});
+		}
+
+		return data as T;
 	} catch (err) {
 		console.error('DB error:', err);
-		return { status: 500, json: [] as T }; // Internal server error for DB issues
+		throw new InternalServerError('Failed to fetch mock data');
 	}
 }
 
@@ -68,22 +89,20 @@ export async function createMockData(
 	planTier: User['planTier'],
 	projectId: number
 ) {
-	// Fetch schema and validate existence
 	const schemaObj = await getSchemaById(schemaId, projectId);
 	if (schemaObj.status > 200 || 'message' in schemaObj.json) {
-		return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
+		throw new NotFoundError(`Schema '${schemaId}' not found`);
 	}
+
 	const schema = schemaObj.json;
 	const schemaDefinition = schema.fields as SchemaDefinition;
+	const existingData = await getMockData<Record<string, unknown>[]>(schema.id);
 
-	// Get existing data for auto-increment and sorting
-	const existingData = (await getMockData<Record<string, unknown>[]>(schema.id)).json;
-
-	// Generate primary key if not provided
 	const primaryField = schemaDefinition.find(field => field.primary);
 	if (primaryField && !data[primaryField.name]) {
 		data[primaryField.name] = generatePrimaryKeyValue(schemaDefinition, existingData);
 	}
+
 	if (primaryField) {
 		const dataIndex = existingData.findIndex(
 			(eData: Record<string, unknown>) => data[primaryField.name] === eData[primaryField.name]
@@ -93,17 +112,16 @@ export async function createMockData(
 		}
 	}
 
-	// Validate data against schema
 	const validation = validateData(data, schemaDefinition);
 	if (!validation.isValid) {
-		const errorMessages = validation.errors.map(err => `${err.field}: ${err.message}`);
-		return {
-			status: 422,
-			json: { message: `Validation failed: ${errorMessages.join(', ')}` },
-		};
+		const errorMessages = validation.errors.map(err => ({
+			field: err.field,
+			message: err.message,
+			code: err.code,
+		}));
+		throw new ValidationError(JSON.stringify(errorMessages));
 	}
 
-	// Prepare new data array (keep max 10)
 	const newData = [...existingData, validation.data].slice(-limitations[planTier].records);
 
 	if (existingData.length > 0) {
@@ -115,7 +133,7 @@ export async function createMockData(
 		await db.insert(mockDataSchema).values({ schemaId: schema.id, data: newData });
 	}
 
-	return { status: 201, json: validation.data };
+	return validation.data;
 }
 
 /**
@@ -131,7 +149,7 @@ export async function deleteMockData(schemaId: number, primaryKeyValue: string, 
 	const schema = schemaObj.json;
 	const schemaDefinition = schema.fields as SchemaDefinition;
 	const primaryField = schemaDefinition.find(field => field.primary)!.name;
-	const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
+	const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)) || [];
 
 	const dataIndex = mockData.findIndex(
 		(data: Record<string, unknown>) => data[primaryField] === primaryKeyValue
@@ -173,7 +191,7 @@ export async function updateMockData(
 	const schema = schemaObj.json;
 	const schemaDefinition = schema.fields as SchemaDefinition;
 	const primaryField = schemaDefinition.find(field => field.primary)!.name;
-	const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
+	const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)) || [];
 
 	const dataIndex = mockData.findIndex(
 		(item: Record<string, unknown>) => item[primaryField] === primaryKeyValue
@@ -365,13 +383,13 @@ export async function getMockDataByPrimaryKey(
 ) {
 	const schemaObj = await getSchemaById(schemaId, projectId);
 	if (schemaObj.status > 200 || 'message' in schemaObj.json) {
-		return { status: 404, json: { message: `Schema '${schemaId}' not found` } };
+		throw new NotFoundError(`Schema '${schemaId}' not found`);
 	}
 
 	const schema = schemaObj.json;
 	const schemaDefinition = schema.fields as SchemaDefinition;
 	const primaryField = schemaDefinition.find(field => field.primary)!.name;
-	const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)).json || [];
+	const mockData = (await getMockData<Record<string, unknown>[]>(schema.id)) || [];
 
 	const data = mockData.find((item: Record<string, unknown>) =>
 		typeof item[primaryField] === 'number'
@@ -380,13 +398,8 @@ export async function getMockDataByPrimaryKey(
 	);
 
 	if (!data) {
-		return {
-			status: 404,
-			json: {
-				message: `No data found for ${primaryField} with value of ${primaryKeyValue}`,
-			},
-		};
+		throw new NotFoundError(`No data found for ${primaryField} with value of ${primaryKeyValue}`);
 	}
 
-	return { status: 200, json: data };
+	return data;
 }
