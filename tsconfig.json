@@ -10,6 +10,9 @@
 		},
 		{
 			"path": "./apps/shared"
+		},
+		{
+			"path": "./apps/mockden-docs"
 		}
 	],
 	"files": []

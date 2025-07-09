@@ -214,9 +214,10 @@ export const SchemaDefinitionSchema = z
 
 		if (duplicates.size > 0) {
 			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
+				code: z.ZodIssueCode.invalid_arguments,
 				message: `Duplicate field names: ${Array.from(duplicates).join(', ')}`,
 				path: [],
+				argumentsError: new z.ZodError([]),
 			});
 		}
 
@@ -224,9 +225,10 @@ export const SchemaDefinitionSchema = z
 		const primaryFields = fields.filter(f => f.primary);
 		if (primaryFields.length !== 1) {
 			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
+				code: z.ZodIssueCode.invalid_arguments,
 				message: 'Schema must have exactly one primary key field',
 				path: [],
+				argumentsError: new z.ZodError([]),
 			});
 		}
 
@@ -239,9 +241,12 @@ export const SchemaDefinitionSchema = z
 			if (validation.minLength !== undefined && validation.maxLength !== undefined) {
 				if (validation.minLength > validation.maxLength) {
 					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
+						code: z.ZodIssueCode.too_big,
 						message: 'minLength must be ≤ maxLength',
 						path: [index, 'validation'],
+						type: 'string',
+						maximum: validation.maxLength,
+						inclusive: true,
 					});
 				}
 			}
@@ -250,9 +255,10 @@ export const SchemaDefinitionSchema = z
 					new RegExp(validation.pattern);
 				} catch {
 					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
+						code: z.ZodIssueCode.invalid_arguments,
 						message: `${field.name} pattern is invalid`,
 						path: [index, 'pattern'],
+						argumentsError: new z.ZodError([]),
 					});
 				}
 			}
@@ -266,7 +272,10 @@ export const SchemaDefinitionSchema = z
 				) {
 					if (validation.min > validation.max) {
 						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
+							code: z.ZodIssueCode.too_big,
+							type: 'number',
+							maximum: validation.max,
+							inclusive: true,
 							message: 'min must be ≤ max',
 							path: [index, 'validation'],
 						});
@@ -278,21 +287,22 @@ export const SchemaDefinitionSchema = z
 				) {
 					if (!isValidDate(validation.min)) {
 						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
+							code: z.ZodIssueCode.invalid_date,
 							message: 'min must be a valid date string',
 							path: [index, 'validation', 'min'],
 						});
 					} else if (!isValidDate(validation.max)) {
 						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
+							code: z.ZodIssueCode.invalid_date,
 							message: 'max must be a valid date string',
 							path: [index, 'validation', 'max'],
 						});
 					} else if (new Date(validation.min) > new Date(validation.max)) {
 						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
+							code: z.ZodIssueCode.invalid_arguments,
 							message: 'min date must be ≤ max date',
 							path: [index, 'validation'],
+							argumentsError: new z.ZodError([]),
 						});
 					}
 				}
@@ -302,9 +312,12 @@ export const SchemaDefinitionSchema = z
 			if (validation.minItems !== undefined && validation.maxItems !== undefined) {
 				if (validation.minItems > validation.maxItems) {
 					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
+						code: z.ZodIssueCode.too_big,
 						message: 'minItems must be ≤ maxItems',
 						path: [index, 'validation'],
+						type: 'number',
+						maximum: validation.maxItems,
+						inclusive: true,
 					});
 				}
 			}
@@ -331,48 +344,74 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 	try {
 		switch (field.type) {
 			case 'string': {
-				let stringSchema = z.string();
-
-				if (field.validation) {
-					const { minLength, maxLength, pattern } = field.validation;
-
-					if (minLength !== undefined) {
-						stringSchema = stringSchema.min(
-							minLength,
-							`${field.name} must be at least ${minLength} characters`
-						);
+				const { minLength, maxLength, pattern } = field.validation ?? {};
+				schema = z.string().superRefine((val, ctx) => {
+					if (minLength !== undefined && val.length < minLength) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_small,
+							message: `${field.name} must be at least ${minLength} characters`,
+							minimum: minLength,
+							inclusive: true,
+							type: 'string',
+							path: [],
+							fatal: true,
+						});
+						return;
 					}
-					if (maxLength !== undefined) {
-						stringSchema = stringSchema.max(
-							maxLength,
-							`${field.name} must be at most ${maxLength} characters`
-						);
+					if (maxLength !== undefined && val.length > maxLength) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_big,
+							message: `${field.name} must be at most ${maxLength} characters`,
+							maximum: maxLength,
+							inclusive: true,
+							type: 'string',
+							path: [],
+							fatal: true,
+						});
+						return;
 					}
-					if (pattern) {
-						stringSchema = stringSchema.regex(
-							new RegExp(pattern),
-							`${field.name} pattern is invalid`
-						);
+					if (pattern && !new RegExp(pattern).test(val)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.invalid_string,
+							message: `${field.name} pattern is invalid`,
+							validation: 'regex',
+							path: [],
+							fatal: true,
+						});
+						return;
 					}
-				}
-				schema = stringSchema;
+				});
 				break;
 			}
 
 			case 'number': {
-				let numberSchema = z.number();
-
-				if (field.validation) {
-					const { min, max } = field.validation;
-
-					if (min !== undefined && typeof min === 'number') {
-						numberSchema = numberSchema.min(min, `${field.name} must be at least ${min}`);
+				const { min, max } = field.validation ?? {};
+				schema = z.number().superRefine((val, ctx) => {
+					if (min !== undefined && typeof min === 'number' && val < min) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_small,
+							message: `${field.name} must be at least ${min}`,
+							minimum: min,
+							inclusive: true,
+							type: 'number',
+							path: [],
+							fatal: true,
+						});
+						return;
 					}
-					if (max !== undefined && typeof max === 'number') {
-						numberSchema = numberSchema.max(max, `${field.name} must be at most ${max}`);
+					if (max !== undefined && typeof max === 'number' && val > max) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_big,
+							message: `${field.name} must be at most ${max}`,
+							maximum: max,
+							inclusive: true,
+							type: 'number',
+							path: [],
+							fatal: true,
+						});
+						return;
 					}
-				}
-				schema = numberSchema;
+				});
 				break;
 			}
 
@@ -381,6 +420,7 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 				break;
 
 			case 'array': {
+				const { minItems, maxItems } = field.validation ?? {};
 				let itemSchema: z.ZodTypeAny = z.unknown();
 
 				if (field.items) {
@@ -398,25 +438,32 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 					}
 				}
 
-				let arraySchema = z.array(itemSchema);
-
-				if (field.validation) {
-					const { minItems, maxItems } = field.validation;
-
-					if (minItems !== undefined) {
-						arraySchema = arraySchema.min(
-							minItems,
-							`${field.name} must have at least ${minItems} items`
-						);
+				schema = z.array(itemSchema).superRefine((arr, ctx) => {
+					if (minItems !== undefined && arr.length < minItems) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_small,
+							message: `${field.name} must have at least ${minItems} items`,
+							minimum: minItems,
+							inclusive: true,
+							type: 'array',
+							path: [],
+							fatal: true,
+						});
+						return;
 					}
-					if (maxItems !== undefined) {
-						arraySchema = arraySchema.max(
-							maxItems,
-							`${field.name} must have at most ${maxItems} items`
-						);
+					if (maxItems !== undefined && arr.length > maxItems) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_big,
+							message: `${field.name} must have at most ${maxItems} items`,
+							maximum: maxItems,
+							inclusive: true,
+							type: 'array',
+							path: [],
+							fatal: true,
+						});
+						return;
 					}
-				}
-				schema = arraySchema;
+				});
 				break;
 			}
 
@@ -430,44 +477,95 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 			case 'date': {
 				const { min, max } = field.validation ?? {};
 
-				const dateSchema = z
-					.string()
-					.refine(isValidDate, {
-						message: `${field.name} must be a valid date string`,
-					})
-					.refine(
-						val => min === undefined || typeof min !== 'string' || new Date(val) >= new Date(min),
-						{
-							message:
-								min !== undefined && typeof min === 'string'
-									? `${field.name} must be on or after ${min}`
-									: undefined,
-						}
-					)
-					.refine(
-						val => max === undefined || typeof max !== 'string' || new Date(val) <= new Date(max),
-						{
-							message:
-								max !== undefined && typeof max === 'string'
-									? `${field.name} must be on or before ${max}`
-									: undefined,
-						}
-					);
+				const dateSchema = z.string().superRefine((val, ctx) => {
+					// Check valid date string
+					if (!isValidDate(val)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.invalid_date,
+							message: `${field.name} must be a valid date string`,
+							path: [],
+							fatal: true, // abort further checks if invalid date
+						});
+						return;
+					}
+
+					// Check min
+					if (min !== undefined && typeof min === 'string' && new Date(val) < new Date(min)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_small,
+							message: `${field.name} must be on or after ${min}`,
+							path: [],
+							fatal: true, // abort further checks if min fails
+							minimum: 0,
+							inclusive: true,
+							type: 'string',
+						});
+						return;
+					}
+
+					// Check max
+					if (max !== undefined && typeof max === 'string' && new Date(val) > new Date(max)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.too_big,
+							message: `${field.name} must be on or before ${max}`,
+							path: [],
+							fatal: true,
+							maximum: 0,
+							inclusive: true,
+							type: 'string',
+						});
+						return;
+					}
+				});
 
 				schema = dateSchema.transform(val => new Date(val).toISOString().slice(0, 10));
 				break;
 			}
 
 			case 'email':
-				schema = z.string().email(`${field.name} must be a valid email`);
+				schema = z.string().superRefine((val, ctx) => {
+					if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.invalid_string,
+							message: `${field.name} must be a valid email`,
+							validation: 'email',
+							path: [],
+							fatal: true,
+						});
+					}
+				});
 				break;
 
 			case 'url':
-				schema = z.string().url(`${field.name} must be a valid URL`);
+				schema = z.string().superRefine((val, ctx) => {
+					try {
+						new URL(val);
+					} catch {
+						ctx.addIssue({
+							code: z.ZodIssueCode.invalid_string,
+							message: `${field.name} must be a valid URL`,
+							validation: 'url',
+							path: [],
+							fatal: true,
+						});
+					}
+				});
 				break;
 
 			case 'uuid':
-				schema = z.string().uuid(`${field.name} must be a valid UUID`);
+				schema = z.string().superRefine((val, ctx) => {
+					const uuidRegex =
+						/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+					if (!uuidRegex.test(val)) {
+						ctx.addIssue({
+							code: z.ZodIssueCode.invalid_string,
+							message: `${field.name} must be a valid UUID`,
+							validation: 'uuid',
+							path: [],
+							fatal: true,
+						});
+					}
+				});
 				break;
 
 			default:

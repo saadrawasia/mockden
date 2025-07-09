@@ -109,7 +109,6 @@ For demonstration purposes, we'll use this example schema throughout the documen
       }
     }
   ]
-}
 ```
 
 ## API Endpoints

@@ -16,7 +16,9 @@ export async function rateLimiter(req: RequestWithProject, res: Response, next: 
 	const project = await getProjectWithUserAndSchemas({ projectHeader, projectSlug, schemaSlug });
 
 	if (!project || project.schemas.length === 0) {
-		return res.status(404).json({ message: 'Project or schema not found.' });
+		return res
+			.status(404)
+			.json({ success: false, message: 'Project or schema not found.', code: 'NOT_FOUND' });
 	}
 
 	const planTier =
@@ -48,9 +50,10 @@ export async function rateLimiter(req: RequestWithProject, res: Response, next: 
 	}
 
 	if (record.count >= limitations[planTier].dailyApiLimit) {
-		return res
-			.status(429)
-			.json({ message: `API limit (${limitations[planTier].dailyApiLimit}/day) exceeded.` });
+		return res.status(429).json({
+			success: false,
+			message: `API limit (${limitations[planTier].dailyApiLimit}/day) exceeded.`,
+		});
 	}
 
 	await db
