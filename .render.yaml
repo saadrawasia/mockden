@@ -1,0 +1,7 @@
+services:
+  - type: static
+    name: frontend
+    rootDir: apps/frontend
+    buildCommand: npm install --legacy-peer-deps && npx nx build frontend
+    staticPublishPath: build
+    nodeVersion: 20
