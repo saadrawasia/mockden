@@ -105,7 +105,7 @@ export default function ListSchemasSection({ project }: ListSchemasSectionProps)
 									<DropdownMenuTrigger asChild className="cursor-pointer">
 										<EllipsisVertical />
 									</DropdownMenuTrigger>
-									<DropdownMenuContent align="start">
+									<DropdownMenuContent align="end">
 										<DropdownMenuItem
 											className="cursor-pointer"
 											onSelect={() => handleEdit(schema)}

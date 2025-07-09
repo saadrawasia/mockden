@@ -90,7 +90,7 @@ export default function ListProjectsSection() {
 								<DropdownMenuTrigger asChild className="cursor-pointer">
 									<EllipsisVertical />
 								</DropdownMenuTrigger>
-								<DropdownMenuContent align="start">
+								<DropdownMenuContent align="end">
 									<DropdownMenuItem className="cursor-pointer" onSelect={() => handleEdit(project)}>
 										<Button
 											type="button"

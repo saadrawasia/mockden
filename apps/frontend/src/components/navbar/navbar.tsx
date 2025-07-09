@@ -1,15 +1,15 @@
 import { SignOutButton, SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { Link, useNavigate } from '@tanstack/react-router';
 
-import Logo from '../logo/logo';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Button } from '../ui/button';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from '../ui/dropdownMenu';
+} from '@frontend/components/ui/dropdownMenu';
+import Logo from '../logo/logo';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 
 export default function Navbar() {
@@ -18,76 +18,75 @@ export default function Navbar() {
 	const userInitials = `${user?.firstName?.[0].toUpperCase() ?? ''}${user?.lastName?.[0].toUpperCase() ?? ''}`;
 
 	return (
-		<nav className="flex justify-between">
+		<div className="flex justify-between">
 			<Logo withText={true} />
-
-			<div className="flex">
-				<SignedOut>
-					<div className="flex items-center gap-2">
-						<Button
-							onClick={() =>
-								navigate({
-									to: '/sign-in',
-								})
-							}
-						>
-							Sign In
-						</Button>
-						<Button
-							variant="outline"
-							onClick={() =>
-								navigate({
-									to: '/sign-up',
-								})
-							}
-						>
-							Sign Up
-						</Button>
-					</div>
-				</SignedOut>
-				<SignedIn>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild className="cursor-pointer">
+			<SignedOut>
+				<div className="flex items-center gap-2">
+					<Button
+						onClick={() =>
+							navigate({
+								to: '/sign-in',
+							})
+						}
+					>
+						Sign In
+					</Button>
+					<Button
+						variant="outline"
+						onClick={() =>
+							navigate({
+								to: '/sign-up',
+							})
+						}
+					>
+						Sign Up
+					</Button>
+				</div>
+			</SignedOut>
+			<SignedIn>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild className="cursor-pointer">
+						<div className="h-8 w-8">
 							<Avatar>
 								<AvatarImage src="" />
 								<AvatarFallback>{userInitials}</AvatarFallback>
 							</Avatar>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="flex flex-col gap-2">
-							<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
-								<Link to="/projects">
-									<Button type="button" variant="link" className="hover:no-underline">
-										Projects
-									</Button>
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
-								<Link to="/user-settings">
-									<Button type="button" variant="link" className="hover:no-underline">
-										User Settings
-									</Button>
-								</Link>
-							</DropdownMenuItem>
-							<Separator />
-							<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
-								<Button asChild variant="link" className="hover:no-underline">
-									<a href="https://docs.mockden.com" target="_blank" rel="noopener noreferrer">
-										View Docs
-									</a>
+						</div>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
+							<Link to="/projects">
+								<Button type="button" variant="link" className="hover:no-underline">
+									Projects
 								</Button>
-							</DropdownMenuItem>
-							<Separator />
-							<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
-								<Link to="/">
-									<Button type="button" variant="link" className="hover:no-underline" asChild>
-										<SignOutButton />
-									</Button>
-								</Link>
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</SignedIn>
-			</div>
-		</nav>
+							</Link>
+						</DropdownMenuItem>
+						<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
+							<Link to="/user-settings">
+								<Button type="button" variant="link" className="hover:no-underline">
+									User Settings
+								</Button>
+							</Link>
+						</DropdownMenuItem>
+						<Separator />
+						<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
+							<Button asChild variant="link" className="hover:no-underline">
+								<a href="https://docs.mockden.com" target="_blank" rel="noopener noreferrer">
+									View Docs
+								</a>
+							</Button>
+						</DropdownMenuItem>
+						<Separator />
+						<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
+							<Link to="/">
+								<Button type="button" variant="link" className="hover:no-underline" asChild>
+									<SignOutButton />
+								</Button>
+							</Link>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</SignedIn>
+		</div>
 	);
 }
