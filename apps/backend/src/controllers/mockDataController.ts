@@ -71,8 +71,13 @@ export async function createMockDataRequest(req: RequestWithProject, res: Respon
 				.status(err.status)
 				.json({ success: false, errors: JSON.parse(err.message), message: 'Validation Failed' });
 		}
-		if (err instanceof NotFoundError || err instanceof InternalServerError) {
+		if (err instanceof InternalServerError) {
 			return res.status(err.status).json({ success: false, message: err.message });
+		}
+		if (err instanceof NotFoundError) {
+			return res
+				.status(err.status)
+				.json({ success: false, message: err.message, code: 'NOT_FOUND' });
 		}
 		return handleServerError(res, err);
 	}
@@ -89,9 +94,24 @@ export async function updateMockDataRequest(req: RequestWithProject, res: Respon
 
 	try {
 		const mockData = await updateMockData(schema.id, primaryKeyValue, data, project.id);
-		return res.status(mockData.status).json(mockData.json);
-	} catch (e) {
-		return handleServerError(res, e);
+		return res
+			.status(200)
+			.json({ success: true, data: mockData, message: 'Record updated successfully"' });
+	} catch (err) {
+		if (err instanceof ValidationError) {
+			return res
+				.status(err.status)
+				.json({ success: false, errors: JSON.parse(err.message), message: 'Validation Failed' });
+		}
+		if (err instanceof InternalServerError) {
+			return res.status(err.status).json({ success: false, message: err.message });
+		}
+		if (err instanceof NotFoundError) {
+			return res
+				.status(err.status)
+				.json({ success: false, message: err.message, code: 'NOT_FOUND' });
+		}
+		return handleServerError(res, err);
 	}
 }
 
@@ -103,9 +123,14 @@ export async function deleteMockDataRequest(req: RequestWithProject, res: Respon
 	const { primaryKeyValue } = req.params;
 	try {
 		const mockData = await deleteMockData(schema.id, primaryKeyValue, project.id);
-		return res.status(mockData.status).json(mockData.json);
-	} catch (e) {
-		return handleServerError(res, e);
+		return res.status(200).json({ success: true, ...mockData });
+	} catch (err) {
+		if (err instanceof NotFoundError) {
+			return res
+				.status(err.status)
+				.json({ success: false, message: err.message, code: 'NOT_FOUND' });
+		}
+		return handleServerError(res, err);
 	}
 }
 

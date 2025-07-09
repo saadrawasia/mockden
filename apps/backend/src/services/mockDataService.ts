@@ -8,6 +8,7 @@ import { validateData } from '@shared/validators/schemaValidator';
 import { eq } from 'drizzle-orm';
 import RandExp from 'randexp';
 
+import { v4 as uuidv4 } from 'uuid';
 import { InternalServerError, NotFoundError, ValidationError } from '../utils/errors';
 import { getSchemaById } from './schemaService';
 
@@ -39,7 +40,11 @@ function generatePrimaryKeyValue(
 		return maxId + 1;
 	}
 
-	throw new Error('Primary key must be string or number type');
+	if (primaryField.type === 'uuid') {
+		return uuidv4();
+	}
+
+	throw new Error('Primary key must be string, number or uuid type');
 }
 
 /**
@@ -155,12 +160,7 @@ export async function deleteMockData(schemaId: number, primaryKeyValue: string, 
 		(data: Record<string, unknown>) => data[primaryField] === primaryKeyValue
 	);
 	if (dataIndex < 0) {
-		return {
-			status: 404,
-			json: {
-				message: `No data found for ${primaryField} with value of ${primaryKeyValue}`,
-			},
-		};
+		throw new NotFoundError(`No data found for ${primaryField} with value of ${primaryKeyValue}`);
 	}
 
 	mockData.splice(dataIndex, 1);
@@ -170,7 +170,10 @@ export async function deleteMockData(schemaId: number, primaryKeyValue: string, 
 		.set({ data: mockData })
 		.where(eq(mockDataSchema.schemaId, schema.id));
 
-	return { status: 200, json: { message: 'Data deleted' } };
+	return {
+		message: 'Record deleted successfully',
+		deletedId: primaryKeyValue,
+	};
 }
 
 /**
@@ -197,12 +200,7 @@ export async function updateMockData(
 		(item: Record<string, unknown>) => item[primaryField] === primaryKeyValue
 	);
 	if (dataIndex < 0) {
-		return {
-			status: 404,
-			json: {
-				message: `No data found for ${primaryField} with value of ${primaryKeyValue}`,
-			},
-		};
+		throw new NotFoundError(`No data found for ${primaryField} with value of ${primaryKeyValue}`);
 	}
 
 	const updatedData = { ...mockData[dataIndex], ...data };
@@ -210,11 +208,12 @@ export async function updateMockData(
 	// Validate data against schema
 	const validation = validateData(updatedData, schemaDefinition);
 	if (!validation.isValid) {
-		const errorMessages = validation.errors.map(err => `${err.field}: ${err.message}`);
-		return {
-			status: 422,
-			json: { message: `Validation failed: ${errorMessages.join(', ')}` },
-		};
+		const errorMessages = validation.errors.map(err => ({
+			field: err.field,
+			message: err.message,
+			code: err.code,
+		}));
+		throw new ValidationError(JSON.stringify(errorMessages));
 	}
 
 	mockData[dataIndex] = validation.data!;
@@ -224,7 +223,7 @@ export async function updateMockData(
 		.set({ data: mockData })
 		.where(eq(mockDataSchema.schemaId, schema.id));
 
-	return { status: 200, json: validation.data };
+	return validation.data;
 }
 
 export async function deleteMockDataEntry(schemaId: number) {
