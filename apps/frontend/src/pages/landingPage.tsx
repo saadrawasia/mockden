@@ -19,7 +19,7 @@ import {
 import { Separator } from '@frontend/components/ui/separator';
 import PageShell from '@frontend/pageShell';
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, Braces, CircleCheck, Cog, Database } from 'lucide-react';
+import { ArrowRight, Braces, CircleCheck, Cog, Database, ExternalLink } from 'lucide-react';
 
 export default function LandingPage() {
 	return (
@@ -41,12 +41,20 @@ export default function LandingPage() {
 					Create, validate, and manage mock data with schemas. Built for developers who demand
 					reliability and speed.
 				</TypographyLargeP>
-				<Link to="/sign-up">
-					<Button>
-						Start Building
-						<ArrowRight />
+				<div className="flex gap-4">
+					<Link to="/sign-up">
+						<Button>
+							Start Building
+							<ArrowRight />
+						</Button>
+					</Link>
+					<Button asChild variant="outline">
+						<a href="https://docs.mockden.com" target="_blank" rel="noopener noreferrer">
+							View Docs
+							<ExternalLink />
+						</a>
 					</Button>
-				</Link>
+				</div>
 			</section>
 
 			<Separator />
