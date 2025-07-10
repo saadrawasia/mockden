@@ -19,7 +19,7 @@ app.use('/projects/:projectId/schemas', requireAuth(), schemaRouter);
 
 app.use('/mockdata/:projectSlug/:schemaSlug', rateLimiter, mockDataRouter);
 
-app.get('/testing/uptimerobot', (_req, res) => {
+app.head('/testing/uptimerobot', (_req, res) => {
 	res.status(200).send('Working');
 });
 
