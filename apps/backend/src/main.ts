@@ -10,6 +10,14 @@ import clerkWebhook from './routes/webhooks/clerk';
 
 const port = process.env.PORT || 4000;
 
+app.get('/testing/uptimerobot', (_req, res) => {
+	res.status(200).type('html').send('Working');
+});
+
+app.head('/testing/uptimerobot', (_req, res) => {
+	res.status(200).type('html').end();
+});
+
 app.use(clerkMiddleware({ publishableKey: process.env.VITE_CLERK_PUBLISHABLE_KEY }));
 
 app.use('/webhooks', clerkWebhook);
@@ -18,9 +26,5 @@ app.use('/projects', requireAuth(), projectRouter);
 app.use('/projects/:projectId/schemas', requireAuth(), schemaRouter);
 
 app.use('/mockdata/:projectSlug/:schemaSlug', rateLimiter, mockDataRouter);
-
-app.head('/testing/uptimerobot', (_req, res) => {
-	res.status(200).send('Working');
-});
 
 app.listen(port, () => console.log(`Backend running at http://localhost:${port}`));
