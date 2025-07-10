@@ -19,6 +19,8 @@ app.use('/projects/:projectId/schemas', requireAuth(), schemaRouter);
 
 app.use('/mockdata/:projectSlug/:schemaSlug', rateLimiter, mockDataRouter);
 
-app.listen(port, () => console.log(`Backend running at http://localhost:${port}`));
+app.get('/testing/uptimerobot', (_req, res) => {
+	res.status(200).send('Working');
+});
 
-// app.listen(3000, () => console.log('Listening on port 3000'));
+app.listen(port, () => console.log(`Backend running at http://localhost:${port}`));
