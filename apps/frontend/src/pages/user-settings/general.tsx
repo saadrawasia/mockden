@@ -1,9 +1,9 @@
 import ChangePasswordSection from '@frontend/sections/userSettings/changePassword';
-import DeleteAccountSection from '@frontend/sections/userSettings/deleteAccount';
 import UserDetailsSection from '@frontend/sections/userSettings/userDetails';
 
-import { TypographyH2 } from '../components/typography/typography';
-import PageShell from '../pageShell';
+import { TypographyH2 } from '../../components/typography/typography';
+import { UserSettingsSidebar } from '../../components/userSettingsSidebar/userSettingsSidebar';
+import PageShell from '../../pageShell';
 
 export default function UserSettingsPage() {
 	return (
@@ -16,11 +16,12 @@ export default function UserSettingsPage() {
 			/>
 
 			<TypographyH2>User Settings</TypographyH2>
-
-			<div className="mx-auto flex w-full max-w-xl flex-col gap-4">
-				<UserDetailsSection />
-				<ChangePasswordSection />
-				<DeleteAccountSection />
+			<div className="mx-auto flex w-full flex-col gap-16 lg:flex-row">
+				<UserSettingsSidebar activeSection="General" />
+				<div className="mx-auto flex w-full max-w-xl flex-col gap-4">
+					<UserDetailsSection />
+					<ChangePasswordSection />
+				</div>
 			</div>
 		</PageShell>
 	);

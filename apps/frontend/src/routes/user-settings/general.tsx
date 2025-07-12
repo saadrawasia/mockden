@@ -1,9 +1,8 @@
-/* eslint-disable unicorn/filename-case */
 import { RequireAuth } from '@frontend/components/requireAuth/requireAuth';
-import UserSettingsPage from '@frontend/pages/userSettings';
 import { createFileRoute } from '@tanstack/react-router';
+import UserSettingsPage from '../../pages/user-settings/general';
 
-export const Route = createFileRoute('/user-settings')({
+export const Route = createFileRoute('/user-settings/general')({
 	component: () => (
 		<RequireAuth>
 			<UserSettingsPage />

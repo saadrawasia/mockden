@@ -9,18 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UserSettingsRouteImport } from './routes/user-settings'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
+import { Route as UserSettingsSubscriptionsRouteImport } from './routes/user-settings/subscriptions'
+import { Route as UserSettingsGeneralRouteImport } from './routes/user-settings/general'
+import { Route as UserSettingsDeleteAccountRouteImport } from './routes/user-settings/delete-account'
 import { Route as ProjectsProjectSlugSchemasRouteImport } from './routes/projects/$projectSlug/schemas'
 
-const UserSettingsRoute = UserSettingsRouteImport.update({
-  id: '/user-settings',
-  path: '/user-settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -41,6 +38,23 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UserSettingsSubscriptionsRoute =
+  UserSettingsSubscriptionsRouteImport.update({
+    id: '/user-settings/subscriptions',
+    path: '/user-settings/subscriptions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const UserSettingsGeneralRoute = UserSettingsGeneralRouteImport.update({
+  id: '/user-settings/general',
+  path: '/user-settings/general',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UserSettingsDeleteAccountRoute =
+  UserSettingsDeleteAccountRouteImport.update({
+    id: '/user-settings/delete-account',
+    path: '/user-settings/delete-account',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProjectsProjectSlugSchemasRoute =
   ProjectsProjectSlugSchemasRouteImport.update({
     id: '/projects/$projectSlug/schemas',
@@ -52,7 +66,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/user-settings': typeof UserSettingsRoute
+  '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
+  '/user-settings/general': typeof UserSettingsGeneralRoute
+  '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
@@ -60,7 +76,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/user-settings': typeof UserSettingsRoute
+  '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
+  '/user-settings/general': typeof UserSettingsGeneralRoute
+  '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
@@ -69,7 +87,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
-  '/user-settings': typeof UserSettingsRoute
+  '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
+  '/user-settings/general': typeof UserSettingsGeneralRoute
+  '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
   '/projects/': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
@@ -79,7 +99,9 @@ export interface FileRouteTypes {
     | '/'
     | '/sign-in'
     | '/sign-up'
-    | '/user-settings'
+    | '/user-settings/delete-account'
+    | '/user-settings/general'
+    | '/user-settings/subscriptions'
     | '/projects'
     | '/projects/$projectSlug/schemas'
   fileRoutesByTo: FileRoutesByTo
@@ -87,7 +109,9 @@ export interface FileRouteTypes {
     | '/'
     | '/sign-in'
     | '/sign-up'
-    | '/user-settings'
+    | '/user-settings/delete-account'
+    | '/user-settings/general'
+    | '/user-settings/subscriptions'
     | '/projects'
     | '/projects/$projectSlug/schemas'
   id:
@@ -95,7 +119,9 @@ export interface FileRouteTypes {
     | '/'
     | '/sign-in'
     | '/sign-up'
-    | '/user-settings'
+    | '/user-settings/delete-account'
+    | '/user-settings/general'
+    | '/user-settings/subscriptions'
     | '/projects/'
     | '/projects/$projectSlug/schemas'
   fileRoutesById: FileRoutesById
@@ -104,20 +130,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
-  UserSettingsRoute: typeof UserSettingsRoute
+  UserSettingsDeleteAccountRoute: typeof UserSettingsDeleteAccountRoute
+  UserSettingsGeneralRoute: typeof UserSettingsGeneralRoute
+  UserSettingsSubscriptionsRoute: typeof UserSettingsSubscriptionsRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   ProjectsProjectSlugSchemasRoute: typeof ProjectsProjectSlugSchemasRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/user-settings': {
-      id: '/user-settings'
-      path: '/user-settings'
-      fullPath: '/user-settings'
-      preLoaderRoute: typeof UserSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -146,6 +167,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/user-settings/subscriptions': {
+      id: '/user-settings/subscriptions'
+      path: '/user-settings/subscriptions'
+      fullPath: '/user-settings/subscriptions'
+      preLoaderRoute: typeof UserSettingsSubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/user-settings/general': {
+      id: '/user-settings/general'
+      path: '/user-settings/general'
+      fullPath: '/user-settings/general'
+      preLoaderRoute: typeof UserSettingsGeneralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/user-settings/delete-account': {
+      id: '/user-settings/delete-account'
+      path: '/user-settings/delete-account'
+      fullPath: '/user-settings/delete-account'
+      preLoaderRoute: typeof UserSettingsDeleteAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/$projectSlug/schemas': {
       id: '/projects/$projectSlug/schemas'
       path: '/projects/$projectSlug/schemas'
@@ -160,7 +202,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
-  UserSettingsRoute: UserSettingsRoute,
+  UserSettingsDeleteAccountRoute: UserSettingsDeleteAccountRoute,
+  UserSettingsGeneralRoute: UserSettingsGeneralRoute,
+  UserSettingsSubscriptionsRoute: UserSettingsSubscriptionsRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   ProjectsProjectSlugSchemasRoute: ProjectsProjectSlugSchemasRoute,
 }

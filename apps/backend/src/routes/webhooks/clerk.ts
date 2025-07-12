@@ -3,7 +3,7 @@ import express from 'express';
 
 const router = express.Router();
 
-router.post('/clerk/user-created', express.json(), async (req, res) => {
+router.post('/user-created', express.json(), async (req, res) => {
 	try {
 		const event = req.body;
 

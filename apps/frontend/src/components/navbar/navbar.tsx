@@ -62,7 +62,7 @@ export default function Navbar() {
 							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuItem className="cursor-pointer hover:bg-transparent">
-							<Link to="/user-settings">
+							<Link to="/user-settings/general">
 								<Button type="button" variant="link" className="hover:no-underline">
 									User Settings
 								</Button>
