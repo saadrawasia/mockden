@@ -1,4 +1,4 @@
-import type { Message, User } from '@shared/lib/types';
+import type { Message } from '@shared/lib/types';
 
 import { useAuth } from '@clerk/clerk-react';
 import config from '@frontend/lib/config';
@@ -78,7 +78,7 @@ export function useDeleteUserMutation() {
 			const data = await res.json();
 
 			if (res.status === 400) {
-				const message = data?.message || 'Failed to delete User';
+				const message = data?.message || 'Failed to cancel Subscription';
 				toast.error('Something went wrong!', {
 					description: message,
 				});

@@ -113,6 +113,7 @@ export async function getPaddleSubscription(subId: string) {
 }
 
 export async function subscriptionUpdate(data: SubscriptionNotification) {
+	console.log('ipdate');
 	const existingSubscription = await db.query.subscriptions.findFirst({
 		where: fields => eq(fields.subscriptionId, data.id),
 		with: {
@@ -147,4 +148,17 @@ export async function subscriptionUpdate(data: SubscriptionNotification) {
 		.returning();
 
 	return subscription[0];
+}
+
+export async function cancelPaddleSubscription(subId: string) {
+	try {
+		console.log('yes');
+		// Pass the subscription id to get
+		await paddle.subscriptions.cancel(subId);
+		// Returns a subscription entity
+		return { message: 'Subscription Cancelled.' };
+	} catch (e) {
+		console.log(e);
+		throw new NotFoundError('Subscription not found');
+	}
 }

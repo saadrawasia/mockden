@@ -1,11 +1,20 @@
 import { type Paddle, initializePaddle } from '@paddle/paddle-js';
-import { CircleCheck } from 'lucide-react';
+import { Loader2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useSubscriptionsQuery } from '../../hooks/useSubscriptions';
+import { toast } from 'sonner';
+import { useCancelSubscriptionMutation, useSubscriptionsQuery } from '../../hooks/useSubscriptions';
 import { useUsersQuery } from '../../hooks/useUsers';
-import { TypographyH4, TypographyP } from '../typography/typography';
+import PricingCards from '../pricingCards/pricingCards';
+import {
+	AlertDialog,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '../ui/alertDialog';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
 export default function Subscription() {
 	const PADDLE_TOKEN = import.meta.env.VITE_PADDLE_CLIENT_SIDE_TOKEN;
@@ -15,6 +24,9 @@ export default function Subscription() {
 	const planTier = user.planTier;
 	const userSubscription = user.subscription;
 	const { data: subscription } = useSubscriptionsQuery(userSubscription.subscriptionId);
+	const cancelSubscriptionMutation = useCancelSubscriptionMutation();
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [openAlert, setOpenAlert] = useState(false);
 
 	const openPaddle = () => {
 		if (!paddle || planTier === 'pro') return;
@@ -48,77 +60,34 @@ export default function Subscription() {
 			return;
 		}
 
-		if (!subscription.managementUrls) {
+		setOpenAlert(prev => !prev);
+	};
+
+	const cancelSubscription = async () => {
+		setIsDeleting(true);
+		const mutate = await cancelSubscriptionMutation.mutateAsync({
+			subId: subscription.id,
+		});
+		if (mutate.message !== 'Subscription Cancelled') {
+			toast.error('Something went wrong!', {
+				description: 'Could not cancel subscription.',
+			});
 			return;
 		}
-
-		window.open(subscription.managementUrls.cancel);
+		setOpenAlert(false);
+		setIsDeleting(false);
 	};
 
 	return (
 		<>
 			<div className="flex flex-col gap-6 md:flex-row">
-				<Card>
-					<CardHeader>
-						<CardTitle>Starter</CardTitle>
-						<CardDescription>Free. Forever</CardDescription>
-					</CardHeader>
-					<CardContent className=" flex flex-col gap-2">
-						<TypographyH4>
-							$0
-							<span className="font-medium text-sm">/month</span>
-						</TypographyH4>
-						<TypographyP className="inline-flex gap-2">
-							<CircleCheck className="text-green-500" />1 Project
-						</TypographyP>
-						<TypographyP className="inline-flex gap-2">
-							<CircleCheck className="text-green-500" />
-							Upto 3 Schemas/Project
-						</TypographyP>
-						<TypographyP className="inline-flex gap-2">
-							<CircleCheck className="text-green-500" />
-							Upto 100 records per Schema
-						</TypographyP>
-						<TypographyP className="inline-flex gap-2">
-							<CircleCheck className="text-green-500" />
-							100 API calls per day
-						</TypographyP>
-					</CardContent>
-					<CardFooter>
+				<PricingCards
+					freePlanBtn={
 						<Button className="w-full" disabled={planTier === 'free'} onClick={handleFreePlan}>
 							{planTier === 'free' ? 'Current Plan' : 'Move to Free'}
 						</Button>
-					</CardFooter>
-				</Card>
-
-				<Card className="bg-neutral-900 text-white">
-					<CardHeader>
-						<CardTitle>Pro</CardTitle>
-						<CardDescription>If you want more.</CardDescription>
-					</CardHeader>
-					<CardContent className=" flex flex-col gap-2">
-						<TypographyH4>
-							$15
-							<span className="font-medium text-sm">/month</span>
-						</TypographyH4>
-						<TypographyP className="inline-flex gap-2">
-							<CircleCheck className="text-green-500" />
-							Upto 5 Projects
-						</TypographyP>
-						<TypographyP className="inline-flex gap-2">
-							<CircleCheck className="text-green-500" />
-							Upto 15 Schemas/Project
-						</TypographyP>
-						<TypographyP className="inline-flex gap-2">
-							<CircleCheck className="text-green-500" />
-							Upto 1000 records per Schema
-						</TypographyP>
-						<TypographyP className="inline-flex gap-2">
-							<CircleCheck className="text-green-500" />
-							1000 API calls per day
-						</TypographyP>
-					</CardContent>
-					<CardFooter>
+					}
+					proPlanBtn={
 						<Button
 							variant="secondary"
 							className="w-full"
@@ -127,9 +96,27 @@ export default function Subscription() {
 						>
 							{planTier === 'free' ? 'Upgrade to Pro' : 'Current Plan'}
 						</Button>
-					</CardFooter>
-				</Card>
+					}
+				/>
 			</div>
+			<AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>We're sorry to see you go!</AlertDialogTitle>
+						<AlertDialogDescription>
+							Your Pro plan has been cancelled. You'll continue to have access to Pro features until
+							the end of your billing cycle. If you change your mind, you can upgrade again anytime.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Close</AlertDialogCancel>
+						<Button variant="destructive" onClick={cancelSubscription} disabled={isDeleting}>
+							{isDeleting && <Loader2Icon className="animate-spin" />}
+							Cancel Subscription
+						</Button>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</>
 	);
 }
