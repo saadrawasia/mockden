@@ -4,6 +4,7 @@ import { rateLimiter } from '../middleware/rateLimiter';
 import mockDataRouter from './mockData';
 import projectRouter from './project';
 import schemaRouter from './schema';
+import subscriptionRouter from './subscription';
 import userRouter from './user';
 import clerkWebhook from './webhooks/clerk';
 import paddleWebhook from './webhooks/paddle';
@@ -30,5 +31,6 @@ authRouter.use(
 authRouter.use('/users', userRouter);
 authRouter.use('/projects', projectRouter);
 authRouter.use('/projects/:projectId/schemas', schemaRouter);
+authRouter.use('/subscriptions', subscriptionRouter);
 
 export { router, authRouter };

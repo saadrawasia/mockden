@@ -1,6 +1,7 @@
 import { type Paddle, initializePaddle } from '@paddle/paddle-js';
 import { CircleCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useSubscriptionsQuery } from '../../hooks/useSubscriptions';
 import { useUsersQuery } from '../../hooks/useUsers';
 import { TypographyH4, TypographyP } from '../typography/typography';
 import { Button } from '../ui/button';
@@ -12,6 +13,8 @@ export default function Subscription() {
 	const [paddle, setPaddle] = useState<Paddle>();
 	const { data: user } = useUsersQuery();
 	const planTier = user.planTier;
+	const userSubscription = user.subscription;
+	const { data: subscription } = useSubscriptionsQuery(userSubscription.subscriptionId);
 
 	const openPaddle = () => {
 		if (!paddle || planTier === 'pro') return;
@@ -39,6 +42,18 @@ export default function Subscription() {
 			setPaddle(paddle);
 		});
 	}, []);
+
+	const handleFreePlan = () => {
+		if (user.planTier === 'free') {
+			return;
+		}
+
+		if (!subscription.managementUrls) {
+			return;
+		}
+
+		window.open(subscription.managementUrls.cancel);
+	};
 
 	return (
 		<>
@@ -70,7 +85,7 @@ export default function Subscription() {
 						</TypographyP>
 					</CardContent>
 					<CardFooter>
-						<Button className="w-full" disabled={planTier === 'free'}>
+						<Button className="w-full" disabled={planTier === 'free'} onClick={handleFreePlan}>
 							{planTier === 'free' ? 'Current Plan' : 'Move to Free'}
 						</Button>
 					</CardFooter>

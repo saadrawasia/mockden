@@ -6,6 +6,7 @@ import type {
 import { eq } from 'drizzle-orm';
 import db from '../db/client';
 import { NotFoundError } from '../utils/errors';
+import { paddle } from '../utils/paddle';
 import { getUserByClerkId, updateUser } from './userService';
 
 type User = {
@@ -25,7 +26,7 @@ type User = {
 		productId: string;
 		status: string;
 		startDate: string;
-		nextBillDate: string;
+		nextBillDate: string | null;
 		createdAt: Date;
 		updatedAt: Date;
 	};
@@ -38,14 +39,18 @@ type Payload = {
 	productId: string;
 	status: string;
 	startDate: string;
-	nextBillDate: string;
+	nextBillDate: string | null;
 };
 
 async function upsertSubscription(user: User, payload: Payload) {
 	let subscription = null;
 
 	if (user.subscription) {
-		subscription = await db.update(subscriptions).set(payload).returning();
+		subscription = await db
+			.update(subscriptions)
+			.set(payload)
+			.where(eq(subscriptions.userId, user.id))
+			.returning();
 	} else {
 		subscription = await db.insert(subscriptions).values(payload).returning();
 	}
@@ -75,22 +80,71 @@ export async function subscriptionActivateOrCreate(
 		productId: data.items[0].product?.id || '',
 		status: data.status,
 		startDate: data.startedAt as string,
-		nextBillDate: data.nextBilledAt as string,
+		nextBillDate: data.nextBilledAt,
 	};
 	return await upsertSubscription(user, payload);
 }
 
 export async function subscriptionCancel(data: SubscriptionNotification) {
-	const clerkId =
-		data.customData && 'clerkId' in data.customData ? (data.customData.clerkId as string) : '';
-	if (!clerkId) {
-		throw new NotFoundError('clerkId not found.');
+	const existingSubscription = await db.query.subscriptions.findFirst({
+		where: fields => eq(fields.subscriptionId, data.id),
+		with: {
+			user: true,
+		},
+	});
+
+	if (!existingSubscription) {
+		throw new NotFoundError('Subscription not found');
 	}
-	const user = await getUserByClerkId(clerkId);
+
+	await db.delete(subscriptions).where(eq(subscriptions.subscriptionId, data.id));
+	await updateUser({ ...existingSubscription.user, planTier: 'free' });
+}
+
+export async function getPaddleSubscription(subId: string) {
+	try {
+		// Pass the subscription id to get
+		const subscription = await paddle.subscriptions.get(subId);
+		// Returns a subscription entity
+		return subscription;
+	} catch (e) {
+		throw new NotFoundError('Subscription not found');
+	}
+}
+
+export async function subscriptionUpdate(data: SubscriptionNotification) {
+	const existingSubscription = await db.query.subscriptions.findFirst({
+		where: fields => eq(fields.subscriptionId, data.id),
+		with: {
+			user: true,
+		},
+	});
+
+	const user = existingSubscription?.user;
+
+	if (!existingSubscription) {
+		throw new NotFoundError('Subscription not found');
+	}
+
 	if (!user) {
 		throw new NotFoundError('User not found');
 	}
 
-	await db.delete(subscriptions).where(eq(subscriptions.subscriptionId, data.id));
-	await updateUser({ ...user, planTier: 'free' });
+	const payload = {
+		userId: user.id,
+		subscriptionId: data.id,
+		paddleCustomerId: data.customerId,
+		productId: data.items[0].product?.id || '',
+		status: data.status,
+		startDate: data.startedAt as string,
+		nextBillDate: data.nextBilledAt,
+	};
+
+	const subscription = await db
+		.update(subscriptions)
+		.set(payload)
+		.where(eq(subscriptions.userId, user.id))
+		.returning();
+
+	return subscription[0];
 }

@@ -1,14 +1,13 @@
-import { Environment, EventName, Paddle } from '@paddle/paddle-node-sdk';
+import { EventName } from '@paddle/paddle-node-sdk';
 import express from 'express';
 import {
 	subscriptionActivateOrCreate,
 	subscriptionCancel,
+	subscriptionUpdate,
 } from '../../services/subscriptionService';
+import { paddle } from '../../utils/paddle';
 
 const router = express.Router();
-const paddle = new Paddle(process.env.VITE_PADDLE_SECRET_TOKEN || '', {
-	environment: Environment.sandbox,
-});
 
 router.post('/', express.json(), async (req, res) => {
 	const signature = (req.headers['paddle-signature'] as string) || '';
@@ -27,7 +26,7 @@ router.post('/', express.json(), async (req, res) => {
 					await subscriptionActivateOrCreate(eventData.data);
 					break;
 				case EventName.SubscriptionUpdated:
-					console.log(`Subscription ${eventData.data.id} was updated`);
+					await subscriptionUpdate(eventData.data);
 					break;
 				case EventName.SubscriptionCreated:
 					await subscriptionActivateOrCreate(eventData.data);

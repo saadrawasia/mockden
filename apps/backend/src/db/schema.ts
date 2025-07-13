@@ -104,7 +104,7 @@ export const subscriptions = pgTable('subscriptions', {
 	productId: varchar('productId', { length: 255 }).notNull(),
 	status: varchar('status').notNull(),
 	startDate: date('startDate').notNull(),
-	nextBillDate: date('nextBillDate').notNull(),
+	nextBillDate: date('nextBillDate'),
 	createdAt,
 	updatedAt,
 });
@@ -130,5 +130,12 @@ export const schemaRelations = relations(schemas, ({ one }) => ({
 	project: one(projects, {
 		fields: [schemas.projectId],
 		references: [projects.id],
+	}),
+}));
+
+export const subscriptionRelations = relations(subscriptions, ({ one }) => ({
+	user: one(users, {
+		fields: [subscriptions.userId],
+		references: [users.id],
 	}),
 }));

@@ -93,7 +93,7 @@ export function useDeleteUserMutation() {
 export function useUsersQuery() {
 	const { getToken } = useAuth();
 
-	return useSuspenseQuery<User>({
+	return useSuspenseQuery({
 		queryKey: ['user'],
 		queryFn: async () => {
 			const token = await getToken();
@@ -105,7 +105,7 @@ export function useUsersQuery() {
 			});
 			const data = await res.json();
 
-			return data as User;
+			return data;
 		},
 	});
 }
