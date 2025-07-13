@@ -1,14 +1,20 @@
-import { EventName, Paddle } from '@paddle/paddle-node-sdk';
+import { Environment, EventName, Paddle } from '@paddle/paddle-node-sdk';
 import express from 'express';
+import {
+	subscriptionActivateOrCreate,
+	subscriptionCancel,
+} from '../../services/subscriptionService';
 
 const router = express.Router();
-const paddle = new Paddle(process.env.VITE_PADDLE_SECRET_TOKEN || '');
+const paddle = new Paddle(process.env.VITE_PADDLE_SECRET_TOKEN || '', {
+	environment: Environment.sandbox,
+});
 
 router.post('/', express.json(), async (req, res) => {
 	const signature = (req.headers['paddle-signature'] as string) || '';
 	// req.body should be of type `buffer`, convert to string before passing it to `unmarshal`.
 	// If express returned a JSON, remove any other middleware that might have processed raw request to object
-	const rawRequestBody = req.body.toString();
+	const rawRequestBody = JSON.stringify(req.body);
 	// Replace `WEBHOOK_SECRET_KEY` with the secret key in notifications from vendor dashboard
 	const secretKey = process.env.WEBHOOK_SECRET_KEY || '';
 
@@ -16,12 +22,20 @@ router.post('/', express.json(), async (req, res) => {
 		if (signature && rawRequestBody) {
 			// The `unmarshal` function will validate the integrity of the webhook and return an entity
 			const eventData = await paddle.webhooks.unmarshal(rawRequestBody, secretKey, signature);
-			console.log({ eventData });
 			switch (eventData.eventType) {
-				case EventName.ProductUpdated:
-					console.log(`Product ${eventData.data.id} was updated`);
+				case EventName.SubscriptionActivated:
+					await subscriptionActivateOrCreate(eventData.data);
 					break;
 				case EventName.SubscriptionUpdated:
+					console.log(`Subscription ${eventData.data.id} was updated`);
+					break;
+				case EventName.SubscriptionCreated:
+					await subscriptionActivateOrCreate(eventData.data);
+					break;
+				case EventName.SubscriptionCanceled:
+					await subscriptionCancel(eventData.data);
+					break;
+				case EventName.SubscriptionPastDue:
 					console.log(`Subscription ${eventData.data.id} was updated`);
 					break;
 				default:

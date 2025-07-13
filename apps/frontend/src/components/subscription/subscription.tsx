@@ -28,18 +28,13 @@ export default function Subscription() {
 			customer: {
 				email: user.email || '',
 			},
+			customData: { userEmail: user.email, clerkId: user.clerkUserId },
 		});
 	};
 	useEffect(() => {
 		initializePaddle({
 			environment: 'sandbox',
 			token: PADDLE_TOKEN,
-			eventCallback: data => {
-				console.log({ data });
-				if (data.name === 'checkout.completed') {
-					console.log(data);
-				}
-			},
 		}).then(paddle => {
 			setPaddle(paddle);
 		});
