@@ -141,7 +141,6 @@ export default function UserDetailsSection() {
 						selector={state => [state.canSubmit, state.isSubmitting]}
 						children={([canSubmit, isSubmitting]) => (
 							<>
-								{isSubmitting.toString()}
 								<Button type="submit" disabled={!canSubmit || isSubmitting} className="self-end">
 									{isSubmitting && <Loader2Icon className="animate-spin" />}
 									Save

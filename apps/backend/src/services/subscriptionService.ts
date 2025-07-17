@@ -82,7 +82,9 @@ export async function subscriptionActivateOrCreate(
 		startDate: data.startedAt as string,
 		nextBillDate: data.nextBilledAt,
 	};
-	return await upsertSubscription(user, payload);
+
+	const subscription = await upsertSubscription(user, payload);
+	return subscription;
 }
 
 export async function subscriptionCancel(data: SubscriptionNotification) {
@@ -93,12 +95,10 @@ export async function subscriptionCancel(data: SubscriptionNotification) {
 		},
 	});
 
-	if (!existingSubscription) {
-		throw new NotFoundError('Subscription not found');
-	}
-
 	await db.delete(subscriptions).where(eq(subscriptions.subscriptionId, data.id));
-	await updateUser({ ...existingSubscription.user, planTier: 'free' });
+	if (existingSubscription?.user) {
+		await updateUser({ ...existingSubscription.user, planTier: 'free' });
+	}
 }
 
 export async function getPaddleSubscription(subId: string) {
@@ -113,7 +113,6 @@ export async function getPaddleSubscription(subId: string) {
 }
 
 export async function subscriptionUpdate(data: SubscriptionNotification) {
-	console.log('ipdate');
 	const existingSubscription = await db.query.subscriptions.findFirst({
 		where: fields => eq(fields.subscriptionId, data.id),
 		with: {
@@ -129,6 +128,10 @@ export async function subscriptionUpdate(data: SubscriptionNotification) {
 
 	if (!user) {
 		throw new NotFoundError('User not found');
+	}
+
+	if (data.status === 'canceled') {
+		return subscriptionCancel(data);
 	}
 
 	const payload = {
@@ -150,11 +153,12 @@ export async function subscriptionUpdate(data: SubscriptionNotification) {
 	return subscription[0];
 }
 
-export async function cancelPaddleSubscription(subId: string) {
+export async function cancelPaddleSubscription(subId: string, immediately = false) {
 	try {
-		console.log('yes');
 		// Pass the subscription id to get
-		await paddle.subscriptions.cancel(subId);
+		await paddle.subscriptions.cancel(subId, {
+			effectiveFrom: immediately ? 'immediately' : 'next_billing_period',
+		});
 		// Returns a subscription entity
 		return { message: 'Subscription Cancelled.' };
 	} catch (e) {

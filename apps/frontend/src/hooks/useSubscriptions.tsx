@@ -7,12 +7,15 @@ import config from '../lib/config';
 
 const API_URL = `${config.BACKEND_URL}/subscriptions`;
 
-export function useSubscriptionsQuery(subId: string) {
+export function useSubscriptionsQuery(subId: string | null) {
 	const { getToken } = useAuth();
 
 	return useSuspenseQuery<Subscription>({
 		queryKey: ['paddle-subscription'],
 		queryFn: async () => {
+			if (!subId) {
+				return {} as Subscription;
+			}
 			const token = await getToken();
 			const res = await fetch(`${API_URL}/${subId}`, {
 				headers: {
@@ -41,7 +44,7 @@ export function useCancelSubscriptionMutation() {
 			const data = await res.json();
 
 			if (res.status === 400) {
-				const message = data?.message || 'Failed to delete User';
+				const message = data?.message || 'Failed to delete Subscription';
 				toast.error('Something went wrong!', {
 					description: message,
 				});
