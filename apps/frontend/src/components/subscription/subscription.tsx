@@ -1,14 +1,16 @@
-import type { User } from '@/apps/shared/src/lib/types';
 import { type Paddle, initializePaddle } from '@paddle/paddle-js';
 import type { Subscription as PaddleSubscription } from '@paddle/paddle-node-sdk';
+import { limitations } from '@shared/lib/config';
 import { useRouter } from '@tanstack/react-router';
 import { Loader2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useProjectsQuery } from '../../hooks/useProjects';
 import { useCancelSubscriptionMutation, useSubscriptionsQuery } from '../../hooks/useSubscriptions';
 import { useUsersQuery } from '../../hooks/useUsers';
 import config from '../../lib/config';
 import { queryClient } from '../../lib/queryClient';
+import { getPlanTier } from '../../lib/subscriptionHelpers';
 import PricingCards from '../pricingCards/pricingCards';
 import { TypographyCaption, TypographyH4, TypographyP } from '../typography/typography';
 import {
@@ -47,7 +49,8 @@ const FreeTierCard = ({ planTier }: { planTier: 'free' | 'pro' }) => {
 const ProTierCard = ({
 	planTier,
 	subscription,
-}: { planTier: 'free' | 'pro'; subscription: PaddleSubscription }) => {
+	handleFreePlan,
+}: { planTier: 'free' | 'pro'; subscription: PaddleSubscription; handleFreePlan: () => void }) => {
 	return (
 		<Card>
 			<CardHeader>
@@ -55,15 +58,18 @@ const ProTierCard = ({
 					Current Plan: <span className="capitalize">{planTier}</span>
 				</CardTitle>
 			</CardHeader>
-			<CardContent className=" flex flex-col gap-2">
+			<CardContent className=" flex flex-col items-start gap-2">
 				<TypographyH4>
 					$15
 					<span className="font-medium text-sm">/month</span>
 				</TypographyH4>
 				{subscription.nextBilledAt && (
-					<TypographyP className="text-muted-foreground">
-						Next Billed At: {new Date(subscription.nextBilledAt).toLocaleDateString()}
-					</TypographyP>
+					<>
+						<TypographyP className="text-muted-foreground">
+							Next Billed At: {new Date(subscription.nextBilledAt).toLocaleDateString()}
+						</TypographyP>
+						<Button onClick={handleFreePlan}>Cancel Subscription</Button>
+					</>
 				)}
 				{subscription.scheduledChange?.action === 'cancel' && (
 					<TypographyP className="text-muted-foreground">
@@ -77,16 +83,6 @@ const ProTierCard = ({
 	);
 };
 
-const getPlanTier = (user: User, subscription: PaddleSubscription) => {
-	if ('status' in subscription) {
-		if (subscription.status === 'active') {
-			return 'pro';
-		}
-		return 'free';
-	}
-	return user.planTier;
-};
-
 export default function Subscription() {
 	const { PADDLE_TOKEN, PADDLE_ENV, BASE_URL } = config;
 	const [paddle, setPaddle] = useState<Paddle>();
@@ -94,10 +90,11 @@ export default function Subscription() {
 
 	const userSubscription = user.subscription;
 	const { data: subscription } = useSubscriptionsQuery(userSubscription?.subscriptionId);
+	const { data: projects } = useProjectsQuery(true);
 	const cancelSubscriptionMutation = useCancelSubscriptionMutation();
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [openAlert, setOpenAlert] = useState(false);
-	const planTier = getPlanTier(user, subscription);
+	const planTier = getPlanTier({ user, subscription });
 	const router = useRouter();
 
 	const openPaddle = () => {
@@ -130,6 +127,30 @@ export default function Subscription() {
 
 	const handleFreePlan = () => {
 		if (planTier === 'free') {
+			return;
+		}
+
+		if (projects.length > limitations.free.projects) {
+			toast.warning('Cannot move to free plan', {
+				description: `Please make sure that your Projects are compatible with free plan. You should have maximum of ${limitations.free.projects} Project(s)`,
+				duration: 5000,
+				dismissible: true,
+			});
+
+			return;
+		}
+
+		if (
+			projects.length === 1 &&
+			projects[0].schemas &&
+			projects[0].schemas.length > limitations.free.schemas
+		) {
+			toast.warning('Cannot move to free plan', {
+				description: `Please make sure that your Schemas are compatible with free plan. You should have maximum of ${limitations.free.schemas} Schema(s)`,
+				duration: 5000,
+				dismissible: true,
+			});
+
 			return;
 		}
 
@@ -179,7 +200,11 @@ export default function Subscription() {
 				{planTier === 'free' ? (
 					<FreeTierCard planTier={planTier} />
 				) : (
-					<ProTierCard planTier={planTier} subscription={subscription!} />
+					<ProTierCard
+						planTier={planTier}
+						subscription={subscription!}
+						handleFreePlan={handleFreePlan}
+					/>
 				)}
 			</div>
 			<div className="flex flex-col gap-6 md:flex-row">

@@ -42,7 +42,8 @@ export async function editProjectRequest(req: Request, res: Response) {
 export async function getAllProjectsRequest(req: Request, res: Response) {
 	const user = await getAuthenticatedUser(req);
 	if (!user) return res.status(401).json({ message: 'Unauthorized Request' });
-	const projects = await getAllProjects(user.id);
+	const withSchemas = !!req.query.withSchemas;
+	const projects = await getAllProjects(user.id, withSchemas);
 	return res.status(projects.status).json(projects.json);
 }
 

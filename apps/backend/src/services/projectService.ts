@@ -53,9 +53,14 @@ export async function getProjectById(id: number, userId: number) {
 	}
 }
 
-export async function getAllProjects(userId: number) {
+export async function getAllProjects(userId: number, withSchemas: boolean) {
 	try {
-		const getProjects = await db.select().from(projects).where(eq(projects.userId, userId));
+		const getProjects = await db.query.projects.findMany({
+			where: fields => eq(fields.userId, userId),
+			with: {
+				schemas: withSchemas ? true : undefined,
+			},
+		});
 		return { status: 200, json: getProjects };
 	} catch (err) {
 		console.error('DB error:', err);

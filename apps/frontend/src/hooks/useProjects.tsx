@@ -8,14 +8,14 @@ import { toast } from 'sonner';
 const API_URL = `${config.BACKEND_URL}/projects`; // adjust based on your backend
 
 // Fetch projects
-export function useProjectsQuery() {
+export function useProjectsQuery(withSchemas = false) {
 	const { getToken } = useAuth();
 
 	return useSuspenseQuery<Project[]>({
 		queryKey: ['projects'],
 		queryFn: async () => {
 			const token = await getToken();
-			const res = await fetch(API_URL, {
+			const res = await fetch(`${API_URL}?withSchemas=${withSchemas}`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 					'Content-Type': 'application/json',

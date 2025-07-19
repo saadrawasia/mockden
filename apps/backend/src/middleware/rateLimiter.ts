@@ -26,7 +26,13 @@ export async function rateLimiter(req: RequestWithProject, res: Response, next: 
 			? project.user.planTier
 			: 'free';
 
-	req.project = project;
+	req.project = {
+		...project,
+		schemas: project.schemas.map(schema => ({
+			...schema,
+			fields: typeof schema.fields === 'string' ? schema.fields : JSON.stringify(schema.fields),
+		})),
+	};
 	req.user = {
 		...project.user,
 		planTier,

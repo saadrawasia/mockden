@@ -13,6 +13,8 @@ import { ArrowLeft } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { TypographyH2, TypographyP } from '../components/typography/typography';
+import { useSubscriptionsQuery } from '../hooks/useSubscriptions';
+import { getPlanTier } from '../lib/subscriptionHelpers';
 import PageShell from '../pageShell';
 import ListSchemasSection from '../sections/schemas/listSchemas';
 import NewSchemaSection from '../sections/schemas/newSchema';
@@ -37,7 +39,10 @@ type SchemaPageImplementationProps = {
 function SchemaPageImplementation({ project }: SchemaPageImplementationProps) {
 	const { data: schemas, isLoading } = useSchemasQuery(project.id);
 	const { data: user } = useUsersQuery();
-	const allowNewSchema = schemas.length < limitations[user.planTier].schemas;
+	const userSubscription = user.subscription;
+	const { data: subscription } = useSubscriptionsQuery(userSubscription?.subscriptionId);
+	const planTier = getPlanTier({ user, subscription });
+	const allowNewSchema = schemas.length < limitations[planTier].schemas;
 
 	const hasSchemas = useMemo(() => schemas.length > 0, [schemas.length]);
 	const navigate = useNavigate();
