@@ -2,24 +2,15 @@ import {
 	TypographyCaption,
 	TypographyH1,
 	TypographyH3,
-	TypographyH4,
 	TypographyH5,
 	TypographyLargeP,
-	TypographyP,
 } from '@frontend/components/typography/typography';
 import { Button } from '@frontend/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@frontend/components/ui/card';
 import { Separator } from '@frontend/components/ui/separator';
 import PageShell from '@frontend/pageShell';
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, Braces, CircleCheck, Cog, Database, ExternalLink } from 'lucide-react';
+import { ArrowRight, Braces, Cog, Database, ExternalLink } from 'lucide-react';
+import PricingCards from '../components/pricingCards/pricingCards';
 
 export default function LandingPage() {
 	return (
@@ -141,74 +132,18 @@ GET /api/myproject/users
 			<section className="flex flex-col items-center gap-4 py-6 md:gap-6 md:py-12">
 				<TypographyH3 className="text-center">Simple, Transparent Pricing</TypographyH3>
 				<div className="flex flex-col gap-6 md:flex-row md:gap-24">
-					<Card>
-						<CardHeader>
-							<CardTitle>Starter</CardTitle>
-							<CardDescription>Free. Forever</CardDescription>
-						</CardHeader>
-						<CardContent className=" flex flex-col gap-2">
-							<TypographyH4>
-								$0
-								<span className="font-medium text-sm">/month</span>
-							</TypographyH4>
-							<TypographyP className="inline-flex gap-2">
-								<CircleCheck className="text-green-500" />1 Project
-							</TypographyP>
-							<TypographyP className="inline-flex gap-2">
-								<CircleCheck className="text-green-500" />
-								Upto 3 Schemas/Project
-							</TypographyP>
-							<TypographyP className="inline-flex gap-2">
-								<CircleCheck className="text-green-500" />
-								Upto 100 records per Schema
-							</TypographyP>
-							<TypographyP className="inline-flex gap-2">
-								<CircleCheck className="text-green-500" />
-								100 API calls per day
-							</TypographyP>
-						</CardContent>
-						<CardFooter>
+					<PricingCards
+						freePlanBtn={
 							<Link to="/sign-up" className="w-full">
 								<Button className="w-full">Get Started</Button>
 							</Link>
-						</CardFooter>
-					</Card>
-
-					<Card className="bg-neutral-900 text-white">
-						<CardHeader>
-							<CardTitle>Pro</CardTitle>
-							<CardDescription>If you want more.</CardDescription>
-						</CardHeader>
-						<CardContent className=" flex flex-col gap-2">
-							<TypographyH4>
-								$15
-								<span className="font-medium text-sm">/month</span>
-							</TypographyH4>
-							<TypographyP className="inline-flex gap-2">
-								<CircleCheck className="text-green-500" />
-								Upto 5 Projects
-							</TypographyP>
-							<TypographyP className="inline-flex gap-2">
-								<CircleCheck className="text-green-500" />
-								Upto 15 Schemas/Project
-							</TypographyP>
-							<TypographyP className="inline-flex gap-2">
-								<CircleCheck className="text-green-500" />
-								Upto 1000 records per Schema
-							</TypographyP>
-							<TypographyP className="inline-flex gap-2">
-								<CircleCheck className="text-green-500" />
-								1000 API calls per day
-							</TypographyP>
-						</CardContent>
-						<CardFooter>
-							<Link to="/sign-up" className="w-full">
-								<Button variant="secondary" className="w-full" disabled>
-									Coming Soon
-								</Button>
-							</Link>
-						</CardFooter>
-					</Card>
+						}
+						proPlanBtn={
+							<Button variant="secondary" className="w-full" disabled>
+								Coming Soon
+							</Button>
+						}
+					/>
 				</div>
 			</section>
 

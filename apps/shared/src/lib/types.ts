@@ -80,6 +80,7 @@ export type Project = {
 	apiKey: string;
 	createdAt: Date;
 	updatedAt: Date;
+	schemas?: Schema[];
 };
 
 export type ProjectBase = {

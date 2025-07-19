@@ -12,12 +12,14 @@ export async function editUserRequest(req: Request, res: Response) {
 	try {
 		const { userId } = getAuth(req);
 		if (!userId) return res.status(401).json({ message: 'Unauthorized Request' });
+		const user = await getUserByClerkId(userId);
 		const { firstName, lastName } = req.body;
 
 		const updatedUser = await updateUser({
 			firstName,
 			lastName,
 			clerkUserId: userId,
+			planTier: user?.planTier || 'free',
 		});
 		return res.status(updatedUser.status).json(updatedUser.json);
 	} catch {

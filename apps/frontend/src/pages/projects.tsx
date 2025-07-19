@@ -7,11 +7,16 @@ import ListProjectsSection from '@frontend/sections/projects/listProjects';
 import NewProjectSection from '@frontend/sections/projects/newProject';
 import { limitations } from '@shared/lib/config';
 import { useMemo } from 'react';
+import { useSubscriptionsQuery } from '../hooks/useSubscriptions';
+import { getPlanTier } from '../lib/subscriptionHelpers';
 
 export default function ProjectsPage() {
 	const { data: projects, isLoading } = useProjectsQuery();
 	const { data: user } = useUsersQuery();
-	const allowNewProject = projects.length < limitations[user.planTier].projects;
+	const userSubscription = user.subscription;
+	const { data: subscription } = useSubscriptionsQuery(userSubscription?.subscriptionId);
+	const planTier = getPlanTier({ user, subscription });
+	const allowNewProject = projects.length < limitations[planTier].projects;
 
 	const hasProjects = useMemo(() => projects.length > 0, [projects.length]);
 

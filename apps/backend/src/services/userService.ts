@@ -4,10 +4,14 @@ import db from '@backend/db/client';
 import { users } from '@backend/db/schema';
 import { clerkClient, getAuth } from '@clerk/express';
 import { eq } from 'drizzle-orm';
+import { cancelPaddleSubscription } from './subscriptionService';
 
 export async function getUserByClerkId(clerkId: string) {
 	const user = await db.query.users.findFirst({
 		where: fields => eq(fields.clerkUserId, clerkId),
+		with: {
+			subscription: true,
+		},
 	});
 
 	return user;
@@ -49,13 +53,17 @@ type UpdateUserProps = {
 	firstName: string;
 	lastName: string;
 	clerkUserId: string;
+	planTier: string;
 };
 
-export async function updateUser({ firstName, lastName, clerkUserId }: UpdateUserProps) {
+export async function updateUser({ firstName, lastName, clerkUserId, planTier }: UpdateUserProps) {
 	try {
 		const params = { firstName, lastName };
 		await clerkClient.users.updateUser(clerkUserId, params);
-		await db.update(users).set({ firstName, lastName }).where(eq(users.clerkUserId, clerkUserId));
+		await db
+			.update(users)
+			.set({ firstName, lastName, planTier })
+			.where(eq(users.clerkUserId, clerkUserId));
 		return { status: 200, json: { message: 'User updated.' } };
 	} catch (err) {
 		console.error('DB error:', err);
@@ -122,6 +130,10 @@ type DeleteUserProps = {
 
 export async function deleteUser({ clerkUserId }: DeleteUserProps) {
 	try {
+		const user = await getUserByClerkId(clerkUserId);
+		if (user?.subscription) {
+			await cancelPaddleSubscription(user.subscription.subscriptionId, true);
+		}
 		await clerkClient.users.deleteUser(clerkUserId);
 		await db.delete(users).where(eq(users.clerkUserId, clerkUserId));
 

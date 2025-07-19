@@ -94,9 +94,28 @@ export const apiUsage = pgTable('api_usage', {
 	updatedAt,
 });
 
-export const userRelations = relations(users, ({ many }) => ({
+export const subscriptions = pgTable('subscriptions', {
+	id: serial('id').primaryKey(),
+	userId: integer('userId')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	subscriptionId: varchar('subscriptionId', { length: 255 }).notNull(),
+	paddleCustomerId: varchar('paddleCustomerId', { length: 255 }).notNull(),
+	productId: varchar('productId', { length: 255 }).notNull(),
+	status: varchar('status').notNull(),
+	startDate: date('startDate').notNull(),
+	nextBillDate: date('nextBillDate'),
+	createdAt,
+	updatedAt,
+});
+
+export const userRelations = relations(users, ({ one, many }) => ({
 	projects: many(projects),
 	apiUsage: many(apiUsage),
+	subscription: one(subscriptions, {
+		fields: [users.id],
+		references: [subscriptions.userId],
+	}),
 }));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
@@ -111,5 +130,12 @@ export const schemaRelations = relations(schemas, ({ one }) => ({
 	project: one(projects, {
 		fields: [schemas.projectId],
 		references: [projects.id],
+	}),
+}));
+
+export const subscriptionRelations = relations(subscriptions, ({ one }) => ({
+	user: one(users, {
+		fields: [subscriptions.userId],
+		references: [users.id],
 	}),
 }));
