@@ -32,7 +32,7 @@ export default function PrivacyPolicy() {
 						>
 							Clerk
 						</a>
-						.
+						, including Google Sign-In and other social login providers.
 					</li>
 					<li>
 						<strong>Payment Information:</strong> Processed securely by{' '}
@@ -68,7 +68,8 @@ export default function PrivacyPolicy() {
 				<p className="mb-4">We use the following providers to support our platform:</p>
 				<ul className="mb-4 list-inside list-disc">
 					<li>
-						<strong>Clerk:</strong> For authentication and user management (
+						<strong>Clerk:</strong> For authentication and user management, supporting Google
+						Sign-In and other social login methods (
 						<a
 							href="https://clerk.com"
 							className="text-blue-600 underline"

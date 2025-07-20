@@ -50,9 +50,10 @@ export default function TermsOfService() {
 					>
 						Clerk
 					</a>{' '}
-					as our third-party authentication provider. By registering, you agree to Clerk’s terms and
-					privacy policy. You are responsible for maintaining the confidentiality of your account
-					credentials and for all activity under your account.
+					as our third-party authentication provider, which includes support for Google Sign-In and
+					other social login methods. By registering, you agree to Clerk’s terms and privacy policy.
+					You are responsible for maintaining the confidentiality of your account credentials and
+					for all activity under your account.
 				</p>
 
 				<h2 className="mt-6 mb-2 font-semibold text-xl">4. Payments and Billing</h2>
