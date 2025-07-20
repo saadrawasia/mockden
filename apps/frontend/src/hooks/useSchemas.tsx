@@ -5,7 +5,7 @@ import config from '@frontend/lib/config';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-const API_URL = (projectId: number) => `${config.BACKEND_URL}/projects/${projectId}/schemas`; // adjust based on your backend
+const API_URL = (projectId: number) => `${config.BACKEND_URL}/auth/projects/${projectId}/schemas`; // adjust based on your backend
 
 // Fetch schemas
 export function useSchemasQuery(projectId: number) {

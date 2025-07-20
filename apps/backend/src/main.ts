@@ -10,6 +10,6 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/', router);
-app.use('/', authRouter);
+app.use('/auth/', authRouter);
 
 app.listen(port, () => console.log(`Backend running at http://localhost:${port}`));

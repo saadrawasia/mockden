@@ -5,7 +5,7 @@ import config from '@frontend/lib/config';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-const API_URL = `${config.BACKEND_URL}/users`;
+const API_URL = `${config.BACKEND_URL}/auth/users`;
 
 export function useEditUserMutation() {
 	const { getToken } = useAuth();

@@ -5,7 +5,7 @@ import config from '@frontend/lib/config';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-const API_URL = `${config.BACKEND_URL}/projects`; // adjust based on your backend
+const API_URL = `${config.BACKEND_URL}/auth/projects`; // adjust based on your backend
 
 // Fetch projects
 export function useProjectsQuery(withSchemas = false) {

@@ -5,7 +5,7 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import config from '../lib/config';
 
-const API_URL = `${config.BACKEND_URL}/subscriptions`;
+const API_URL = `${config.BACKEND_URL}/auth/subscriptions`;
 
 export function useSubscriptionsQuery(subId: string | null) {
 	const { getToken } = useAuth();
