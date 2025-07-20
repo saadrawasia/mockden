@@ -4,11 +4,6 @@ export default function TermsOfService() {
 	return (
 		<PageShell>
 			<title>Mockden - Terms of Service</title>
-			<meta
-				name="description"
-				content="Create, validate, and manage mock data with schemas. Built for
-                  developers who demand reliability and speed."
-			/>
 
 			<div className="mx-auto max-w-4xl p-6 text-gray-800">
 				<h1 className="mb-6 text-center font-bold text-3xl">Terms of Service</h1>

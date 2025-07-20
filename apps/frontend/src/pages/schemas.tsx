@@ -50,11 +50,6 @@ function SchemaPageImplementation({ project }: SchemaPageImplementationProps) {
 	return (
 		<PageShell>
 			<title>Mockden - Schemas</title>
-			<meta
-				name="description"
-				content="Create, validate, and manage mock data with schemas. Built for
-              developers who demand reliability and speed."
-			/>
 			<Button
 				variant="link"
 				className="justify-start hover:no-underline"

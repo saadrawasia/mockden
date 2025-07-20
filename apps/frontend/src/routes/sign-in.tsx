@@ -14,11 +14,6 @@ function RouteComponent() {
 	return (
 		<>
 			<title>Mockden - Sign Up</title>
-			<meta
-				name="description"
-				content="Create, validate, and manage mock data with schemas. Built for
-              developers who demand reliability and speed."
-			/>
 
 			<div className="mx-auto flex min-h-screen w-fit flex-col justify-center">
 				<div className="flex">

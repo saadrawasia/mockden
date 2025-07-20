@@ -23,10 +23,7 @@ export default function ProjectsPage() {
 	return (
 		<PageShell>
 			<title>Mockden - Projects</title>
-			<meta
-				name="description"
-				content="Create, validate, and manage mock data with schemas. Built for developers who demand reliability and speed."
-			/>
+
 			<div className="flex justify-between">
 				<TypographyH2>Projects</TypographyH2>
 				{hasProjects && <NewProjectSection renderSVG={false} allowNewProject={allowNewProject} />}

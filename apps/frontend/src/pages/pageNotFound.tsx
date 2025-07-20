@@ -10,11 +10,7 @@ export default function PageNotFound() {
 	return (
 		<PageShell>
 			<title>Mockden - Page Not Found</title>
-			<meta
-				name="description"
-				content="Create, validate, and manage mock data with schemas. Built for
-          developers who demand reliability and speed."
-			/>
+
 			<div className={cn('flex flex-auto flex-col items-center justify-center gap-8 text-center')}>
 				<img src={NotFoundSVG} alt="create-project" className="sm:w-md" />
 

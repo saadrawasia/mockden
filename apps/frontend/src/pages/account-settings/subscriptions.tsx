@@ -7,11 +7,6 @@ export default function SubscriptionsPage() {
 	return (
 		<PageShell>
 			<title>Mockden - Account Settings</title>
-			<meta
-				name="description"
-				content="Create, validate, and manage mock data with schemas. Built for
-            developers who demand reliability and speed."
-			/>
 
 			<TypographyH2>Account Settings</TypographyH2>
 			<div className="mx-auto flex w-full flex-col gap-16 lg:flex-row">

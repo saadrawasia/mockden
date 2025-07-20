@@ -36,11 +36,6 @@ export default function LandingPage() {
 	return (
 		<PageShell>
 			<title>Mockden</title>
-			<meta
-				name="description"
-				content="Create, validate, and manage mock data with schemas. Built for
-          developers who demand reliability and speed."
-			/>
 
 			{/* Hero Section */}
 			<section className="flex flex-col items-center gap-4 text-center md:gap-6">

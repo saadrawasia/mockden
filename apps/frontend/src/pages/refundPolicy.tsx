@@ -4,11 +4,7 @@ export default function RefundPolicy() {
 	return (
 		<PageShell>
 			<title>Mockden - Refund Policy</title>
-			<meta
-				name="description"
-				content="Create, validate, and manage mock data with schemas. Built for
-                  developers who demand reliability and speed."
-			/>
+
 			<div className="mx-auto max-w-4xl p-6 text-gray-800">
 				<h1 className="mb-6 text-center font-bold text-3xl">Refund Policy</h1>
 
