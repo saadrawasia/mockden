@@ -11,6 +11,7 @@ import { useUsersQuery } from '../../hooks/useUsers';
 import config from '../../lib/config';
 import { queryClient } from '../../lib/queryClient';
 import { getPlanTier } from '../../lib/subscriptionHelpers';
+import { useFeatureFlag } from '../../providers/featureFlags';
 import PricingCards from '../pricingCards/pricingCards';
 import { TypographyCaption, TypographyH4, TypographyP } from '../typography/typography';
 import {
@@ -87,6 +88,7 @@ export default function Subscription() {
 	const { PADDLE_TOKEN, PADDLE_ENV, BASE_URL } = config;
 	const [paddle, setPaddle] = useState<Paddle>();
 	const { data: user } = useUsersQuery();
+	const { isEnabled: isPaymentEnabled } = useFeatureFlag('payment_enabled');
 
 	const userSubscription = user.subscription;
 	const { data: subscription } = useSubscriptionsQuery(userSubscription?.subscriptionId);
@@ -117,12 +119,14 @@ export default function Subscription() {
 	};
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		initializePaddle({
-			environment: PADDLE_ENV,
-			token: PADDLE_TOKEN,
-		}).then(paddle => {
-			setPaddle(paddle);
-		});
+		if (isPaymentEnabled) {
+			initializePaddle({
+				environment: PADDLE_ENV,
+				token: PADDLE_TOKEN,
+			}).then(paddle => {
+				setPaddle(paddle);
+			});
+		}
 	}, []);
 
 	const handleFreePlan = () => {
@@ -194,6 +198,14 @@ export default function Subscription() {
 		router.navigate({ to: '/user-settings/subscriptions', search: { success: true } });
 	};
 
+	let proPlanBtnText = 'Coming Soon';
+
+	if (isPaymentEnabled) {
+		proPlanBtnText = 'Upgrade to Pro';
+	} else if (planTier === 'pro') {
+		proPlanBtnText = 'Current Plan';
+	}
+
 	return (
 		<>
 			<div className="flex flex-col gap-6">
@@ -219,9 +231,9 @@ export default function Subscription() {
 							variant="secondary"
 							className="w-full"
 							onClick={openPaddle}
-							disabled={planTier === 'pro'}
+							disabled={planTier === 'pro' || !isPaymentEnabled}
 						>
-							{planTier === 'free' ? 'Upgrade to Pro' : 'Current Plan'}
+							{proPlanBtnText}
 						</Button>
 					}
 				/>

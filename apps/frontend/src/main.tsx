@@ -9,6 +9,7 @@ import * as ReactDOM from 'react-dom/client';
 
 import { queryClient } from './lib/queryClient';
 import PageNotFound from './pages/pageNotFound';
+import { FeatureFlagProvider } from './providers/featureFlags';
 import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
@@ -21,7 +22,9 @@ root.render(
 	<StrictMode>
 		<ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
 			<QueryClientProvider client={queryClient}>
-				<RouterProvider router={router} />
+				<FeatureFlagProvider>
+					<RouterProvider router={router} />
+				</FeatureFlagProvider>
 			</QueryClientProvider>
 		</ClerkProvider>
 	</StrictMode>

@@ -2,7 +2,7 @@
 import { SignUp } from '@clerk/clerk-react';
 import { TypographyP } from '@frontend/components/typography/typography';
 import { Button } from '@frontend/components/ui/button';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 
 export const Route = createFileRoute('/sign-up')({
@@ -11,6 +11,8 @@ export const Route = createFileRoute('/sign-up')({
 
 function RouteComponent() {
 	const navigate = useNavigate();
+	const search = useSearch({ strict: false });
+	const redirectUrl = search.proPlan ? '/user-settings/subscriptions' : '/projects';
 	return (
 		<>
 			<title>Mockden - Sign Up</title>
@@ -34,7 +36,7 @@ function RouteComponent() {
 						<ArrowLeft /> <TypographyP>Go Home</TypographyP>
 					</Button>
 				</div>
-				<SignUp signInUrl="/sign-in" forceRedirectUrl="/projects" />
+				<SignUp signInUrl="/sign-in" forceRedirectUrl={redirectUrl} />
 			</div>
 		</>
 	);

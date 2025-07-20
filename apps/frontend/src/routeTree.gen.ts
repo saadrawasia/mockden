@@ -16,6 +16,7 @@ import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as UserSettingsSubscriptionsRouteImport } from './routes/user-settings/subscriptions'
 import { Route as UserSettingsGeneralRouteImport } from './routes/user-settings/general'
 import { Route as UserSettingsDeleteAccountRouteImport } from './routes/user-settings/delete-account'
+import { Route as TestingFeatureFlagsRouteImport } from './routes/testing/feature-flags'
 import { Route as ProjectsProjectSlugSchemasRouteImport } from './routes/projects/$projectSlug/schemas'
 
 const SignUpRoute = SignUpRouteImport.update({
@@ -55,6 +56,11 @@ const UserSettingsDeleteAccountRoute =
     path: '/user-settings/delete-account',
     getParentRoute: () => rootRouteImport,
   } as any)
+const TestingFeatureFlagsRoute = TestingFeatureFlagsRouteImport.update({
+  id: '/testing/feature-flags',
+  path: '/testing/feature-flags',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsProjectSlugSchemasRoute =
   ProjectsProjectSlugSchemasRouteImport.update({
     id: '/projects/$projectSlug/schemas',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/testing/feature-flags': typeof TestingFeatureFlagsRoute
   '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
   '/user-settings/general': typeof UserSettingsGeneralRoute
   '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/testing/feature-flags': typeof TestingFeatureFlagsRoute
   '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
   '/user-settings/general': typeof UserSettingsGeneralRoute
   '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/testing/feature-flags': typeof TestingFeatureFlagsRoute
   '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
   '/user-settings/general': typeof UserSettingsGeneralRoute
   '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sign-in'
     | '/sign-up'
+    | '/testing/feature-flags'
     | '/user-settings/delete-account'
     | '/user-settings/general'
     | '/user-settings/subscriptions'
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sign-in'
     | '/sign-up'
+    | '/testing/feature-flags'
     | '/user-settings/delete-account'
     | '/user-settings/general'
     | '/user-settings/subscriptions'
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sign-in'
     | '/sign-up'
+    | '/testing/feature-flags'
     | '/user-settings/delete-account'
     | '/user-settings/general'
     | '/user-settings/subscriptions'
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  TestingFeatureFlagsRoute: typeof TestingFeatureFlagsRoute
   UserSettingsDeleteAccountRoute: typeof UserSettingsDeleteAccountRoute
   UserSettingsGeneralRoute: typeof UserSettingsGeneralRoute
   UserSettingsSubscriptionsRoute: typeof UserSettingsSubscriptionsRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UserSettingsDeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/testing/feature-flags': {
+      id: '/testing/feature-flags'
+      path: '/testing/feature-flags'
+      fullPath: '/testing/feature-flags'
+      preLoaderRoute: typeof TestingFeatureFlagsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/$projectSlug/schemas': {
       id: '/projects/$projectSlug/schemas'
       path: '/projects/$projectSlug/schemas'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  TestingFeatureFlagsRoute: TestingFeatureFlagsRoute,
   UserSettingsDeleteAccountRoute: UserSettingsDeleteAccountRoute,
   UserSettingsGeneralRoute: UserSettingsGeneralRoute,
   UserSettingsSubscriptionsRoute: UserSettingsSubscriptionsRoute,
