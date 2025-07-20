@@ -19,7 +19,5 @@ export const useProjectStore = create<ProjectsStore>(set => ({
 		description: '',
 		slug: '',
 		apiKey: '',
-		createdAt: '',
-		updatedAt: '',
 	},
 }));

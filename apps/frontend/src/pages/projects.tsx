@@ -15,7 +15,7 @@ export default function ProjectsPage() {
 	const { data: user } = useUsersQuery();
 	const userSubscription = user.subscription;
 	const { data: subscription } = useSubscriptionsQuery(userSubscription?.subscriptionId);
-	const planTier = getPlanTier({ user, subscription });
+	const planTier = getPlanTier({ user, subscription, checkScheduledChange: true });
 	const allowNewProject = projects.length < limitations[planTier].projects;
 
 	const hasProjects = useMemo(() => projects.length > 0, [projects.length]);

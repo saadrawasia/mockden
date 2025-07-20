@@ -8,11 +8,31 @@ import {
 import { Button } from '@frontend/components/ui/button';
 import { Separator } from '@frontend/components/ui/separator';
 import PageShell from '@frontend/pageShell';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowRight, Braces, Cog, Database, ExternalLink } from 'lucide-react';
 import PricingCards from '../components/pricingCards/pricingCards';
+import { useFeatureFlag } from '../providers/featureFlags';
 
 export default function LandingPage() {
+	const { isEnabled: isPaymentEnabled } = useFeatureFlag('payment_enabled');
+	const navigate = useNavigate();
+	let proPlanBtnText = 'Coming Soon';
+
+	if (isPaymentEnabled) {
+		proPlanBtnText = 'Get Pro';
+	}
+
+	const handleProPlan = () => {
+		if (!isPaymentEnabled) {
+			return;
+		}
+
+		navigate({
+			to: '/sign-up',
+			search: { proPlan: true },
+		});
+	};
+
 	return (
 		<PageShell>
 			<title>Mockden</title>
@@ -139,8 +159,13 @@ GET /api/myproject/users
 							</Link>
 						}
 						proPlanBtn={
-							<Button variant="secondary" className="w-full" disabled>
-								Coming Soon
+							<Button
+								variant="secondary"
+								className="w-full"
+								disabled={!isPaymentEnabled}
+								onClick={handleProPlan}
+							>
+								{proPlanBtnText}
 							</Button>
 						}
 					/>

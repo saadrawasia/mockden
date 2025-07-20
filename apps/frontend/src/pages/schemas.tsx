@@ -41,7 +41,7 @@ function SchemaPageImplementation({ project }: SchemaPageImplementationProps) {
 	const { data: user } = useUsersQuery();
 	const userSubscription = user.subscription;
 	const { data: subscription } = useSubscriptionsQuery(userSubscription?.subscriptionId);
-	const planTier = getPlanTier({ user, subscription });
+	const planTier = getPlanTier({ user, subscription, checkScheduledChange: true });
 	const allowNewSchema = schemas.length < limitations[planTier].schemas;
 
 	const hasSchemas = useMemo(() => schemas.length > 0, [schemas.length]);

@@ -78,8 +78,8 @@ export type Project = {
 	description: string;
 	slug: string;
 	apiKey: string;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt?: Date;
+	updatedAt?: Date;
 	schemas?: Schema[];
 };
 
