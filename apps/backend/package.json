@@ -13,7 +13,7 @@
 					"outputPath": "apps/backend/dist",
 					"format": ["cjs"],
 					"bundle": false,
-					"main": "apps/backend/src/app.ts",
+					"main": "apps/backend/src/main.ts",
 					"tsConfig": "apps/backend/tsconfig.app.json",
 					"assets": ["apps/backend/src/assets"],
 					"esbuildOptions": {
