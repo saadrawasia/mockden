@@ -6,17 +6,17 @@ import { Button } from '../ui/button';
 const items = [
 	{
 		title: 'General',
-		url: '/user-settings/general',
+		url: '/account-settings/general',
 		icon: <Settings />,
 	},
 	{
 		title: 'Subscriptions',
-		url: '/user-settings/subscriptions',
+		url: '/account-settings/subscriptions',
 		icon: <CreditCard />,
 	},
 	{
 		title: 'Delete Account',
-		url: '/user-settings/delete-account',
+		url: '/account-settings/delete-account',
 		icon: <Trash />,
 	},
 ];

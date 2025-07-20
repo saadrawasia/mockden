@@ -106,7 +106,7 @@ export default function Subscription() {
 			settings: {
 				displayMode: 'overlay',
 				theme: 'light',
-				successUrl: `${BASE_URL}/user-settings/subscriptions?success=true`,
+				successUrl: `${BASE_URL}/account-settings/subscriptions?success=true`,
 				variant: 'one-page',
 				showAddDiscounts: false,
 				allowLogout: false,
@@ -195,7 +195,7 @@ export default function Subscription() {
 		setIsDeleting(false);
 		queryClient.invalidateQueries({ queryKey: ['user'] });
 		queryClient.invalidateQueries({ queryKey: ['paddle-subscription'] });
-		router.navigate({ to: '/user-settings/subscriptions', search: { success: true } });
+		router.navigate({ to: '/account-settings/subscriptions', search: { success: true } });
 	};
 
 	let proPlanBtnText = 'Coming Soon';

@@ -16,10 +16,10 @@ import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
-import { Route as UserSettingsSubscriptionsRouteImport } from './routes/user-settings/subscriptions'
-import { Route as UserSettingsGeneralRouteImport } from './routes/user-settings/general'
-import { Route as UserSettingsDeleteAccountRouteImport } from './routes/user-settings/delete-account'
 import { Route as TestingFeatureFlagsRouteImport } from './routes/testing/feature-flags'
+import { Route as AccountSettingsSubscriptionsRouteImport } from './routes/account-settings/subscriptions'
+import { Route as AccountSettingsGeneralRouteImport } from './routes/account-settings/general'
+import { Route as AccountSettingsDeleteAccountRouteImport } from './routes/account-settings/delete-account'
 import { Route as ProjectsProjectSlugSchemasRouteImport } from './routes/projects/$projectSlug/schemas'
 
 const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
@@ -57,28 +57,28 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   path: '/projects/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UserSettingsSubscriptionsRoute =
-  UserSettingsSubscriptionsRouteImport.update({
-    id: '/user-settings/subscriptions',
-    path: '/user-settings/subscriptions',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const UserSettingsGeneralRoute = UserSettingsGeneralRouteImport.update({
-  id: '/user-settings/general',
-  path: '/user-settings/general',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UserSettingsDeleteAccountRoute =
-  UserSettingsDeleteAccountRouteImport.update({
-    id: '/user-settings/delete-account',
-    path: '/user-settings/delete-account',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const TestingFeatureFlagsRoute = TestingFeatureFlagsRouteImport.update({
   id: '/testing/feature-flags',
   path: '/testing/feature-flags',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountSettingsSubscriptionsRoute =
+  AccountSettingsSubscriptionsRouteImport.update({
+    id: '/account-settings/subscriptions',
+    path: '/account-settings/subscriptions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AccountSettingsGeneralRoute = AccountSettingsGeneralRouteImport.update({
+  id: '/account-settings/general',
+  path: '/account-settings/general',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountSettingsDeleteAccountRoute =
+  AccountSettingsDeleteAccountRouteImport.update({
+    id: '/account-settings/delete-account',
+    path: '/account-settings/delete-account',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProjectsProjectSlugSchemasRoute =
   ProjectsProjectSlugSchemasRouteImport.update({
     id: '/projects/$projectSlug/schemas',
@@ -93,10 +93,10 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/account-settings/delete-account': typeof AccountSettingsDeleteAccountRoute
+  '/account-settings/general': typeof AccountSettingsGeneralRoute
+  '/account-settings/subscriptions': typeof AccountSettingsSubscriptionsRoute
   '/testing/feature-flags': typeof TestingFeatureFlagsRoute
-  '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
-  '/user-settings/general': typeof UserSettingsGeneralRoute
-  '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
@@ -107,10 +107,10 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/account-settings/delete-account': typeof AccountSettingsDeleteAccountRoute
+  '/account-settings/general': typeof AccountSettingsGeneralRoute
+  '/account-settings/subscriptions': typeof AccountSettingsSubscriptionsRoute
   '/testing/feature-flags': typeof TestingFeatureFlagsRoute
-  '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
-  '/user-settings/general': typeof UserSettingsGeneralRoute
-  '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
@@ -122,10 +122,10 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/terms-of-service': typeof TermsOfServiceRoute
+  '/account-settings/delete-account': typeof AccountSettingsDeleteAccountRoute
+  '/account-settings/general': typeof AccountSettingsGeneralRoute
+  '/account-settings/subscriptions': typeof AccountSettingsSubscriptionsRoute
   '/testing/feature-flags': typeof TestingFeatureFlagsRoute
-  '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
-  '/user-settings/general': typeof UserSettingsGeneralRoute
-  '/user-settings/subscriptions': typeof UserSettingsSubscriptionsRoute
   '/projects/': typeof ProjectsIndexRoute
   '/projects/$projectSlug/schemas': typeof ProjectsProjectSlugSchemasRoute
 }
@@ -138,10 +138,10 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/terms-of-service'
+    | '/account-settings/delete-account'
+    | '/account-settings/general'
+    | '/account-settings/subscriptions'
     | '/testing/feature-flags'
-    | '/user-settings/delete-account'
-    | '/user-settings/general'
-    | '/user-settings/subscriptions'
     | '/projects'
     | '/projects/$projectSlug/schemas'
   fileRoutesByTo: FileRoutesByTo
@@ -152,10 +152,10 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/terms-of-service'
+    | '/account-settings/delete-account'
+    | '/account-settings/general'
+    | '/account-settings/subscriptions'
     | '/testing/feature-flags'
-    | '/user-settings/delete-account'
-    | '/user-settings/general'
-    | '/user-settings/subscriptions'
     | '/projects'
     | '/projects/$projectSlug/schemas'
   id:
@@ -166,10 +166,10 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/terms-of-service'
+    | '/account-settings/delete-account'
+    | '/account-settings/general'
+    | '/account-settings/subscriptions'
     | '/testing/feature-flags'
-    | '/user-settings/delete-account'
-    | '/user-settings/general'
-    | '/user-settings/subscriptions'
     | '/projects/'
     | '/projects/$projectSlug/schemas'
   fileRoutesById: FileRoutesById
@@ -181,10 +181,10 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
+  AccountSettingsDeleteAccountRoute: typeof AccountSettingsDeleteAccountRoute
+  AccountSettingsGeneralRoute: typeof AccountSettingsGeneralRoute
+  AccountSettingsSubscriptionsRoute: typeof AccountSettingsSubscriptionsRoute
   TestingFeatureFlagsRoute: typeof TestingFeatureFlagsRoute
-  UserSettingsDeleteAccountRoute: typeof UserSettingsDeleteAccountRoute
-  UserSettingsGeneralRoute: typeof UserSettingsGeneralRoute
-  UserSettingsSubscriptionsRoute: typeof UserSettingsSubscriptionsRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
   ProjectsProjectSlugSchemasRoute: typeof ProjectsProjectSlugSchemasRoute
 }
@@ -240,32 +240,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/user-settings/subscriptions': {
-      id: '/user-settings/subscriptions'
-      path: '/user-settings/subscriptions'
-      fullPath: '/user-settings/subscriptions'
-      preLoaderRoute: typeof UserSettingsSubscriptionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/user-settings/general': {
-      id: '/user-settings/general'
-      path: '/user-settings/general'
-      fullPath: '/user-settings/general'
-      preLoaderRoute: typeof UserSettingsGeneralRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/user-settings/delete-account': {
-      id: '/user-settings/delete-account'
-      path: '/user-settings/delete-account'
-      fullPath: '/user-settings/delete-account'
-      preLoaderRoute: typeof UserSettingsDeleteAccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/testing/feature-flags': {
       id: '/testing/feature-flags'
       path: '/testing/feature-flags'
       fullPath: '/testing/feature-flags'
       preLoaderRoute: typeof TestingFeatureFlagsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account-settings/subscriptions': {
+      id: '/account-settings/subscriptions'
+      path: '/account-settings/subscriptions'
+      fullPath: '/account-settings/subscriptions'
+      preLoaderRoute: typeof AccountSettingsSubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account-settings/general': {
+      id: '/account-settings/general'
+      path: '/account-settings/general'
+      fullPath: '/account-settings/general'
+      preLoaderRoute: typeof AccountSettingsGeneralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account-settings/delete-account': {
+      id: '/account-settings/delete-account'
+      path: '/account-settings/delete-account'
+      fullPath: '/account-settings/delete-account'
+      preLoaderRoute: typeof AccountSettingsDeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/$projectSlug/schemas': {
@@ -285,10 +285,10 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
+  AccountSettingsDeleteAccountRoute: AccountSettingsDeleteAccountRoute,
+  AccountSettingsGeneralRoute: AccountSettingsGeneralRoute,
+  AccountSettingsSubscriptionsRoute: AccountSettingsSubscriptionsRoute,
   TestingFeatureFlagsRoute: TestingFeatureFlagsRoute,
-  UserSettingsDeleteAccountRoute: UserSettingsDeleteAccountRoute,
-  UserSettingsGeneralRoute: UserSettingsGeneralRoute,
-  UserSettingsSubscriptionsRoute: UserSettingsSubscriptionsRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
   ProjectsProjectSlugSchemasRoute: ProjectsProjectSlugSchemasRoute,
 }

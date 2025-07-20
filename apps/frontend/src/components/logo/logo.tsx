@@ -10,7 +10,7 @@ export default function Logo({ withText = false }: LogoProps) {
 	return (
 		<div className="flex items-center gap-2">
 			<img src={Logo64} alt="logo" width={32} height={32} />
-			{withText && <TypographyH5>mockden</TypographyH5>}
+			{withText && <TypographyH5 className="hidden md:block">mockden</TypographyH5>}
 		</div>
 	);
 }

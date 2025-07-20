@@ -45,7 +45,8 @@ export default function RefundPolicy() {
 
 				<h2 className="mt-6 mb-2 font-semibold text-xl">3. Subscription Cancellation</h2>
 				<p className="mb-4">
-					You may cancel your subscription at any time via your user settings. After cancellation:
+					You may cancel your subscription at any time via your account settings. After
+					cancellation:
 				</p>
 				<ul className="mb-4 list-inside list-disc">
 					<li>Your subscription will remain active until the end of the current billing cycle.</li>

@@ -12,7 +12,7 @@ export const Route = createFileRoute('/sign-up')({
 function RouteComponent() {
 	const navigate = useNavigate();
 	const search = useSearch({ strict: false });
-	const redirectUrl = search.proPlan ? '/user-settings/subscriptions' : '/projects';
+	const redirectUrl = search.proPlan ? '/account-settings/subscriptions' : '/projects';
 	return (
 		<>
 			<title>Mockden - Sign Up</title>
