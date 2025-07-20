@@ -9,8 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsOfServiceRouteImport } from './routes/terms-of-service'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as UserSettingsSubscriptionsRouteImport } from './routes/user-settings/subscriptions'
@@ -19,6 +22,11 @@ import { Route as UserSettingsDeleteAccountRouteImport } from './routes/user-set
 import { Route as TestingFeatureFlagsRouteImport } from './routes/testing/feature-flags'
 import { Route as ProjectsProjectSlugSchemasRouteImport } from './routes/projects/$projectSlug/schemas'
 
+const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
+  id: '/terms-of-service',
+  path: '/terms-of-service',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -27,6 +35,16 @@ const SignUpRoute = SignUpRouteImport.update({
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -70,8 +88,11 @@ const ProjectsProjectSlugSchemasRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/testing/feature-flags': typeof TestingFeatureFlagsRoute
   '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
   '/user-settings/general': typeof UserSettingsGeneralRoute
@@ -81,8 +102,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/testing/feature-flags': typeof TestingFeatureFlagsRoute
   '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
   '/user-settings/general': typeof UserSettingsGeneralRoute
@@ -93,8 +117,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/testing/feature-flags': typeof TestingFeatureFlagsRoute
   '/user-settings/delete-account': typeof UserSettingsDeleteAccountRoute
   '/user-settings/general': typeof UserSettingsGeneralRoute
@@ -106,8 +133,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/privacy-policy'
+    | '/refund-policy'
     | '/sign-in'
     | '/sign-up'
+    | '/terms-of-service'
     | '/testing/feature-flags'
     | '/user-settings/delete-account'
     | '/user-settings/general'
@@ -117,8 +147,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/privacy-policy'
+    | '/refund-policy'
     | '/sign-in'
     | '/sign-up'
+    | '/terms-of-service'
     | '/testing/feature-flags'
     | '/user-settings/delete-account'
     | '/user-settings/general'
@@ -128,8 +161,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/privacy-policy'
+    | '/refund-policy'
     | '/sign-in'
     | '/sign-up'
+    | '/terms-of-service'
     | '/testing/feature-flags'
     | '/user-settings/delete-account'
     | '/user-settings/general'
@@ -140,8 +176,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  TermsOfServiceRoute: typeof TermsOfServiceRoute
   TestingFeatureFlagsRoute: typeof TestingFeatureFlagsRoute
   UserSettingsDeleteAccountRoute: typeof UserSettingsDeleteAccountRoute
   UserSettingsGeneralRoute: typeof UserSettingsGeneralRoute
@@ -152,6 +191,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms-of-service': {
+      id: '/terms-of-service'
+      path: '/terms-of-service'
+      fullPath: '/terms-of-service'
+      preLoaderRoute: typeof TermsOfServiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -164,6 +210,20 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -220,8 +280,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  TermsOfServiceRoute: TermsOfServiceRoute,
   TestingFeatureFlagsRoute: TestingFeatureFlagsRoute,
   UserSettingsDeleteAccountRoute: UserSettingsDeleteAccountRoute,
   UserSettingsGeneralRoute: UserSettingsGeneralRoute,
