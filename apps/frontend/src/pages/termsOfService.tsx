@@ -102,8 +102,7 @@ export default function TermsOfService() {
 				<h2 className="mt-6 mb-2 font-semibold text-xl">7. Intellectual Property</h2>
 				<p className="mb-4">
 					All rights, title, and interest in and to Mockden, including trademarks, source code, and
-					documentation, are owned by [Your Company Name]. You retain ownership of your own content
-					and schemas.
+					documentation, are owned by Mockden. You retain ownership of your own content and schemas.
 				</p>
 
 				<h2 className="mt-6 mb-2 font-semibold text-xl">8. Service Availability and Changes</h2>
