@@ -291,7 +291,7 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
 
 		// Handle date
 		if (field.type === 'date') {
-			record[field.name] = faker.date.recent().toISOString();
+			record[field.name] = faker.date.recent().toISOString().slice(0, 10);
 			continue;
 		}
 

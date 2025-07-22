@@ -518,7 +518,7 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 					}
 				});
 
-				schema = dateSchema.transform(val => new Date(val).toISOString().slice(0, 10));
+				schema = dateSchema.transform(val => val);
 				break;
 			}
 

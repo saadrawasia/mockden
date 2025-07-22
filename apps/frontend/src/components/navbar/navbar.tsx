@@ -9,6 +9,7 @@ import {
 } from '@frontend/components/ui/dropdownMenu';
 import Logo from '../logo/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 
@@ -19,7 +20,11 @@ export default function Navbar() {
 
 	return (
 		<div className="flex justify-between">
-			<Logo withText={true} />
+			<div className="flex gap-2">
+				<Logo withText={true} />
+				<Badge variant="default">Beta</Badge>
+			</div>
+
 			<SignedOut>
 				<div className="flex items-center gap-2">
 					<Button
