@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { isValidDate } from '../helpers/isValidDate';
+import { getFormat, isValidDateOrDatetime, parseDate } from '../helpers/isValidDate';
 import type {
 	FieldDefinition,
 	SchemaBase,
@@ -17,6 +17,7 @@ const FIELD_TYPES = [
 	'array',
 	'object',
 	'date',
+	'datetime',
 	'url',
 	'uuid',
 	'email',
@@ -33,7 +34,7 @@ const fieldTypeEnum = z.enum(FIELD_TYPES, {
 
 // Type-safe validation rule constraints
 const PRIMARY_KEY_TYPES = ['string', 'number', 'uuid'] as const;
-const MIN_MAX_TYPES = ['number', 'date'] as const;
+const MIN_MAX_TYPES = ['number', 'date', 'datetime'] as const;
 
 type PrimaryKeyType = (typeof PRIMARY_KEY_TYPES)[number];
 type MinMaxType = (typeof MIN_MAX_TYPES)[number];
@@ -48,6 +49,7 @@ function validateEnumValues(enumValues: unknown[], fieldType: FieldType): boolea
 		number: (v): v is number => typeof v === 'number',
 		boolean: (v): v is boolean => typeof v === 'boolean',
 		date: (v): v is string | Date => typeof v === 'string' || v instanceof Date,
+		datetime: (v): v is string | Date => typeof v === 'string' || v instanceof Date,
 		array: (v): v is unknown[] => Array.isArray(v),
 		object: (v): v is object => typeof v === 'object' && !Array.isArray(v) && v !== null,
 	};
@@ -60,8 +62,11 @@ function validateMinMaxValue(value: unknown, fieldType: MinMaxType): boolean {
 	if (fieldType === 'number') {
 		return typeof value === 'number';
 	}
-	if (fieldType === 'date') {
-		return (typeof value === 'string' && isValidDate(value)) || typeof value === 'number';
+	if (fieldType === 'date' || fieldType === 'datetime') {
+		return (
+			(typeof value === 'string' && isValidDateOrDatetime(value, fieldType)) ||
+			typeof value === 'number'
+		);
 	}
 	return false;
 }
@@ -281,26 +286,26 @@ export const SchemaDefinitionSchema = z
 						});
 					}
 				} else if (
-					field.type === 'date' &&
+					(field.type === 'date' || field.type === 'datetime') &&
 					typeof validation.min === 'string' &&
 					typeof validation.max === 'string'
 				) {
-					if (!isValidDate(validation.min)) {
+					if (!isValidDateOrDatetime(validation.min, field.type)) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.invalid_date,
-							message: 'min must be a valid date string',
+							message: `min must be a valid ${field.type} string`,
 							path: [index, 'validation', 'min'],
 						});
-					} else if (!isValidDate(validation.max)) {
+					} else if (!isValidDateOrDatetime(validation.max, field.type)) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.invalid_date,
-							message: 'max must be a valid date string',
+							message: `max must be a valid ${field.type} string`,
 							path: [index, 'validation', 'max'],
 						});
 					} else if (new Date(validation.min) > new Date(validation.max)) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.invalid_arguments,
-							message: 'min date must be ≤ max date',
+							message: `min ${field.type} must be ≤ max ${field.type}`,
 							path: [index, 'validation'],
 							argumentsError: new z.ZodError([]),
 						});
@@ -474,15 +479,16 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 						: z.record(z.unknown()); // Use record for generic object validation
 				break;
 
-			case 'date': {
+			case 'date':
+			case 'datetime': {
 				const { min, max } = field.validation ?? {};
-
+				const fieldType = field.type as 'date' | 'datetime';
 				const dateSchema = z.string().superRefine((val, ctx) => {
 					// Check valid date string
-					if (!isValidDate(val)) {
+					if (!isValidDateOrDatetime(val, fieldType)) {
 						ctx.addIssue({
 							code: z.ZodIssueCode.invalid_date,
-							message: `${field.name} must be a valid date string`,
+							message: `${field.name} must be a valid ${field.type} string in following format: ${getFormat(fieldType)}`,
 							path: [],
 							fatal: true, // abort further checks if invalid date
 						});
@@ -518,7 +524,7 @@ function createFieldZodSchema(field: FieldDefinition): z.ZodTypeAny {
 					}
 				});
 
-				schema = dateSchema.transform(val => val);
+				schema = dateSchema.transform(val => parseDate(val, fieldType));
 				break;
 			}
 

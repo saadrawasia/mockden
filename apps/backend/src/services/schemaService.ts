@@ -128,8 +128,10 @@ export async function editSchema({
 		.where(and(eq(schemas.id, id), eq(schemas.projectId, projectId)))
 		.returning();
 
-	if (!('message' in schema.json)) {
-		// && JSON.stringify(schema.json.fields) !== JSON.stringify(mappedFields)) {
+	if (
+		!('message' in schema.json) &&
+		JSON.stringify(schema.json.fields) !== JSON.stringify(mappedFields)
+	) {
 		await deleteMockDataEntry(id);
 
 		if (fakeData) {

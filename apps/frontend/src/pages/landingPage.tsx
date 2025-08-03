@@ -82,7 +82,7 @@ export default function LandingPage() {
 					<pre className="text-green-400 text-sm">
 						<code className="whitespace-break-spaces break-all">
 							{`// Define your schema
-POST /api/myproject/schemas
+POST /mockdata/myproject/schemas
 {
   "name": "users",
   "fields": [

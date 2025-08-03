@@ -117,6 +117,7 @@ export const handleEditorDidMount = (
 					'array',
 					'object',
 					'date',
+					'datetime',
 					'url',
 					'uuid',
 					'email',
@@ -362,5 +363,11 @@ export const exampleSchema = `[
     "name": "link",
     "type": "url",
     "nullable": false
-  }
+  },
+	 {
+    "name": "createdAt",
+    "type": "datetime",
+    "primary": false,
+    "nullable": false,
+  },
 ]`;

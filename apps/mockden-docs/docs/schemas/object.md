@@ -2,7 +2,7 @@
 sidebar_position: 9
 ---
 
-# Object Type
+# Object
 Complex nested structures.
 
 **Compatible Attributes:**

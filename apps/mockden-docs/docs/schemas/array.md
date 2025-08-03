@@ -2,7 +2,7 @@
 sidebar_position: 8
 ---
 
-# Array Type
+# Array
 Collections of items with type validation.
 
 **Compatible Attributes:**

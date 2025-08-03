@@ -463,8 +463,25 @@ All error responses follow this structure:
 **Invalid Values:**
 ```json
 {
-  "createdAt": "invalid-date", // Format error
-  "updatedAt": "2019-12-31" // Fails min validation
+  "createdAt": "invalid-date", // Invalid string
+  "updatedAt": "2019/12/31" // Format error
+}
+```
+
+### DateTime Fields
+**Valid Values:**
+```json
+{
+  "createdAt": "2024-12-03T00:49:32",
+  "updatedAt": "2024-12-31T12:50:30"
+}
+```
+
+**Invalid Values:**
+```json
+{
+  "createdAt": "invalid-datetime", // Invalid string
+  "updatedAt": "2019/12/31 12:50:30" // Format error
 }
 ```
 
