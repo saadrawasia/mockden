@@ -8,6 +8,7 @@ import { validateData } from '@shared/validators/schemaValidator';
 import { eq } from 'drizzle-orm';
 import RandExp from 'randexp';
 
+import { parseDate } from '@/apps/shared/src/helpers/isValidDate';
 import { v4 as uuidv4 } from 'uuid';
 import { InternalServerError, NotFoundError, ValidationError } from '../utils/errors';
 import { getSchemaById } from './schemaService';
@@ -291,7 +292,12 @@ function generateMockRecord(schemaDefinition: SchemaDefinition): Record<string, 
 
 		// Handle date
 		if (field.type === 'date') {
-			record[field.name] = faker.date.recent().toISOString().slice(0, 10);
+			record[field.name] = parseDate(faker.date.recent().toISOString(), 'date');
+			continue;
+		}
+
+		if (field.type === 'datetime') {
+			record[field.name] = parseDate(faker.date.recent().toISOString(), 'datetime');
 			continue;
 		}
 

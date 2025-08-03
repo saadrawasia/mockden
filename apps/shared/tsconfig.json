@@ -9,5 +9,9 @@
 		}
 	],
 	"files": [],
-	"include": []
+	"include": [],
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true
+	}
 }
