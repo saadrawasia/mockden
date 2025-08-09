@@ -1,3 +1,4 @@
+import heroImage from '@frontend/assets/hero-mockden.jpg';
 import {
 	TypographyCaption,
 	TypographyH1,
@@ -9,7 +10,7 @@ import { Button } from '@frontend/components/ui/button';
 import { Separator } from '@frontend/components/ui/separator';
 import PageShell from '@frontend/pageShell';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { ArrowRight, Braces, Cog, Database, ExternalLink } from 'lucide-react';
+import { ArrowRight, Code, Database, Zap } from 'lucide-react';
 import PricingCards from '../components/pricingCards/pricingCards';
 import { useFeatureFlag } from '../providers/featureFlags';
 
@@ -37,36 +38,97 @@ export default function LandingPage() {
 		<PageShell>
 			<title>Mockden</title>
 
-			{/* Hero Section */}
-			<section className="flex flex-col items-center gap-4 text-center md:gap-6">
-				<TypographyH1>
-					Mock Data That
-					<span className="block text-neutral-500">Actually Works</span>
-				</TypographyH1>
-				<TypographyLargeP className="max-w-lg text-muted-foreground ">
-					Create, validate, and manage mock data with schemas. Built for developers who demand
-					reliability and speed.
-				</TypographyLargeP>
-				<div className="flex gap-4">
-					<Link to="/sign-up">
-						<Button>
-							Start Building
-							<ArrowRight />
+			{/* Background Image with Overlay */}
+			<div className="-z-1 absolute inset-0 ">
+				<img
+					src={heroImage}
+					alt="API development visualization"
+					className="h-full w-full object-cover opacity-10"
+				/>
+				<div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/60 to-transparent" />
+			</div>
+
+			{/* Hero Content */}
+			<div className="relative z-10 mx-auto max-w-7xl px-6 py-20 text-center">
+				<div className="mx-auto max-w-4xl space-y-8">
+					{/* Badge */}
+					<div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 font-medium text-primary text-sm">
+						<Zap className="h-4 w-4" />
+						For Developers, By Developers
+					</div>
+
+					{/* Main Heading */}
+					<TypographyH1 className="font-bold text-5xl leading-tight md:text-7xl">
+						Rapid API
+						<span className="text-neutral-500"> Prototyping</span>
+						<br />
+						Made Simple
+					</TypographyH1>
+
+					{/* Subtitle */}
+					<TypographyLargeP className="mx-auto max-w-3xl text-muted-foreground text-xl leading-relaxed md:text-2xl">
+						Define schemas, generate realistic mock data, and validate APIs in minutes. Mockden
+						empowers developers to prototype and test data-driven applications with confidence.
+					</TypographyLargeP>
+
+					{/* CTA Buttons */}
+					<div className="flex flex-col items-center justify-center gap-4 pt-8 sm:flex-row">
+						<Link to="/sign-up">
+							<Button size="lg" className="grou px-8 py-6 text-lg transition-all duration-300">
+								Start Building Free
+								<ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+							</Button>
+						</Link>
+						<Button
+							asChild
+							variant="outline"
+							size="lg"
+							className="border-primary/30 px-8 py-6 text-lg transition-all duration-300 hover:border-primary/50"
+						>
+							<a href="https://docs.mockden.com" target="_blank" rel="noopener noreferrer">
+								View Documentation
+							</a>
 						</Button>
-					</Link>
-					<Button asChild variant="outline">
-						<a href="https://docs.mockden.com" target="_blank" rel="noopener noreferrer">
-							View Docs
-							<ExternalLink />
-						</a>
-					</Button>
+					</div>
+				</div>
+			</div>
+
+			{/* How it works */}
+
+			<section className="mx-auto grid max-w-4xl gap-8 pt-16 md:grid-cols-3">
+				<div className="flex flex-col items-center space-y-3 rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm transition-all duration-300">
+					<div className="rounded-lg bg-primary/10 p-3">
+						<Database className="h-6 w-6 text-primary" />
+					</div>
+					<TypographyH5 className="">Schema Definition</TypographyH5>
+					<TypographyCaption className="text-center text-muted-foreground">
+						Create custom data models with our intuitive schema builder
+					</TypographyCaption>
+				</div>
+
+				<div className="flex flex-col items-center space-y-3 rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm transition-all duration-300">
+					<div className="rounded-lg bg-primary/10 p-3">
+						<Code className="h-6 w-6 text-primary" />
+					</div>
+					<TypographyH5 className="">Mock Data Generation</TypographyH5>
+					<TypographyCaption className="text-center text-muted-foreground">
+						Generate realistic test data that matches your schema perfectly
+					</TypographyCaption>
+				</div>
+
+				<div className="flex flex-col items-center space-y-3 rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm transition-all duration-300">
+					<div className="rounded-lg bg-primary/10 p-3">
+						<Zap className="h-6 w-6 text-primary" />
+					</div>
+					<TypographyH5 className="">API Simulation</TypographyH5>
+					<TypographyCaption className="text-center text-muted-foreground">
+						Test your applications with realistic API endpoints instantly
+					</TypographyCaption>
 				</div>
 			</section>
 
-			<Separator />
-
 			{/* Schema Image */}
-			<section className="flex flex-col items-center gap-4 py-6 md:gap-6 md:py-12">
+			<section className="flex flex-col items-center gap-4 py-6 md:gap-6 md:py-12 md:pt-24">
 				<TypographyH3 className="text-center">Simple. Powerful. Reliable.</TypographyH3>
 				<TypographyLargeP className="text-center text-muted-foreground">
 					Define your schema once, get validated mock data everywhere.
@@ -106,38 +168,6 @@ GET /api/myproject/users
 // ]`}
 						</code>
 					</pre>
-				</div>
-			</section>
-
-			<Separator />
-
-			{/* How it works */}
-			<section className="flex flex-col items-center gap-4 text-center md:gap-6">
-				<TypographyH3 className="text-center">How It Works</TypographyH3>
-				<div className="flex flex-col gap-6 md:flex-row md:gap-24">
-					<div className="flex flex-col items-center gap-2 ">
-						<Braces />
-						<TypographyH5>Define Schema</TypographyH5>
-						<TypographyCaption className="max-w-3xs text-center text-muted-foreground ">
-							Define custom data structures with advanced validation rules.
-						</TypographyCaption>
-					</div>
-
-					<div className="flex flex-col items-center gap-2">
-						<Database />
-						<TypographyH5>Store and Retrieve Data</TypographyH5>
-						<TypographyCaption className="max-w-3xs text-center text-muted-foreground ">
-							Use GET, POST, PUT, DELETE just like a real API.
-						</TypographyCaption>
-					</div>
-
-					<div className="flex flex-col items-center gap-2">
-						<Cog />
-						<TypographyH5>Manage</TypographyH5>
-						<TypographyCaption className="max-w-3xs text-center text-muted-foreground ">
-							Use the dashboard to monitor and manage your endpoints.
-						</TypographyCaption>
-					</div>
 				</div>
 			</section>
 

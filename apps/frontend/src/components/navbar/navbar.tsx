@@ -51,8 +51,8 @@ export default function Navbar() {
 			<SignedIn>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild className="cursor-pointer">
-						<div className="h-8 w-8">
-							<Avatar>
+						<div className="h-8 w-8 ">
+							<Avatar className="border border-gray-300">
 								<AvatarImage src="" />
 								<AvatarFallback>{userInitials}</AvatarFallback>
 							</Avatar>
