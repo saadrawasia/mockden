@@ -49,7 +49,7 @@ export default function LandingPage() {
 			</div>
 
 			{/* Hero Content */}
-			<div className="relative z-10 mx-auto max-w-7xl px-6 py-20 text-center">
+			<div className="relative z-10 mx-auto max-w-7xl py-20 text-center">
 				<div className="mx-auto max-w-4xl space-y-8">
 					{/* Badge */}
 					<div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 font-medium text-primary text-sm">
