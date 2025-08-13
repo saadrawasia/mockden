@@ -39,23 +39,38 @@ export default function LandingPage() {
 			<title>Mockden</title>
 
 			{/* Background Image with Overlay */}
-			<div className="-z-1 absolute inset-0 ">
+			<div className="-z-1 absolute inset-0 h-[160dvh] md:h-[120dvh]">
 				<img
 					src={heroImage}
 					alt="API development visualization"
-					className="h-full w-full object-cover opacity-10"
+					className="h-[160dvh] w-full object-cover opacity-10 md:h-[120dvh]"
 				/>
 				<div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/60 to-transparent" />
 			</div>
 
 			{/* Hero Content */}
 			<div className="relative z-10 mx-auto max-w-7xl py-20 text-center">
-				<div className="mx-auto max-w-4xl space-y-8">
+				<div className="mx-auto flex max-w-4xl flex-col space-y-8">
 					{/* Badge */}
-					<div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 font-medium text-primary text-sm">
+					<div className="mx-auto inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 font-medium text-primary text-sm">
 						<Zap className="h-4 w-4" />
 						For Developers, By Developers
 					</div>
+
+					<a
+						href="https://www.producthunt.com/products/mockden?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-mockden"
+						target="_blank"
+						rel="noreferrer"
+					>
+						<img
+							src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1004336&theme=neutral&t=1755074246151"
+							alt="Mockden - Rapid&#0032;api&#0032;prototyping&#0032;&#0038;&#0032;mock&#0032;data | Product Hunt"
+							style={{ width: 250, height: 54 }}
+							width="250"
+							height="54"
+							className="mx-auto"
+						/>
+					</a>
 
 					{/* Main Heading */}
 					<TypographyH1 className="font-bold text-5xl leading-tight md:text-7xl">
