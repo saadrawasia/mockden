@@ -4,8 +4,9 @@ import { themes as prismThemes } from 'prism-react-renderer';
 
 const config: Config = {
 	title: 'Mockden Docs',
-	tagline: '',
-	favicon: 'img/mockden64.png',
+	tagline:
+		'Mockden helps developers prototype APIs with custom schemas and mock data. Fast, scalable, and ideal for testing',
+	favicon: 'img/favicon.ico',
 
 	// Set the production url of your site here
 	url: 'https://docs.mockden.com',
