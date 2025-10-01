@@ -40,7 +40,7 @@ export default function LandingPage() {
 		<>
 			<div className="relative">
 				<div
-					className="absolute inset-0 bg-center bg-cover"
+					className="-z-10 absolute inset-0 bg-center bg-cover"
 					style={{
 						backgroundImage: `url('${heroImage}')`,
 						opacity: '5%',
