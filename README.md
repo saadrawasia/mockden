@@ -64,11 +64,11 @@ npm install -g nx
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/saadrawasia/mockden.git
+cd mockden
 
 # Install dependencies
-pnpm install
+npm install
 ```
 
 ### Environment Variables
