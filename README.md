@@ -1,81 +1,116 @@
-# Mockden
+# Mockden - Rapid API Prototyping & Mock Data
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Mockden helps developers prototype APIs with custom schemas and mock data. Fast, scalable, and ideal for testing.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+> [!Disclaimer]
+> This project is no longer maintained. It is provided **as-is** under the chosen open source license.  
+Use at your own risk. No support will be provided.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/react-monorepo-tutorial?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+---
 
-## Finish your remote caching setup
+## 📖 Overview
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/oJGrJCiYiC)
+This repository contains the source code of a SaaS application built with an **Nx monorepo**.  
+It includes:
 
-## Run tasks
+- **Frontend** – React + Vite, TanStack Router, Zustand, Tailwind CSS, TanStack Form, Zod  
+- **Backend** – Node.js + Express, PostgreSQL, Drizzle ORM, Zod  
+- **Docs** – Docusaurus  
 
-To run the dev server for your app, use:
+Authentication is handled with **Clerk** and payments with **Paddle**.  
 
-```sh
-npx nx serve frontend
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React + Vite  
+- TanStack Router  
+- Zustand (state management)  
+- Tailwind CSS (styling)  
+- TanStack Form (forms)  
+- Zod (validation)  
+
+### Backend
+- Node.js + Express  
+- PostgreSQL  
+- Drizzle ORM  
+- Zod  
+
+### Other
+- Clerk (auth & user management)  
+- Paddle (payments)  
+- Nx (monorepo management)  
+- Docusaurus (docs site)  
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (>= 18)  
+- PostgreSQL  
+- Nx CLI  
+
+### Install Nx
+
+You can install the Nx CLI globally:
+
+```bash
+npm install -g nx
 ```
 
-To create a production bundle:
+### Installation
 
-```sh
-npx nx build frontend
+```bash
+# Clone the repo
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+
+# Install dependencies
+pnpm install
 ```
 
-To see all available targets to run for a project, run:
+### Environment Variables
+Copy `.env.template` file from the root directory and create `.env` file in the root directory
 
-```sh
-npx nx show project frontend
+### Run Locally
+
+```bash
+# Frontend
+nx run @mockden/frontend:serve
+
+# Backend
+nx run @mockden/backend:serve
+
+# Docs
+nx run @mockden/mockden-docs:serve
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## 📝 License
+MIT License
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Copyright (c) [2025] [Saad Rawasia]
 
-## Add new projects
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Use the plugin's generator to create new projects.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
-To generate a new application, use:
+## 🙌 Acknowledgements
 
-```sh
-npx nx g @nx/react:app demo
-```
-
-To generate a new library, use:
-
-```sh
-npx nx g @nx/react:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/react-monorepo-tutorial?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This repo was originally built as a SaaS product and is now open sourced for the community.
+Thanks to the maintainers of all the libraries and tools used here.

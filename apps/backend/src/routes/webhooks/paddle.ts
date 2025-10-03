@@ -14,8 +14,8 @@ router.post('/', express.json(), async (req, res) => {
 	// req.body should be of type `buffer`, convert to string before passing it to `unmarshal`.
 	// If express returned a JSON, remove any other middleware that might have processed raw request to object
 	const rawRequestBody = JSON.stringify(req.body);
-	// Replace `WEBHOOK_SECRET_KEY` with the secret key in notifications from vendor dashboard
-	const secretKey = process.env.WEBHOOK_SECRET_KEY || '';
+	// Replace `PADDLE_WEBHOOK_SECRET_KEY` with the secret key in notifications from vendor dashboard
+	const secretKey = process.env.PADDLE_WEBHOOK_SECRET_KEY || '';
 
 	try {
 		if (signature && rawRequestBody) {
